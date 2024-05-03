@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @TableName(value = "user", autoResultMap = true)
 public class User {
     @TableId(type = IdType.AUTO)
-    private Integer id; // 必须
+    private Long id; // 必须
     private String password; // 必须
     private String permission; // 必须
     private Byte status; // 必须

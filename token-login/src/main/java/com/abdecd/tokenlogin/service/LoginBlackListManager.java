@@ -16,7 +16,7 @@ public class LoginBlackListManager {
     @Resource
     private AllProperties allProperties;
 
-    public void forceLogout(Integer userId) {
+    public void forceLogout(Long userId) {
         stringRedisTemplate.opsForValue().set(
                 Constant.LOGIN_TOKEN_BLACKLIST + userId,
                 new Date().getTime() + allProperties.getJwtTtlSeconds() * 1000L + "",
@@ -25,7 +25,7 @@ public class LoginBlackListManager {
         );
     }
 
-    public boolean checkInBlackList(int userId, long tokenTtlms) {
+    public boolean checkInBlackList(long userId, long tokenTtlms) {
         var timestamp = stringRedisTemplate.opsForValue().get(Constant.LOGIN_TOKEN_BLACKLIST + userId);
         if (timestamp == null) return false;
         return Long.parseLong(timestamp) > tokenTtlms;

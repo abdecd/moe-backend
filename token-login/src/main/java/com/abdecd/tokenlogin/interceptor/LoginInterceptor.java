@@ -54,7 +54,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         //2、校验令牌
         try {
             Map<String, Object> claims = JwtUtils.getInstance().decodeJWT(token);
-            Integer userId = Integer.valueOf(claims.get(Constant.JWT_ID).toString());
+            Long userId = Long.valueOf(claims.get(Constant.JWT_ID).toString());
             String permission = claims.get(Constant.JWT_PERMISSION).toString();
             long tokenTtlms = Long.parseLong(claims.get(Constant.JWT_EXPIRE_TIME).toString());
             // 黑名单上的 token 无效
@@ -85,7 +85,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     public boolean inTest() {
         if (allProperties.getTest()) {
-            UserContext.setUserId(1);
+            UserContext.setUserId(1L);
             UserContext.setPermission("99");
             return true;
         } else {

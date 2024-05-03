@@ -8,7 +8,6 @@ public class Constant {
     public static final String JWT_TOKEN_NAME = "token";
     public static final String JWT_EXPIRE_TIME = "exp";
 
-    public static final byte ENABLE = 1;
     public static final byte DISABLE = 0;
     public static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*?&]{6,20}$");
 

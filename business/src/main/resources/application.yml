@@ -1,1 +1,39 @@
-spring.application.name=business
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+  threads:
+    virtual:
+      enabled: true
+server:
+  http2:
+    enabled: true
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: 123456
+
+moe:
+  ttl:
+    captcha-ttl-seconds: 300
+
+token-login:
+  jwt-ttl-seconds: 604800 # 7天
+  jwt-refresh-ttl-seconds: 86400 # 1天
+  exclude-patterns:
+    - /error
+    - /doc.html/**
+    - /swagger-ui.html/**
+    - /v3/api-docs/**
+    - /user/login
+    - /user/login-by-email
+    - /user/signup
+    - /user/forget-password
+    - /common/captcha
+    - /common/verify-email
+    - /common/image/**
+    - /common/public-key
+    - /search
+    - /search/suggestion

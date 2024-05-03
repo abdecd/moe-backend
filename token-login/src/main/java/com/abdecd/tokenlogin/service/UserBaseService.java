@@ -127,7 +127,7 @@ public class UserBaseService {
     /**
      * 重置密码
      */
-    public void forgetPassword(Integer id, String newPassword, Class<? extends RuntimeException> exceptionClass) {
+    public void forgetPassword(Long id, String newPassword, Class<? extends RuntimeException> exceptionClass) {
         try {
             // 解密并验证密码格式
             newPassword = PwdUtils.getEncryptedPwd(newPassword);
@@ -144,7 +144,7 @@ public class UserBaseService {
         forceLogout(id);
     }
 
-    public void forceLogout(Integer userId) {
+    public void forceLogout(Long userId) {
         loginBlackListManager.forceLogout(userId);
     }
 
@@ -152,7 +152,7 @@ public class UserBaseService {
         forceLogout(user.getId());
         userMapper.deleteById(user);
     }
-    public void deleteAccount(Integer userId) {
+    public void deleteAccount(Long userId) {
         forceLogout(userId);
         userMapper.deleteById(userId);
     }

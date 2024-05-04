@@ -1,9 +1,12 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.abdecd.moebackend.business.common.util.ImageChecker;
+import com.abdecd.moebackend.business.lib.AliStsManager;
 import com.abdecd.moebackend.business.lib.RateLimiter;
 import com.abdecd.moebackend.business.pojo.dto.common.VerifyEmailDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.AliStsVO;
 import com.abdecd.moebackend.business.pojo.vo.common.CaptchaVO;
 import com.abdecd.moebackend.business.service.CommonService;
 import com.abdecd.moebackend.business.service.FileService;
@@ -12,14 +15,17 @@ import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.abdecd.tokenlogin.service.UserBaseService;
+import com.aliyuncs.exceptions.ClientException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +51,10 @@ public class CommonController {
     private UserBaseService userBaseService;
     @Autowired
     private RateLimiter rateLimiter;
+    @Autowired
+    private MoeProperties moeProperties;
+    @Autowired
+    private AliStsManager aliStsManager;
 
     @Async
     @Operation(summary = "获取验证码图片")
@@ -121,9 +131,48 @@ public class CommonController {
         }
     }
 
+    @Operation(summary = "视频查看")
+    @GetMapping("/video/**")
+    public void viewVideo(HttpServletRequest request, HttpServletResponse response) {
+        var path = request.getRequestURI().substring("/common/video".length());
+        var redirectPath = moeProperties.getVideoBasePath() + path;
+
+        response.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
+        response.setHeader("location", redirectPath);
+    }
+
     @Operation(summary = "获得公钥")
     @GetMapping("public-key")
     public Result<String> getPublicKey() {
         return Result.success(userBaseService.getPublicKey());
+    }
+
+    @Async
+    @Operation(summary = "获取 ali 直传所需信息")
+    @GetMapping("get-ali-upload-sts")
+    public CompletableFuture<Result<AliStsVO>> getAliUploadSts(@RequestParam @NotBlank String hash) {
+        // 限流
+        var key = RedisConstant.LIMIT_GET_STS + UserContext.getUserId();
+        if (rateLimiter.isRateLimited(
+                key,
+                RedisConstant.LIMIT_GET_STS_CNT,
+                RedisConstant.LIMIT_GET_STS_RESET_TIME,
+                TimeUnit.MINUTES)
+        ) throw new BaseException(MessageConstant.RATE_LIMIT);
+        // 判断是否可用
+        if (!aliStsManager.getAvailable(UserContext.getUserId()))
+            throw new BaseException(MessageConstant.ALI_STS_NOT_AVAILABLE);
+        try {
+            var sts = aliStsManager.getSts(UserContext.getUserId(), hash);
+            return CompletableFuture.completedFuture(Result.success(new AliStsVO()
+                    .setAccessKeyId(sts.getAccessKeyId())
+                    .setAccessKeySecret(sts.getAccessKeySecret())
+                    .setSecurityToken(sts.getSecurityToken())
+                    .setEndpoint(aliStsManager.getEndpoint())
+            ));
+        } catch (ClientException e) {
+            log.warn(MessageConstant.UNKNOWN_ERROR, e);
+            throw new BaseException(MessageConstant.UNKNOWN_ERROR);
+        }
     }
 }

@@ -16,8 +16,7 @@ server:
     key-store-password: 123456
 
 moe:
-  ttl:
-    captcha-ttl-seconds: 300
+  captcha-ttl-seconds: 300
 
 token-login:
   jwt-ttl-seconds: 604800 # 7天

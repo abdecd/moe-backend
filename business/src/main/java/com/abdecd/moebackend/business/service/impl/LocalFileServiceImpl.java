@@ -23,10 +23,10 @@ import java.util.UUID;
 @SuppressWarnings("all")
 public class LocalFileServiceImpl implements FileService {
 
-    @Value("${novel.local-file-service.file-base-path:empty}")
+    @Value("${moe.local-file-service.file-base-path:empty}")
     private String FILE_BASE_PATH;
 
-    @Value("${novel.local-file-service.url-prefix:empty}")
+    @Value("${moe.local-file-service.url-prefix:empty}")
     private String URL_PREFIX;
 
     public static final String TMP_FOLDER_BASE = "/tmp";

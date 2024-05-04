@@ -1,6 +1,6 @@
-package com.abdecd.moebackend.business.mapper;
+package com.abdecd.moebackend.business.dao.mapper;
 
-import com.abdecd.moebackend.business.pojo.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

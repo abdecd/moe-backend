@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.entity;
+package com.abdecd.moebackend.business.dao.entity;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

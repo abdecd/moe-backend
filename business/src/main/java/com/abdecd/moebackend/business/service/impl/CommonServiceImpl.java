@@ -1,9 +1,10 @@
 package com.abdecd.moebackend.business.service.impl;
 
-import com.abdecd.moebackend.business.service.CommonService;
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.common.property.TtlProperties;
+import com.abdecd.moebackend.business.common.property.MoeProperties;
+import com.abdecd.moebackend.business.service.CommonService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -31,16 +32,17 @@ public class CommonServiceImpl implements CommonService {
     DefaultKaptcha captchaProducer;
     @Autowired
     StringRedisTemplate redisTemplate;
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String from;
     @Resource
-    TtlProperties ttlProperties;
+    MoeProperties moeProperties;
 
-    private static final String VERIFY_CODE_PREFIX = "verifyCode:";
-    private static final String EMAIL_PREFIX = "emailVerifyCode:";
+    private static final String VERIFY_CODE_PREFIX = RedisConstant.VERIFY_CODE_PREFIX;
+    private static final String EMAIL_VERIFY_CODE_PREFIX = RedisConstant.EMAIL_VERIFY_CODE_PREFIX;
 
     @Override
     public Pair<String, byte[]> generateCaptcha() {
@@ -51,7 +53,7 @@ public class CommonServiceImpl implements CommonService {
         ) {
             String verifyCode = captchaProducer.createText();
             // 存下答案
-            redisTemplate.opsForValue().set(VERIFY_CODE_PREFIX + verifyCodeId, verifyCode, ttlProperties.getCaptchaTtlSeconds(), TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(VERIFY_CODE_PREFIX + verifyCodeId, verifyCode, moeProperties.getCaptchaTtlSeconds(), TimeUnit.SECONDS);
 
             // 生成图片
             BufferedImage challenge = captchaProducer.createImage(verifyCode);
@@ -71,12 +73,12 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public void sendCodeToVerifyEmail(String email) {
-        var key = EMAIL_PREFIX + email;
+        var key = EMAIL_VERIFY_CODE_PREFIX + email;
         // 生成验证码
         StringBuilder code = new StringBuilder(new Random().nextInt(0, 1000000) + "");
         while (code.length() < 6) code.insert(0, "0");
         // 存入redis
-        redisTemplate.opsForValue().set(key, code.toString(), ttlProperties.getCaptchaTtlSeconds(), TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, code.toString(), moeProperties.getCaptchaTtlSeconds(), TimeUnit.SECONDS);
         // 发送邮件
         var message = mailSender.createMimeMessage();
         try {
@@ -84,7 +86,7 @@ public class CommonServiceImpl implements CommonService {
             helper.setFrom("\"moe\" <" + from + ">");
             helper.setTo(email);
             helper.setSubject("邮箱验证");
-            helper.setText("验证码：" + code + "，有效期：" + ttlProperties.getCaptchaTtlSeconds() / 60 + "分钟。");
+            helper.setText("验证码：" + code + "，有效期：" + moeProperties.getCaptchaTtlSeconds() / 60 + "分钟。");
             mailSender.send(message);
         } catch (Exception e) {
             throw new BaseException(MessageConstant.EMAIL_SEND_FAIL);
@@ -93,7 +95,7 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public void verifyEmail(String email, String code) {
-        var key = EMAIL_PREFIX + email;
+        var key = EMAIL_VERIFY_CODE_PREFIX + email;
         verifyCodeInRedis(key, code);
     }
 

@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@ConditionalOnProperty(name = "novel.local-file-service.enable", havingValue = "true")
+@ConditionalOnProperty(name = "moe.local-file-service.enable", havingValue = "true")
 @Slf4j
 @SuppressWarnings("all")
 public class LocalFileServiceImpl implements FileService {

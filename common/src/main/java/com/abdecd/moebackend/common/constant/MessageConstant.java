@@ -19,5 +19,6 @@ public class MessageConstant {
     public static final String IMG_FILE_UPLOAD_LIMIT = "图片上传次数达到上限";
     public static final String IMG_FILE_NOT_FOUND = "图片不存在或格式错误";
     public static final String IMG_FILE_READ_FAIL = "图片查看失败";
+    public static final String INVALID_FILE_PATH = "文件路径错误";
     public static final String ALI_STS_NOT_AVAILABLE = "已上传大小超过上限";
 }

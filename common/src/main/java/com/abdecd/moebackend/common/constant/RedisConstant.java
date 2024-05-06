@@ -14,4 +14,6 @@ public class RedisConstant {
     public static final String LIMIT_GET_STS = "moe:limit_get_sts:";
     public static final int LIMIT_GET_STS_CNT = 10;
     public static final int LIMIT_GET_STS_RESET_TIME = 5; // minutes
+    public static final String VIDEO_TRANSFORM_TASK_PREFIX = "moe:video_transform_task:";
+    public static final String VIDEO_TRANSFORM_TASK_VIDEO_ID = "moe:video_transform_task_video_id:";
 }

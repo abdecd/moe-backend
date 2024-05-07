@@ -21,4 +21,5 @@ public class RedisConstant {
     public static final String VIDEO_COMMENT = "moe:video_comment#300";
     public static final int VIDEO_COMMENT_CACHE_SIZE = 300;
     public static final String VIDEO_COMMENT_TIMESTAMP = "moe:timestamp:video_comment:";
+    public static final String DANMAKU = "moe:danmaku#20";
 }

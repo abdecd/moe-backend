@@ -8,7 +8,7 @@ public class MessageConstant {
     public static final String CAPTCHA_EXPIRED = "验证码已过期，请重新获取";
     public static final String CAPTCHA_ERROR = "验证码错误";
     public static final String EMAIL_SEND_FAIL = "邮件发送失败";
-    public static final String UNKNOWN_ERROR = "未知错误";
+    public static final String UNKNOWN_ERROR = "未知异常，请稍后再试";
     public static final String FAVORITES_EXIST = "已经收藏过了";
     public static final String FAVORITES_EXCEED_LIMIT = "收藏数量超过上限";
     public static final String RATE_LIMIT = "请求过于频繁，请稍后再试";
@@ -19,4 +19,6 @@ public class MessageConstant {
     public static final String IMG_FILE_UPLOAD_LIMIT = "图片上传次数达到上限";
     public static final String IMG_FILE_NOT_FOUND = "图片不存在或格式错误";
     public static final String IMG_FILE_READ_FAIL = "图片查看失败";
+    public static final String INVALID_FILE_PATH = "文件路径错误";
+    public static final String ALI_STS_NOT_AVAILABLE = "已上传大小超过上限";
 }

@@ -1,9 +1,9 @@
 package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.mapper.PlainUserDetailMapper;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
-import com.abdecd.moebackend.business.pojo.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.service.UserService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.StatusConstant;
@@ -40,10 +40,16 @@ public class UserServiceImpl implements UserService {
         User willLoginUser = null;
         try {
             willLoginUser = userMapper.selectById(Integer.parseInt(username));
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
         if (willLoginUser == null) {
             willLoginUser = userMapper.selectOne(
                     new LambdaQueryWrapper<User>().eq(User::getEmail, EncryptStrHandler.encrypt(username))
+            );
+        }
+        if (willLoginUser == null) {
+            willLoginUser = userMapper.selectOne(
+                    new LambdaQueryWrapper<User>().eq(User::getNickname, username)
             );
         }
         return userBaseService.login(
@@ -85,6 +91,7 @@ public class UserServiceImpl implements UserService {
         );
         plainUserDetailMapper.insert(new PlainUserDetail()
                 .setUserId(user.getId())
+                .setNickname(signUpDTO.getNickname())
                 .setAvatar("")
                 .setSignature("")
         );

@@ -5,8 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "moe.ttl")
+@ConfigurationProperties(prefix = "moe")
 @Data
-public class TtlProperties {
+public class MoeProperties {
     private Integer captchaTtlSeconds;
+    private String videoBasePath;
 }

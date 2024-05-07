@@ -9,4 +9,17 @@ public class RedisConstant {
     public static final String LIMIT_UPLOAD_IMG = "moe:limit_upload_img:";
     public static final int LIMIT_UPLOAD_IMG_CNT = 300;
     public static final int LIMIT_UPLOAD_IMG_RESET_TIME = 1; // day
+    public static final String VERIFY_CODE_PREFIX = "moe:verify_code:";
+    public static final String EMAIL_VERIFY_CODE_PREFIX = "moe:email_verify_code:";
+    public static final String LIMIT_GET_STS = "moe:limit_get_sts:";
+    public static final int LIMIT_GET_STS_CNT = 10;
+    public static final int LIMIT_GET_STS_RESET_TIME = 5; // minutes
+    public static final String VIDEO_TRANSFORM_TASK_PREFIX = "moe:video_transform_task:";
+    public static final String VIDEO_TRANSFORM_TASK_VIDEO_ID = "moe:video_transform_task_video_id:";
+
+    public static final String VIDEO_VO = "moe:video_vo#300";
+    public static final String VIDEO_COMMENT = "moe:video_comment#300";
+    public static final int VIDEO_COMMENT_CACHE_SIZE = 300;
+    public static final String VIDEO_COMMENT_TIMESTAMP = "moe:timestamp:video_comment:";
+    public static final String DANMAKU = "moe:danmaku#20";
 }

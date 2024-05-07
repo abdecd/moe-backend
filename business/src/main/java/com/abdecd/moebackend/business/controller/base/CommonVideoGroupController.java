@@ -40,7 +40,6 @@ public class CommonVideoGroupController {
 
         for(String i : videoGroupDTO.getTagIds())
         {
-            log.info(i);
             Long tagId = Long.valueOf(i);
             videoGroupAndTagService.insert(tagId,gorupId);
         }

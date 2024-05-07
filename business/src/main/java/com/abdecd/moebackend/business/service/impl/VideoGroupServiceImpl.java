@@ -9,6 +9,7 @@ import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -28,8 +29,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
     @Override
     public Long insert(VIdeoGroupDTO videoGroupDTO) {
-        //TODO 从token解析userid
-        Long uid = 1L;
+        Long uid = UserContext.getUserId();
 
         String coverPath;
 

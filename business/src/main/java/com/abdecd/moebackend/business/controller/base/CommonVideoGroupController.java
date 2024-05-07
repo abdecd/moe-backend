@@ -1,6 +1,5 @@
 package com.abdecd.moebackend.business.controller.base;
 
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.service.VIdeoGroupAndTagService;
@@ -9,13 +8,11 @@ import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 
 @Tag(name = "普通视频组接口")
 @Slf4j

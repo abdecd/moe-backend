@@ -40,10 +40,16 @@ public class UserServiceImpl implements UserService {
         User willLoginUser = null;
         try {
             willLoginUser = userMapper.selectById(Integer.parseInt(username));
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
         if (willLoginUser == null) {
             willLoginUser = userMapper.selectOne(
                     new LambdaQueryWrapper<User>().eq(User::getEmail, EncryptStrHandler.encrypt(username))
+            );
+        }
+        if (willLoginUser == null) {
+            willLoginUser = userMapper.selectOne(
+                    new LambdaQueryWrapper<User>().eq(User::getNickname, username)
             );
         }
         return userBaseService.login(
@@ -85,6 +91,7 @@ public class UserServiceImpl implements UserService {
         );
         plainUserDetailMapper.insert(new PlainUserDetail()
                 .setUserId(user.getId())
+                .setNickname(signUpDTO.getNickname())
                 .setAvatar("")
                 .setSignature("")
         );

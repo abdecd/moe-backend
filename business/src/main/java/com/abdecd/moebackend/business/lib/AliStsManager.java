@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.lib;
 
+import com.abdecd.moebackend.business.common.property.AliProperties;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ListObjectsRequest;
@@ -12,8 +13,7 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -22,25 +22,12 @@ import java.util.List;
 @Service
 @ConditionalOnProperty(name = "ali.oss.enable", havingValue = "true")
 public class AliStsManager {
-    @Value("${ali.oss.bucket-name}")
-    String bucketName;
-    @Value("${ali.oss.access-key-id}")
-    String accessKeyId;
-    @Value("${ali.oss.access-key-secret}")
-    String accessKeySecret;
-    @Getter
-    @Value("${ali.oss.endpoint:empty}")
-    String endpoint;
-    @Value("${ali.oss.sts-endpoint}")
-    String stsEndpoint;
-    @Value("${ali.oss.sts-region-id}")
-    String stsRegionId;
-    @Value("${ali.oss.sts-role-arn}")
-    String stsRoleArn;
-    @Value("${ali.oss.sts-duration-seconds}")
-    Long stsDurationSeconds;
-    @Value("${ali.oss.sts-max-size}")
-    Long stsMaxSize;
+    @Autowired
+    AliProperties aliProperties;
+
+    public String getEndpoint() {
+        return aliProperties.getEndpoint();
+    }
 
     public String getPolicy(long userId, String fileName) {
         return """
@@ -50,21 +37,21 @@ public class AliStsManager {
                     {
                       "Effect": "Allow",
                       "Action": ["oss:PutObject"],
-                      "Resource": ["acs:oss:*:*:bucketName/tmp/userId/fileName"],
+                      "Resource": ["acs:oss:*:*:bucketName/tmp/useruserId/fileName"],
                       "Condition": {}
                     }
                   ]
                 }
                 """
-                .replace("bucketName", bucketName)
+                .replace("bucketName", aliProperties.getBucketName())
                 .replace("userId", String.valueOf(userId))
                 .replace("fileName", fileName);
     }
 
     public AssumeRoleResponse.Credentials getSts(long userId, String fileName) throws ClientException {
-        DefaultProfile.addEndpoint(stsRegionId, "Sts", stsEndpoint);
+        DefaultProfile.addEndpoint(aliProperties.getStsRegionId(), "Sts", aliProperties.getStsEndpoint());
         // 构造default profile。
-        IClientProfile profile = DefaultProfile.getProfile(stsRegionId, accessKeyId, accessKeySecret);
+        IClientProfile profile = DefaultProfile.getProfile(aliProperties.getStsRegionId(), aliProperties.getAccessKeyId(), aliProperties.getAccessKeySecret());
         // 构造client。
         DefaultAcsClient client = new DefaultAcsClient(profile);
         final AssumeRoleRequest request = new AssumeRoleRequest();
@@ -73,10 +60,10 @@ public class AliStsManager {
         String policy = getPolicy(userId, fileName);
         System.out.println(policy);
         request.setSysMethod(MethodType.POST);
-        request.setRoleArn(stsRoleArn);
+        request.setRoleArn(aliProperties.getStsRoleArn());
         request.setRoleSessionName(roleSessionName);
         request.setPolicy(policy);
-        request.setDurationSeconds(stsDurationSeconds);
+        request.setDurationSeconds(aliProperties.getStsDurationSeconds());
         final AssumeRoleResponse response = client.getAcsResponse(request);
 //        System.out.println("Expiration: " + response.getCredentials().getExpiration());
 //        System.out.println("Access Key Id: " + response.getCredentials().getAccessKeyId());
@@ -93,10 +80,10 @@ public class AliStsManager {
     public boolean getAvailable(long userId) {
         long size = 0L;
         ObjectListing objectListing = null;
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        OSS ossClient = new OSSClientBuilder().build(aliProperties.getEndpoint(), aliProperties.getAccessKeyId(), aliProperties.getAccessKeySecret());
         do {
             // MaxKey默认值为100，最大值为1000。
-            ListObjectsRequest request = new ListObjectsRequest(bucketName).withPrefix("tmp/" + userId).withMaxKeys(1000);
+            ListObjectsRequest request = new ListObjectsRequest(aliProperties.getBucketName()).withPrefix("tmp/" + userId).withMaxKeys(1000);
             if (objectListing != null) {
                 request.setMarker(objectListing.getNextMarker());
             }
@@ -107,6 +94,6 @@ public class AliStsManager {
             }
         } while (objectListing.isTruncated());
         ossClient.shutdown();
-        return size < stsMaxSize;
+        return size < aliProperties.getStsMaxSize();
     }
 }

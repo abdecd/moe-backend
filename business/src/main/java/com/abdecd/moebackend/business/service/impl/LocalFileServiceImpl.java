@@ -23,7 +23,7 @@ import java.util.UUID;
 @SuppressWarnings("all")
 public class LocalFileServiceImpl implements FileService {
 
-    @Value("${moe.local-file-service.file-base-path:empty}")
+    @Value("${moe.local-file-service.file-base-path}")
     private String FILE_BASE_PATH;
 
     @Value("${moe.local-file-service.url-prefix:empty}")
@@ -39,7 +39,6 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     private String basicUpload(MultipartFile file, String folder, String fileName) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return "";
         var dest = new File(FILE_BASE_PATH + folder + "/" + fileName);
         // 保存文件
         dest.getParentFile().mkdirs();
@@ -49,7 +48,6 @@ public class LocalFileServiceImpl implements FileService {
     }
 
     private String basicUpload(InputStream inputStream, String folder, String fileName) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return "";
         var dest = new File(FILE_BASE_PATH + folder + "/" + fileName);
         // 保存文件
         dest.getParentFile().mkdirs();
@@ -87,7 +85,6 @@ public class LocalFileServiceImpl implements FileService {
     @Override
     public String changeTmpFileToStatic(String fullTmpFilePath, String folder, String fileName) throws IOException {
         // getTmpFolder()/xxx  ->  folder/xxx
-        if (FILE_BASE_PATH.equals("empty")) return "";
         if (folder == null || folder.isBlank()) folder = getFileFolder();
         if (!fullTmpFilePath.startsWith(URL_PREFIX)) return "";
         var tmpFilePath = fullTmpFilePath.substring(URL_PREFIX.length());
@@ -104,7 +101,6 @@ public class LocalFileServiceImpl implements FileService {
 
     @Override
     public void deleteFile(String path) {
-        if (FILE_BASE_PATH.equals("empty")) return;
         if (!path.startsWith(URL_PREFIX)) return;
         var tmpFilePath = path.substring(URL_PREFIX.length());
         var oldPath = FILE_BASE_PATH + tmpFilePath;
@@ -114,7 +110,6 @@ public class LocalFileServiceImpl implements FileService {
 
     @Override
     public void deleteFileInSystem(String path) {
-        if (FILE_BASE_PATH.equals("empty")) return;
         var oldPath = FILE_BASE_PATH + path;
         var file = new File(oldPath);
         if (file.exists() && file.isFile()) file.delete();
@@ -126,7 +121,6 @@ public class LocalFileServiceImpl implements FileService {
      * @throws IOException :
      */
     public void clearTmpFile(Integer ttl) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return;
         var tmpDir = new File(FILE_BASE_PATH + TMP_FOLDER_BASE);
         if (tmpDir.exists()) {
             var files = tmpDir.listFiles();
@@ -158,7 +152,6 @@ public class LocalFileServiceImpl implements FileService {
 
     @Override
     public InputStream getFileInSystem(String path) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return null;
         var file = new File(FILE_BASE_PATH + path);
         if (file.exists() && file.isFile()) return new FileInputStream(file);
         return null;

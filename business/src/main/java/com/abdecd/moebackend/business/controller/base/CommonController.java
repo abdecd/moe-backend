@@ -89,7 +89,7 @@ public class CommonController {
 
     @Async
     @Operation(summary = "图片上传")
-    @PostMapping("/upload")
+    @PostMapping("/upload-image")
     public CompletableFuture<Result<String>> uploadImg(@RequestParam MultipartFile file) {
         try {
             if (file.isEmpty()) return CompletableFuture.completedFuture(Result.error(MessageConstant.IMG_FILE_EMPTY));

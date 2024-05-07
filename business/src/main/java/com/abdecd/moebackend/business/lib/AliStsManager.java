@@ -37,7 +37,7 @@ public class AliStsManager {
                     {
                       "Effect": "Allow",
                       "Action": ["oss:PutObject"],
-                      "Resource": ["acs:oss:*:*:bucketName/tmp/userId/fileName"],
+                      "Resource": ["acs:oss:*:*:bucketName/tmp/useruserId/fileName"],
                       "Condition": {}
                     }
                   ]

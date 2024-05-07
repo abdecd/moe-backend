@@ -64,7 +64,7 @@ public interface FileService {
     /**
      * 临时文件转正 不成功返回空字符串
      * @param tmpPath url
-     * @param folder :
+     * @param folder 以 "/" 开头
      * @param fileName :
      * @return url
      */
@@ -86,6 +86,14 @@ public interface FileService {
      * @param path 相对路径，如 /img/xxx
      */
     default void deleteFileInSystem(String path) {
+        throw new RuntimeException("未实现");
+    }
+
+    /**
+     * 文件夹删除
+     * @param path 相对路径，如 /img/xxx
+     */
+    default void deleteDirInSystem(String path) {
         throw new RuntimeException("未实现");
     }
 

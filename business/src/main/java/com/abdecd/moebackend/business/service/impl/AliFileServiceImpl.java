@@ -2,10 +2,11 @@ package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import com.aliyun.oss.model.CopyObjectRequest;
-import com.aliyun.oss.model.GetObjectRequest;
+import com.aliyun.oss.OSSException;
+import com.aliyun.oss.model.*;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,8 +25,6 @@ import java.util.UUID;
 public class AliFileServiceImpl implements FileService {
     @Value("${ali.oss.endpoint:empty}")
     String endpoint;
-    @Value("${ali.oss.endpoint:empty}")
-    String FILE_BASE_PATH;
     @Value("${ali.oss.bucket-name}")
     String bucketName;
     @Value("${ali.oss.access-key-id}")
@@ -43,7 +44,6 @@ public class AliFileServiceImpl implements FileService {
     }
 
     private String basicUpload(MultipartFile file, String folder, String fileName) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return "";
         // 保存文件
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         ossClient.putObject(bucketName, (folder + "/" + fileName).substring(1), file.getInputStream());
@@ -54,7 +54,6 @@ public class AliFileServiceImpl implements FileService {
     }
 
     private String basicUpload(InputStream inputStream, String folder, String fileName) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return "";
         // 保存文件
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         ossClient.putObject(bucketName, (folder + "/" + fileName).substring(1), inputStream);
@@ -93,7 +92,6 @@ public class AliFileServiceImpl implements FileService {
     @Override
     public String changeTmpFileToStatic(String fullTmpFilePath, String folder, String fileName) throws IOException {
         // getTmpFolder()/xxx  ->  folder/xxx
-        if (FILE_BASE_PATH.equals("empty")) return "";
         if (folder == null || folder.isBlank()) folder = getFileFolder();
         if (!fullTmpFilePath.startsWith(URL_PREFIX)) return "";
         var tmpFilePath = fullTmpFilePath.substring(URL_PREFIX.length());
@@ -109,7 +107,6 @@ public class AliFileServiceImpl implements FileService {
 
     @Override
     public void deleteFile(String path) {
-        if (FILE_BASE_PATH.equals("empty")) return;
         if (!path.startsWith(URL_PREFIX)) return;
         var tmpFilePath = path.substring(URL_PREFIX.length());
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
@@ -119,15 +116,48 @@ public class AliFileServiceImpl implements FileService {
 
     @Override
     public void deleteFileInSystem(String path) {
-        if (FILE_BASE_PATH.equals("empty")) return;
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         ossClient.deleteObject(bucketName, path.substring(1));
         ossClient.shutdown();
     }
 
     @Override
+    public void deleteDirInSystem(String path) {
+        path = path.substring(1);
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        try {
+            // 列举所有包含指定前缀的文件并删除。
+            String nextMarker = null;
+            ObjectListing objectListing;
+            do {
+                ListObjectsRequest listObjectsRequest = new ListObjectsRequest(bucketName)
+                        .withPrefix(path)
+                        .withMarker(nextMarker);
+
+                objectListing = ossClient.listObjects(listObjectsRequest);
+                if (!objectListing.getObjectSummaries().isEmpty()) {
+                    List<String> keys = new ArrayList<>();
+                    for (OSSObjectSummary s : objectListing.getObjectSummaries()) {
+                        System.out.println("key name: " + s.getKey());
+                        keys.add(s.getKey());
+                    }
+                    DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(keys).withEncodingType("url");
+                    ossClient.deleteObjects(deleteObjectsRequest);
+                }
+
+                nextMarker = objectListing.getNextMarker();
+            } while (objectListing.isTruncated());
+        } catch (OSSException | ClientException oe) {
+            throw new RuntimeException(oe);
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+    @Override
     public InputStream getFileInSystem(String path) throws IOException {
-        if (FILE_BASE_PATH.equals("empty")) return null;
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         var obj = ossClient.getObject(new GetObjectRequest(bucketName, path.substring(1)));
         return new AliInputStream(obj.getObjectContent(), ossClient);

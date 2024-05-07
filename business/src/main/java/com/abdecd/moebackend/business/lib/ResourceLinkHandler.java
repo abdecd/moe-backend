@@ -15,6 +15,7 @@ public class ResourceLinkHandler {
 
     /**
      * 不以 "/" 开头 错误返回空字符串
+     * @return 如 video/1.mp4
      */
     public String getRawPathFromVideoLink(String link) {
         if (!link.startsWith(moeProperties.getVideoBasePath())) return "";

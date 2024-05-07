@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 public class PlainUserDetail {
     @TableId(type = IdType.AUTO)
     private Long userId;
+    private String nickname;
     private String avatar;
     private String signature;
 }

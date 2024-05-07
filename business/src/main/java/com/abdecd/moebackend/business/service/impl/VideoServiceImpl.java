@@ -18,6 +18,8 @@ import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -116,6 +118,7 @@ public class VideoServiceImpl implements VideoService {
         }, TRANSFORM_TASK_TTL, TimeUnit.SECONDS);
     }
 
+    @SuppressWarnings("unused")
     public void addVideoCb(VideoTransformCbArgs cbArgs) {
         if (
                 cbArgs.getType().equals(VideoTransformCbArgs.Type.VIDEO_TRANSFORM)
@@ -143,6 +146,7 @@ public class VideoServiceImpl implements VideoService {
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + videoId));
     }
 
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
     @Override
     public void updateVideo(UpdateVideoDTO updateVideoDTO) {
         // todo 检查是否是该用户的 videogroup
@@ -173,6 +177,7 @@ public class VideoServiceImpl implements VideoService {
         videoMapper.updateById(entity);
     }
 
+    @SuppressWarnings("unused")
     public void updateVideoCb(VideoTransformCbArgs cbArgs) {
         if (
                 cbArgs.getType().equals(VideoTransformCbArgs.Type.VIDEO_TRANSFORM)
@@ -195,6 +200,7 @@ public class VideoServiceImpl implements VideoService {
         );
     }
 
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId")
     @Override
     public void deleteVideo(Long videoId) {
         var obj = videoMapper.selectById(videoId);
@@ -207,6 +213,7 @@ public class VideoServiceImpl implements VideoService {
         videoMapper.deleteById(videoId);
     }
 
+    @Cacheable(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId", unless = "#result == null")
     @Override
     public VideoVO getVideo(Long videoId) {
         var video = videoMapper.selectById(videoId);

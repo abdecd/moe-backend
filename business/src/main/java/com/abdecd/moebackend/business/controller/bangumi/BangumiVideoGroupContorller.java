@@ -10,7 +10,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "通用接口")
+@Tag(name = "番剧视频组接口")
 @Slf4j
 @RestController
 @RequestMapping("bangumi-video-group")
@@ -38,5 +38,12 @@ public class BangumiVideoGroupContorller {
         return Result.success(vid);
     }
 
-    public 
+    @PostMapping(value = "/delete")
+    //TODO 删缓存
+    public Result deleteBangumiVideoGroup(Long id)
+    {
+        videoGroupService.delete(id);
+        bangumiVideoGroupMapper.deleteByVid(id);
+        return Result.success();
+    }
 }

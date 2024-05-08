@@ -1,21 +1,28 @@
 package com.abdecd.moebackend.business.service.impl;
 
-import ch.qos.logback.core.joran.util.beans.BeanUtil;
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.dao.mapper.VIdeoGroupMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupTagMapper;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import com.aliyun.oss.model.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -26,6 +33,15 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
     @Resource
     private FileService fileService;
+
+    @Resource
+    private VideoGroupTagMapper videoGroupTagMapper;
+
+    @Resource
+    private PlainUserDetailMapper plainUserDetailMapper;
+
+    @Resource
+    private VideoGroupAndTagMapper videoGroupandTagMapper;
 
     @Override
     public Long insert(VIdeoGroupDTO videoGroupDTO) {
@@ -42,7 +58,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         }
 
         VideoGroup videoGroup = new VideoGroup();
-        videoGroup.setUser_id(uid)
+        videoGroup.setUserId(uid)
                 .setTitle(videoGroupDTO.getTitle())
                 .setDescription(videoGroupDTO.getDescription())
                 .setCover(coverPath)
@@ -63,7 +79,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
     }
 
     @Override
-    public void update(VIdeoGroupDTO videoGroupDTO) {
+    public VideoGroupVO update(VIdeoGroupDTO videoGroupDTO) {
         String coverPath = new String();
 
         if(videoGroupDTO.getCover() != null)
@@ -82,22 +98,44 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroup.setCover(coverPath);
 
         vIdeoGroupMapper.update(videoGroup);
+        return null;
     }
 
     @Override
     public VideoGroupVO getById(Long id) {
         VideoGroupVO videoGroupVO = new VideoGroupVO();
         VideoGroup videoGroup = vIdeoGroupMapper.selectById(id);
-        if(videoGroup != null)
+        if(videoGroup == null)
         {
-            //TODO 错误抛出，没有对应的数据
+            throw new BaseException("视频组缺失");
         }
         videoGroupVO.setVideoGroupId(id);
         videoGroupVO.setCover(videoGroup.getCover());
-        videoGroupVO.setDescription(videoGroupVO.getDescription());
+        videoGroupVO.setDescription(videoGroup.getDescription());
         videoGroupVO.setTitle(videoGroup.getTitle());
+        videoGroupVO.setType(videoGroup.getType());
 
-        // TODO Tags 和 User 的部分
+        ArrayList<Long> tagIds = videoGroupandTagMapper.selectByVid(id);
+        ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
+
+        for (Long id_ : tagIds) {
+            VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
+            videoGroupTagList.add(tag);
+            log.info("tag:              {}",tag);
+        }
+
+        videoGroupVO.setTags(videoGroupTagList);
+
+        UploaderVO uploaderVO = new UploaderVO();
+        uploaderVO.setId(videoGroup.getUserId());
+        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+        if(plainUserDetail != null){
+            uploaderVO.setAvatar(plainUserDetail.getAvatar());
+            uploaderVO.setNickname(plainUserDetail.getNickname());
+        }
+
+        videoGroupVO.setUploader(uploaderVO);
+
         return  videoGroupVO;
     }
 }

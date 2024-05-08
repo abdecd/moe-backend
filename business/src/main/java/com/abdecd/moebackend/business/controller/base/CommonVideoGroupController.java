@@ -58,7 +58,7 @@ public class CommonVideoGroupController {
     @ResponseBody
     public Result updateVideoGroup(VIdeoGroupDTO videoGroupDTO)
     {
-        videoGroupService.update(videoGroupDTO);
+        VideoGroupVO videoGroupVO = videoGroupService.update(videoGroupDTO);
         return Result.success();
     }
 

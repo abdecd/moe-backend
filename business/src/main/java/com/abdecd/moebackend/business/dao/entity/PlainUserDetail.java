@@ -9,4 +9,5 @@ public class PlainUserDetail {
     private Long userId;
     private String avatar;
     private String signature;
+    private String nickname;
 }

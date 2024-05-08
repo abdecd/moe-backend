@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.pojo.vo.common;
 
+import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,16 +15,8 @@ public class VideoGroupVO {
     private String description;
     private String cover;
     private UploaderVO uploader;
-    private ArrayList<TagVO> tags;
-}
-
-@Data
-@Accessors(chain = true)
-class UploaderVO
-{
-    private Long id;
-    private String nickname;
-    private String avatar;
+    private ArrayList<VideoGroupTag> tags;
+    private Integer type;
 }
 
 @Data

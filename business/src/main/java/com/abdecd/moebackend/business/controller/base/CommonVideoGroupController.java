@@ -1,7 +1,9 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.VideoContentVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.VIdeoGroupAndTagService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.result.Result;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 @Tag(name = "普通视频组接口")
 @Slf4j
@@ -28,6 +31,7 @@ public class CommonVideoGroupController {
 
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
+    //TODO 加个缓存
     public Result<Long> addVideoGroup(VIdeoGroupDTO videoGroupDTO)
     {
         //TODO 校验数据是不是都有
@@ -48,6 +52,7 @@ public class CommonVideoGroupController {
     }
 
     @PostMapping(value = "/delete")
+    //TODO 删缓存
     public Result delVideoGroup(@RequestParam("id") Long id)
     {
         videoGroupService.delete(id);
@@ -56,6 +61,7 @@ public class CommonVideoGroupController {
 
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
+    //TODO 删缓存
     public Result updateVideoGroup(VIdeoGroupDTO videoGroupDTO)
     {
         VideoGroupVO videoGroupVO = videoGroupService.update(videoGroupDTO);
@@ -63,9 +69,16 @@ public class CommonVideoGroupController {
     }
 
     @GetMapping("")
+    //TODO 加个缓存
     public Result<VideoGroupVO> getVideoGroup(@RequestParam("id") Long id)
     {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
         return Result.success(videoGroupVO);
+    }
+
+    @GetMapping("/contents")
+    public Result<ArrayList<VideoVo>>getVideoGroupContent(@RequestParam("id") Long id){
+        ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
+        return Result.success(videoVoList);
     }
 }

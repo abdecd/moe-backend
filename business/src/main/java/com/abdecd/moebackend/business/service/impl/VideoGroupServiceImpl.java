@@ -2,20 +2,19 @@ package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
-import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
-import com.abdecd.moebackend.business.dao.mapper.VIdeoGroupMapper;
-import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
-import com.abdecd.moebackend.business.dao.mapper.VideoGroupTagMapper;
+import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
+import com.abdecd.moebackend.business.pojo.vo.common.VideoContentVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
-import com.aliyun.oss.model.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -33,6 +32,9 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
     @Resource
     private FileService fileService;
+
+    @Resource
+    private VideoMapper videoMapper;
 
     @Resource
     private VideoGroupTagMapper videoGroupTagMapper;
@@ -72,6 +74,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
     }
 
     @Override
+
     public void delete(Long id) {
         VideoGroup videoGroup = new VideoGroup();
         videoGroup.setId(id);
@@ -137,5 +140,25 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroupVO.setUploader(uploaderVO);
 
         return  videoGroupVO;
+    }
+
+    @Override
+    public ArrayList<VideoVo> getContentById(Long id) {
+        ArrayList<VideoVo> videoVOList = new ArrayList<>();
+        ArrayList<Video> videoList = videoMapper.getByGroupid(id);
+
+        for(Video video : videoList){
+            VideoVo videoVo = new VideoVo();
+
+            videoVo.setVideoId(String.valueOf(video.getId()));
+            videoVo.setVideoCover(video.getCover());
+            videoVo.setIndex(String.valueOf(video.getIndex()));
+            videoVo.setTitle(video.getTitle());
+            videoVo.setVideoGroupId(String.valueOf(id));
+
+            videoVOList.add(videoVo);
+        }
+
+        return videoVOList;
     }
 }

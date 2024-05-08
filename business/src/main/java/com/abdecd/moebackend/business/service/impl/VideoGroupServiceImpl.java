@@ -1,16 +1,11 @@
 package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
-import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
+import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
+import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoContentVO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.common.*;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
@@ -21,6 +16,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -45,6 +42,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
     @Resource
     private VideoGroupAndTagMapper videoGroupandTagMapper;
 
+
     @Override
     public Long insert(VIdeoGroupDTO videoGroupDTO) {
         Long uid = UserContext.getUserId();
@@ -60,7 +58,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         }
 
         VideoGroup videoGroup = new VideoGroup();
-        videoGroup.setUserId(uid)
+        videoGroup.setUser_id(uid)
                 .setTitle(videoGroupDTO.getTitle())
                 .setDescription(videoGroupDTO.getDescription())
                 .setCover(coverPath)
@@ -92,7 +90,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
                 String randomImageName = UUID.randomUUID().toString() + ".jpg";
                 coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),randomImageName);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new BaseException("文件存储失败");
             }
         }
 
@@ -130,8 +128,8 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroupVO.setTags(videoGroupTagList);
 
         UploaderVO uploaderVO = new UploaderVO();
-        uploaderVO.setId(videoGroup.getUserId());
-        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+        uploaderVO.setId(videoGroup.getUser_id());
+        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUser_id());
         if(plainUserDetail != null){
             uploaderVO.setAvatar(plainUserDetail.getAvatar());
             uploaderVO.setNickname(plainUserDetail.getNickname());
@@ -160,5 +158,47 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         }
 
         return videoVOList;
+    }
+
+    @Override
+    public Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
+        LocalDateTime ldt = LocalDateTime.now();
+        String date = dtf.format(ldt);
+
+        Long uid = UserContext.getUserId();
+
+        String coverPath;
+
+        try {
+            //TODO 文件没有存下来
+            String randomImageName = UUID.randomUUID().toString() + ".jpg";
+            coverPath =  fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(),randomImageName);
+        } catch (IOException e) {
+            throw new BaseException("文件存储失败");
+        }
+
+        VideoGroup videoGroup = new VideoGroup();
+
+        videoGroup.setTitle(bangumiVideoGroupAddDTO.getTitle());
+        videoGroup.setDescription(bangumiVideoGroupAddDTO.getDescription());
+        videoGroup.setCover(coverPath);
+        videoGroup.setCreate_time(date);
+        videoGroup.setUser_id(uid);
+        videoGroup.setWeight(VideoGroupConstant.DEFAULT_WEIGHT);
+        videoGroup.setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
+
+        log.info("{}",videoGroup);
+
+        vIdeoGroupMapper.insertVideoGroup(videoGroup);
+
+        for(Integer tagid : bangumiVideoGroupAddDTO.getTagIds()){
+            VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
+            videoGroupAndTag.setVideo_group_id(videoGroup.getId());
+            videoGroupAndTag.setTag_id(Long.valueOf(tagid));
+            videoGroupandTagMapper.insert(videoGroupAndTag);
+        }
+
+        return videoGroup.getId();
     }
 }

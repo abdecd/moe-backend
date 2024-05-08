@@ -1,7 +1,6 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoContentVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.VIdeoGroupAndTagService;
@@ -21,7 +20,7 @@ import java.util.ArrayList;
 @Slf4j
 @RestController
 @RequestMapping("plain-video-group")
-public class CommonVideoGroupController {
+public class PlainVideoGroupController {
 
     @Resource
     private VIdeoGroupService videoGroupService;

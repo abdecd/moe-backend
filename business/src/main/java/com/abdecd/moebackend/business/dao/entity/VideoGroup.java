@@ -9,7 +9,7 @@ import lombok.experimental.Accessors;
 public class VideoGroup {
     @Nullable
     private Long id;
-    private Long userId;
+    private Long user_id;
     private String title;
     private String cover;
     private String description;

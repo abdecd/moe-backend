@@ -1,12 +1,11 @@
 package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
-import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.service.UserService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
-import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.tokenlogin.common.dataencrypt.EncryptStrHandler;
 import com.abdecd.tokenlogin.mapper.UserMapper;
 import com.abdecd.tokenlogin.pojo.entity.User;
@@ -69,7 +68,7 @@ public class UserServiceImpl implements UserService {
         var willLoginUser = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, EncryptStrHandler.encrypt(loginByEmailDTO.getEmail()))
         );
-        return userBaseService.forceLogin(willLoginUser);
+        return userBaseService.loginWithoutPwd(willLoginUser, BaseException.class, MessageConstant.ACCOUNT_LOCKED);
     }
 
     @Override
@@ -117,7 +116,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteAccount(Long userId, String verifyCode) {
         var user = userMapper.selectById(userId);
-        if (Objects.equals(user.getStatus(), StatusConstant.DISABLE))
+        if (Objects.equals(user.getStatus(), User.Status.LOCKED))
             throw new BaseException(MessageConstant.ACCOUNT_LOCKED);
         // 验证邮箱
         commonService.verifyEmail(user.getEmail(), verifyCode);

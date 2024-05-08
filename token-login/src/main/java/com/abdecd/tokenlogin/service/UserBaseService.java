@@ -46,10 +46,16 @@ public class UserBaseService {
     ) {
         // 用户不存在
         if (user == null) return null;
+        // 用户被删除
+        if (Objects.equals(user.getStatus(), User.Status.DELETED)) return null;
+        if (Objects.equals(user.getStatus(), User.Status.LOCKED)) {
+            //账号被锁定
+            throwException(exceptionClass, accountLockedMsg);
+        }
 
         // 密码解密并验证格式
         try {
-            password = PwdUtils.getEncryptedPwd(password);
+            password = PwdUtils.decryptPwd(password);
         } catch (RuntimeException e) {
             throwException(exceptionClass, e.getMessage());
         }
@@ -68,20 +74,27 @@ public class UserBaseService {
             throwException(exceptionClass, pwdErrMsg);
         }
 
-        if (Objects.equals(user.getStatus(), Constant.DISABLE)) {
-            //账号被锁定
-            throwException(exceptionClass, accountLockedMsg);
-        }
-
         return user;
     }
 
     /**
-     * 强制登录
+     * 无密码登录
      * @param user 需要是从表里直接查出来的
      * @return :
      */
-    public User forceLogin(User user) {
+    public User loginWithoutPwd(
+            User user,
+            Class<? extends RuntimeException> exceptionClass,
+            String accountLockedMsg
+    ) {
+        // 用户不存在
+        if (user == null) return null;
+        // 用户被删除
+        if (Objects.equals(user.getStatus(), User.Status.DELETED)) return null;
+        if (Objects.equals(user.getStatus(), User.Status.LOCKED)) {
+            //账号被锁定
+            throwException(exceptionClass, accountLockedMsg);
+        }
         return user;
     }
 
@@ -103,7 +116,7 @@ public class UserBaseService {
     public User signup(String password, String permission, Class<? extends RuntimeException> exceptionClass) {
         try {
             // 解密并验证密码格式
-            password = PwdUtils.getEncryptedPwd(password);
+            password = PwdUtils.decryptPwd(password);
             if (!Constant.PASSWORD_PATTERN.matcher(password).find()) {
                 throwException(exceptionClass, "invalid password");
             }
@@ -130,7 +143,7 @@ public class UserBaseService {
     public void forgetPassword(Long id, String newPassword, Class<? extends RuntimeException> exceptionClass) {
         try {
             // 解密并验证密码格式
-            newPassword = PwdUtils.getEncryptedPwd(newPassword);
+            newPassword = PwdUtils.decryptPwd(newPassword);
             if (!Constant.PASSWORD_PATTERN.matcher(newPassword).find()) {
                 throwException(exceptionClass, "invalid password");
             }
@@ -150,11 +163,11 @@ public class UserBaseService {
 
     public void deleteAccount(User user) {
         forceLogout(user.getId());
-        userMapper.deleteById(user);
+        userMapper.updateById(User.toBeDeleted(user.getId()));
     }
     public void deleteAccount(Long userId) {
         forceLogout(userId);
-        userMapper.deleteById(userId);
+        userMapper.updateById(User.toBeDeleted(userId));
     }
 
     /**

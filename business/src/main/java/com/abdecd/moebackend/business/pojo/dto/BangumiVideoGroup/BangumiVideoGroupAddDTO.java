@@ -13,4 +13,5 @@ public class BangumiVideoGroupAddDTO {
     private ArrayList<Integer> tagIds;
     private String releaseTime;
     private String updateAtAnnouncement;
+    private String status;
 }

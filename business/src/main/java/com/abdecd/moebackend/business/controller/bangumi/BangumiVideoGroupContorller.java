@@ -35,12 +35,14 @@ public class BangumiVideoGroupContorller {
     public Result<Long> addBangumiVideoGroup(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO){
         Long vid = videoGroupService.insert(bangumiVideoGroupAddDTO);
 
+
+        Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结")?1:0;
+
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
         bangumiVideoGroup.setVideoGroupId(vid);
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
         bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
-        //TODO 默认值修改
-        bangumiVideoGroup.setStatus(1);
+        bangumiVideoGroup.setStatus(status);
 
         bangumiVideoGroupSever.insert(bangumiVideoGroup);
 

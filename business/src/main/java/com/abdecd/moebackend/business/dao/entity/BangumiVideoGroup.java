@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class BangumiVideoGroup {
-    private Long video_group_id;
-    private String release_time;
-    private String update_at_announcement;
+    private Long videoGroupId;
+    private String releaseTime;
+    private String updateAtAnnouncement;
     private Integer status;
 }

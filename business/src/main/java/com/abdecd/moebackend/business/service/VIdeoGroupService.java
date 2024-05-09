@@ -3,6 +3,7 @@ package com.abdecd.moebackend.business.service;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 
@@ -22,4 +23,6 @@ public interface VIdeoGroupService {
     Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO);
 
     void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO);
+
+    BangumiVideoGroupVO getByVideoId(Long videoGroupId);
 }

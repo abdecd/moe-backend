@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.service.BangumiVideoGroupSever;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.business.service.impl.BangumiVideoGroupSeverlmpl;
@@ -32,9 +33,9 @@ public class BangumiVideoGroupContorller {
         Long vid = videoGroupService.insert(bangumiVideoGroupAddDTO);
 
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
-        bangumiVideoGroup.setVideo_group_id(vid);
-        bangumiVideoGroup.setUpdate_at_announcement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
-        bangumiVideoGroup.setRelease_time(bangumiVideoGroupAddDTO.getReleaseTime());
+        bangumiVideoGroup.setVideoGroupId(vid);
+        bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
+        bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
         //TODO 默认值修改
         bangumiVideoGroup.setStatus(1);
 
@@ -59,5 +60,15 @@ public class BangumiVideoGroupContorller {
         videoGroupService.update(bangumiVideoGroupUpdateDTO);
         bangumiVideoGroupSever.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
+    }
+
+    @GetMapping("")
+    public  Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@RequestParam("id") Long id){
+        BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
+        bangumiVideoGroupVO.setVideoGroupId(id);
+
+        bangumiVideoGroupVO = videoGroupService.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
+        bangumiVideoGroupVO = bangumiVideoGroupSever.getByVid(bangumiVideoGroupVO);
+        return Result.success(bangumiVideoGroupVO);
     }
 }

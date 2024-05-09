@@ -59,7 +59,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         }
 
         VideoGroup videoGroup = new VideoGroup();
-        videoGroup.setUser_id(uid)
+        videoGroup.setUserId(uid)
                 .setTitle(videoGroupDTO.getTitle())
                 .setDescription(videoGroupDTO.getDescription())
                 .setCover(coverPath)
@@ -121,15 +121,15 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
         for (Long id_ : tagIds) {
             VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
-            videoGroupTagList.add(tag);
-            log.info("tag:              {}",tag);
+            if(tag != null)
+                videoGroupTagList.add(tag);
         }
 
         videoGroupVO.setTags(videoGroupTagList);
 
         UploaderVO uploaderVO = new UploaderVO();
-        uploaderVO.setId(videoGroup.getUser_id());
-        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUser_id());
+        uploaderVO.setId(videoGroup.getUserId());
+        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
         if(plainUserDetail != null){
             uploaderVO.setAvatar(plainUserDetail.getAvatar());
             uploaderVO.setNickname(plainUserDetail.getNickname());
@@ -184,11 +184,10 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroup.setDescription(bangumiVideoGroupAddDTO.getDescription());
         videoGroup.setCover(coverPath);
         videoGroup.setCreate_time(date);
-        videoGroup.setUser_id(uid);
+        videoGroup.setUserId(uid);
         videoGroup.setWeight(VideoGroupConstant.DEFAULT_WEIGHT);
         videoGroup.setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
 
-        log.info("{}",videoGroup);
 
         vIdeoGroupMapper.insertVideoGroup(videoGroup);
 
@@ -222,5 +221,43 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroup.setCover(coverPath);
 
         vIdeoGroupMapper.update(videoGroup);
+    }
+
+    @Override
+    public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
+        BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
+        VideoGroup videoGroup = vIdeoGroupMapper.selectById(videoGroupId);
+        if(videoGroup == null)
+        {
+            throw new BaseException("视频组缺失");
+        }
+        bangumiVideoGroupVO.setVideoGroupId(videoGroupId);
+        bangumiVideoGroupVO.setCover(videoGroup.getCover());
+        bangumiVideoGroupVO.setDescription(videoGroup.getDescription());
+        bangumiVideoGroupVO.setTitle(videoGroup.getTitle());
+        bangumiVideoGroupVO.setType(videoGroup.getType());
+
+        ArrayList<Long> tagIds = videoGroupandTagMapper.selectByVid(videoGroupId);
+        ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
+
+        for (Long id_ : tagIds) {
+            VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
+            if(tag != null)
+                videoGroupTagList.add(tag);
+        }
+
+        bangumiVideoGroupVO.setTags(videoGroupTagList);
+
+        UploaderVO uploaderVO = new UploaderVO();
+        uploaderVO.setId(videoGroup.getUserId());
+        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+        if(plainUserDetail != null){
+            uploaderVO.setAvatar(plainUserDetail.getAvatar());
+            uploaderVO.setNickname(plainUserDetail.getNickname());
+        }
+
+        bangumiVideoGroupVO.setUploader(uploaderVO);
+
+        return  bangumiVideoGroupVO;
     }
 }

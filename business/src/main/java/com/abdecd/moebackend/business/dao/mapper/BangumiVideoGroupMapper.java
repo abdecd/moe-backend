@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface BangumiVideoGroupMapper extends BaseMapper<BangumiVideoGroup> {
@@ -11,4 +12,7 @@ public interface BangumiVideoGroupMapper extends BaseMapper<BangumiVideoGroup> {
     void deleteByVid(Long vid);
 
     void update(BangumiVideoGroup bangumiVideoGroup);
+
+    @Select("SELECT * FROM bangumi_video_group WHERE video_group_id = #{videoGroupId}")
+    BangumiVideoGroup selectByVid(Long videoGroupId);
 }

@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.BangumiVideoGroupSever;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.business.service.impl.BangumiVideoGroupSeverlmpl;
@@ -15,6 +16,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 @Tag(name = "番剧视频组接口")
 @Slf4j
@@ -70,5 +73,11 @@ public class BangumiVideoGroupContorller {
         bangumiVideoGroupVO = videoGroupService.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
         bangumiVideoGroupVO = bangumiVideoGroupSever.getByVid(bangumiVideoGroupVO);
         return Result.success(bangumiVideoGroupVO);
+    }
+
+    @GetMapping("/contents")
+    public Result<ArrayList<VideoVo>>getVideoGroupContent(@RequestParam("id") Long id){
+        ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
+        return Result.success(videoVoList);
     }
 }

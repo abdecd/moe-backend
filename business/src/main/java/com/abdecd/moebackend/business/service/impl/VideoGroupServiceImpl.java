@@ -260,4 +260,55 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
         return  bangumiVideoGroupVO;
     }
+
+    @Override
+    public Integer getTypeByVideoId(Long aLong) {
+        VideoGroup videoGroup = vIdeoGroupMapper.selectById(aLong);
+        return videoGroup.getType();
+    }
+
+    @Override
+    public VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize) {
+        VideoGroupListVO videoGroupListVO = new VideoGroupListVO();
+        videoGroupListVO.setRecords(new ArrayList<>());
+
+        Integer offset = (page - 1) * pageSize;
+        ArrayList<VideoGroup> videoGroups = vIdeoGroupMapper.selectbyPage(offset,pageSize);
+
+        for(VideoGroup videoGroup : videoGroups){
+            VideoGroupVO videoGroupVO = new VideoGroupVO();
+
+            videoGroupVO.setVideoGroupId(videoGroup.getId());
+            videoGroupVO.setCover(videoGroup.getCover());
+            videoGroupVO.setDescription(videoGroup.getDescription());
+            videoGroupVO.setTitle(videoGroup.getTitle());
+            videoGroupVO.setType(videoGroup.getType());
+
+            ArrayList<Long> tagIds = videoGroupandTagMapper.selectByVid(videoGroup.getId());
+            ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
+
+            for (Long id_ : tagIds) {
+                VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
+                if(tag != null)
+                    videoGroupTagList.add(tag);
+            }
+
+            videoGroupVO.setTags(videoGroupTagList);
+
+            UploaderVO uploaderVO = new UploaderVO();
+            uploaderVO.setId(videoGroup.getUserId());
+            PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+            if(plainUserDetail != null){
+                uploaderVO.setAvatar(plainUserDetail.getAvatar());
+                uploaderVO.setNickname(plainUserDetail.getNickname());
+            }
+
+            videoGroupVO.setUploader(uploaderVO);
+
+            videoGroupListVO.getRecords().add(videoGroupVO);
+        }
+
+        videoGroupListVO.setTotal(videoGroupListVO.getRecords().size());
+        return videoGroupListVO;
+    }
 }

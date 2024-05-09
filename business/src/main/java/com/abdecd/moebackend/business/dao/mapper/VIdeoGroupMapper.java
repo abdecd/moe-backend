@@ -1,19 +1,13 @@
 package com.abdecd.moebackend.business.dao.mapper;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectKey;
-import org.apache.ibatis.session.ResultHandler;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 
 @Mapper
 public interface VIdeoGroupMapper extends BaseMapper<VideoGroup> {
@@ -22,4 +16,7 @@ public interface VIdeoGroupMapper extends BaseMapper<VideoGroup> {
     int insertVideoGroup(VideoGroup videoGroup);
 
     void update(VideoGroup videoGroup);
+
+    @Select("SELECT * FROM video_group  LIMIT #{pageSize} OFFSET #{offset}")
+    ArrayList<VideoGroup> selectbyPage(Integer offset, Integer pageSize);
 }

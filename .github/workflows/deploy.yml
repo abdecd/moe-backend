@@ -1,0 +1,43 @@
+name: Deploy to Server
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: 'temurin'
+
+    - name: Setup SSH Keys
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+    - name: Build with Maven
+      run: mvn clean package -Pprod
+
+    - name: Copy to Server and Run
+      run: |
+        cd business/target
+        ssh ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }} 'mkdir -p ~/moe-backend'
+        scp moe-backend-main.jar ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }}:~/moe-backend
+        scp ../Dockerfile ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }}:~/moe-backend
+        ssh ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }} '
+          cd ~/moe-backend
+          docker stop moe-backend | true
+          docker rm moe-backend | true
+          docker build -t moe-backend:latest .
+          docker run --name moe-backend -p 8080:8080 --restart unless-stopped -v /home/${{ secrets.USER_NAME }}/moe-backend:/moe-backend -d moe-backend:latest
+        '

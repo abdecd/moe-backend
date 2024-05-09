@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Accessors(chain = true)
@@ -25,14 +26,28 @@ public class User {
     private String email;
     private LocalDateTime createTime;
 
+    public static class Status {
+        public static final byte NORMAL = 0;
+        public static final byte LOCKED = 1;
+        public static final byte DELETED = 2;
+    }
+
     public static User ofEmpty() {
         return new User()
                 .setId(null)
                 .setPassword("")
                 .setPermission("")
-                .setStatus((byte) 0)
+                .setStatus(Status.NORMAL)
                 .setNickname("")
                 .setEmail("")
                 .setCreateTime(LocalDateTime.now());
+    }
+
+    public static User toBeDeleted(Long userId) {
+        return new User()
+                .setId(userId)
+                .setStatus(Status.DELETED)
+                .setNickname("账号已删除-" + UUID.randomUUID())
+                .setEmail(UUID.randomUUID() + "");
     }
 }

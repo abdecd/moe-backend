@@ -33,7 +33,10 @@ public class PwdUtils {
         return gen.generateKeyPair();
     }
 
-    public static String getEncryptedPwd(String encryptedPwd) {
+    /**
+     * 获取前端传过来的解密后的密码
+     */
+    public static String decryptPwd(String encryptedPwd) {
         Cipher cipher;
         try {
             byte[] pwdBytes = Base64.getDecoder().decode(encryptedPwd);

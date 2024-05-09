@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.*;
 import com.abdecd.moebackend.business.service.FileService;
@@ -80,7 +81,7 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
     }
 
     @Override
-    public VideoGroupVO update(VIdeoGroupDTO videoGroupDTO) {
+    public void update(VIdeoGroupDTO videoGroupDTO) {
         String coverPath = new String();
 
         if(videoGroupDTO.getCover() != null)
@@ -99,7 +100,6 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         videoGroup.setCover(coverPath);
 
         vIdeoGroupMapper.update(videoGroup);
-        return null;
     }
 
     @Override
@@ -200,5 +200,27 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
         }
 
         return videoGroup.getId();
+    }
+
+    @Override
+    public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
+        String coverPath = new String();
+
+        if(bangumiVideoGroupUpdateDTO.getCover() != null)
+        {
+            try {
+                //TODO 文件没有存下来
+                String randomImageName = UUID.randomUUID().toString() + ".jpg";
+                coverPath =  fileService.uploadFile(bangumiVideoGroupUpdateDTO.getCover(),randomImageName);
+            } catch (IOException e) {
+                throw new BaseException("文件存储失败");
+            }
+        }
+
+        VideoGroup videoGroup = new VideoGroup();
+        BeanUtils.copyProperties(bangumiVideoGroupUpdateDTO,videoGroup);
+        videoGroup.setCover(coverPath);
+
+        vIdeoGroupMapper.update(videoGroup);
     }
 }

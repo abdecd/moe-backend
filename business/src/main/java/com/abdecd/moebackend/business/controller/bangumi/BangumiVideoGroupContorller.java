@@ -1,13 +1,18 @@
 package com.abdecd.moebackend.business.controller.bangumi;
 
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.service.BangumiVideoGroupSever;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
+import com.abdecd.moebackend.business.service.impl.BangumiVideoGroupSeverlmpl;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "番剧视频组接口")
@@ -18,8 +23,8 @@ public class BangumiVideoGroupContorller {
     @Resource
     private VIdeoGroupService videoGroupService;
 
-    @Resource
-    private BangumiVideoGroupMapper bangumiVideoGroupMapper;
+    @Autowired
+    private BangumiVideoGroupSever bangumiVideoGroupSever;
 
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
@@ -33,7 +38,7 @@ public class BangumiVideoGroupContorller {
         //TODO 默认值修改
         bangumiVideoGroup.setStatus(1);
 
-        bangumiVideoGroupMapper.insert(bangumiVideoGroup);
+        bangumiVideoGroupSever.insert(bangumiVideoGroup);
 
         return Result.success(vid);
     }
@@ -43,7 +48,16 @@ public class BangumiVideoGroupContorller {
     public Result deleteBangumiVideoGroup(Long id)
     {
         videoGroupService.delete(id);
-        bangumiVideoGroupMapper.deleteByVid(id);
+        bangumiVideoGroupSever.deleteByVid(id);
+        return Result.success();
+    }
+
+    @RequestMapping(value = "/update", consumes = "multipart/form-data")
+    @ResponseBody
+    public  Result updateBangumiVideoGroup(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO){
+
+        videoGroupService.update(bangumiVideoGroupUpdateDTO);
+        bangumiVideoGroupSever.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
     }
 }

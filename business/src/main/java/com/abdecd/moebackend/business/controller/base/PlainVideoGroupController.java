@@ -63,7 +63,7 @@ public class PlainVideoGroupController {
     //TODO 删缓存
     public Result updateVideoGroup(VIdeoGroupDTO videoGroupDTO)
     {
-        VideoGroupVO videoGroupVO = videoGroupService.update(videoGroupDTO);
+        videoGroupService.update(videoGroupDTO);
         return Result.success();
     }
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper">
+
+    <update id="update" parameterType="com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup">
+        UPDATE bangumi_video_group
+        <set>
+            <if test="video_group_id != null">
+                video_group_id = #{video_group_id},
+            </if>
+            <if test="release_time != null">
+                release_time = #{release_time},
+            </if>
+            <if test="update_at_announcement != null">
+                update_at_announcement = #{update_at_announcement},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE video_group_id = #{video_group_id}
+    </update>
+
+</mapper>

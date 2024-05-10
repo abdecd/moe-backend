@@ -36,8 +36,8 @@ jobs:
         scp ../Dockerfile ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }}:~/moe-backend
         ssh ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }} '
           cd ~/moe-backend
-          docker stop moe-backend | true
-          docker rm moe-backend | true
-          docker build -t moe-backend:latest .
-          docker run --name moe-backend -p 8080:8080 --restart unless-stopped -v /home/${{ secrets.USER_NAME }}/moe-backend:/moe-backend -d moe-backend:latest
+          /snap/bin/docker stop moe-backend | true
+          /snap/bin/docker rm moe-backend | true
+          /snap/bin/docker build -t moe-backend:latest .
+          /snap/bin/docker run --name moe-backend -p 8080:8080 --restart unless-stopped -v /home/${{ secrets.USER_NAME }}/moe-backend:/moe-backend -d moe-backend:latest
         '

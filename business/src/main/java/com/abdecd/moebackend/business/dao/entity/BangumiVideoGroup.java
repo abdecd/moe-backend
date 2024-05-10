@@ -8,4 +8,8 @@ public class BangumiVideoGroup {
     private String releaseTime;
     private String updateAtAnnouncement;
     private Integer status;
+
+    public Long getVideo_group_id() {
+        return videoGroupId;
+    }
 }

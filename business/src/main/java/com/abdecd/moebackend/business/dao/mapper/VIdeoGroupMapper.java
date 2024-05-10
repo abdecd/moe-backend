@@ -12,7 +12,7 @@ import java.util.ArrayList;
 @Mapper
 public interface VIdeoGroupMapper extends BaseMapper<VideoGroup> {
     @SelectKey(statement="SELECT LAST_INSERT_ID()", keyProperty="id", before=false, resultType=long.class)
-    @Insert("INSERT INTO video_group (user_id, title, description, cover, create_time, type, weight) VALUES(#{user_id}, #{title}, #{description}, #{cover}, #{create_time}, #{type}, #{weight})")
+    @Insert("INSERT INTO video_group (user_id, title, description, cover, create_time, type, weight) VALUES(#{userId}, #{title}, #{description}, #{cover}, #{create_time}, #{type}, #{weight})")
     int insertVideoGroup(VideoGroup videoGroup);
 
     void update(VideoGroup videoGroup);

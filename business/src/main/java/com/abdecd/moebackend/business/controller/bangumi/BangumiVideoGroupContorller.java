@@ -13,8 +13,12 @@ import com.abdecd.moebackend.business.service.impl.BangumiVideoGroupSeverlmpl;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,7 +36,7 @@ public class BangumiVideoGroupContorller {
 
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addBangumiVideoGroup(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO){
+    public Result<Long> addBangumiVideoGroup(@Valid  BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO){
         Long vid = videoGroupService.insert(bangumiVideoGroupAddDTO);
 
 
@@ -50,8 +54,8 @@ public class BangumiVideoGroupContorller {
     }
 
     @PostMapping(value = "/delete")
-    //TODO 删缓存
-    public Result deleteBangumiVideoGroup(Long id)
+    @CacheEvict(value = "bangumiVideoGroup",key = "#id")
+    public Result deleteBangumiVideoGroup(@Valid Long id)
     {
         videoGroupService.delete(id);
         bangumiVideoGroupSever.deleteByVid(id);
@@ -60,15 +64,16 @@ public class BangumiVideoGroupContorller {
 
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    public  Result updateBangumiVideoGroup(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO){
-
+    @CacheEvict(value = "bangumiVideoGroup",key = "#bangumiVideoGroupUpdateDTO.id")
+    public  Result updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO){
         videoGroupService.update(bangumiVideoGroupUpdateDTO);
         bangumiVideoGroupSever.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
     }
 
     @GetMapping("")
-    public  Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@RequestParam("id") Long id){
+    @Cacheable(value = "bangumiVideoGroup",key = "#id")
+    public  Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id){
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         bangumiVideoGroupVO.setVideoGroupId(id);
 
@@ -77,8 +82,9 @@ public class BangumiVideoGroupContorller {
         return Result.success(bangumiVideoGroupVO);
     }
 
-    @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>>getVideoGroupContent(@RequestParam("id") Long id){
+    @GetMapping("/contentsContent")
+    @Cacheable(value = "bangumiVideoGroup",key = "#id")
+    public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id){
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }

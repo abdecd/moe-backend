@@ -1,9 +1,11 @@
 package com.abdecd.moebackend.business.controller.base;
 
+import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.DeleteVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
+import com.abdecd.moebackend.business.service.PlainUserHistoryService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,11 +13,19 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 @RestController
 @RequestMapping("video")
 public class VideoController {
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private PlainUserHistoryService plainUserHistoryService;
+    private final ExecutorService executor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000));
 
     @Operation(summary = "添加视频")
     @PostMapping("add")
@@ -46,6 +56,8 @@ public class VideoController {
     @Operation(summary = "获取视频")
     @GetMapping("")
     public Result<VideoVO> getVideo(@RequestParam Long id) {
+        // 添加观看历史记录
+        executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(id)));
         return Result.success(videoService.getVideo(id));
     }
 }

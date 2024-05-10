@@ -8,7 +8,9 @@ import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,19 +30,19 @@ public class VideoGroupController {
     private VideoService videoService;
 
     @GetMapping("/type")
-    public Result<Integer> getVideoGroupType(@RequestParam("videoGroupId") String videoGroupId){
+    public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId){
         Integer videoGroupType =   videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId));
         return Result.success(videoGroupType);
     }
 
     @GetMapping("/list")
-    public Result<VideoGroupListVO> getVideoGroupList(@RequestParam("page") Integer page,@RequestParam("pageSize") Integer pageSize){
+    public Result<VideoGroupListVO> getVideoGroupList(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
         VideoGroupListVO videoGroupListVO = videoGroupService.getVideoGroupList(page,pageSize);
         return Result.success(videoGroupListVO);
     }
 
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoCompleteVO>> getAllVideo(@RequestParam("videoGroupId") Integer videoGroupId){
+    public Result<ArrayList<VideoCompleteVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Integer videoGroupId){
         ArrayList<VideoCompleteVO> videoCompleteVOArrayList = new ArrayList<>();
         ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);
 

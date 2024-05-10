@@ -8,7 +8,10 @@ import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -30,10 +33,8 @@ public class PlainVideoGroupController {
 
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    //TODO 加个缓存
-    public Result<Long> addVideoGroup(VIdeoGroupDTO videoGroupDTO)
+    public Result<Long> addVideoGroup(@Valid VIdeoGroupDTO videoGroupDTO)
     {
-        //TODO 校验数据是不是都有
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
         String date = dtf.format(ldt);
@@ -51,8 +52,8 @@ public class PlainVideoGroupController {
     }
 
     @PostMapping(value = "/delete")
-    //TODO 删缓存
-    public Result delVideoGroup(@RequestParam("id") Long id)
+    @CacheEvict(cacheNames = "videoGroup",key = "#id")
+    public Result delVideoGroup(@Valid @RequestParam("id") Long id)
     {
         videoGroupService.delete(id);
         return Result.success();
@@ -60,23 +61,24 @@ public class PlainVideoGroupController {
 
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    //TODO 删缓存
-    public Result updateVideoGroup(VIdeoGroupDTO videoGroupDTO)
+    @CacheEvict(cacheNames = "videoGroup",key = "#videoGroupDTO.id")
+    public Result updateVideoGroup(@Valid VIdeoGroupDTO videoGroupDTO)
     {
         videoGroupService.update(videoGroupDTO);
         return Result.success();
     }
 
     @GetMapping("")
-    //TODO 加个缓存
-    public Result<VideoGroupVO> getVideoGroup(@RequestParam("id") Long id)
+    @Cacheable(cacheNames = "videoGroup",key = "#id")
+    public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id)
     {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
         return Result.success(videoGroupVO);
     }
 
     @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>>getVideoGroupContent(@RequestParam("id") Long id){
+    @Cacheable(cacheNames = "videoGroupContent",key = "#id")
+    public Result<ArrayList<VideoVo>>getVideoGroupContent(@Valid @RequestParam("id") Long id){
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }

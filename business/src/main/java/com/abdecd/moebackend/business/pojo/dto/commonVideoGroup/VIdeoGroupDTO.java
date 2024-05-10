@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 @Data
 public class VIdeoGroupDTO {
-    @Nullable
     private Long id;
     @Nullable
     private String title;

@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.VIdeoGroupAndTagService;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.common.result.Result;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class PlainVideoGroupController {
     @Resource
     private VIdeoGroupAndTagService videoGroupAndTagService; ;
 
+    @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
     public Result<Long> addVideoGroup(@Valid VIdeoGroupDTO videoGroupDTO)
@@ -51,14 +53,15 @@ public class PlainVideoGroupController {
         return Result.success(gorupId);
     }
 
+    @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
-    @CacheEvict(cacheNames = "videoGroup",key = "#id")
     public Result delVideoGroup(@Valid @RequestParam("id") Long id)
     {
         videoGroupService.delete(id);
         return Result.success();
     }
 
+    @Operation(summary = "普通视频组更新")
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
     @CacheEvict(cacheNames = "videoGroup",key = "#videoGroupDTO.id")
@@ -68,16 +71,16 @@ public class PlainVideoGroupController {
         return Result.success();
     }
 
+    @Operation(summary = "普通视频组获取", description = "data字段返回普通视频组信息")
     @GetMapping("")
-    @Cacheable(cacheNames = "videoGroup",key = "#id")
     public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id)
     {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
         return Result.success(videoGroupVO);
     }
 
+    @Operation(summary = "普通视频组目录获取", description = "data字段返回普通视频组目录")
     @GetMapping("/contents")
-    @Cacheable(cacheNames = "videoGroupContent",key = "#id")
     public Result<ArrayList<VideoVo>>getVideoGroupContent(@Valid @RequestParam("id") Long id){
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);

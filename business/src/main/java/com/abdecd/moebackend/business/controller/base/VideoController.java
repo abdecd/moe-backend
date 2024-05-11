@@ -9,6 +9,7 @@ import com.abdecd.moebackend.business.service.PlainUserHistoryService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@Tag(name = "视频接口")
 @RestController
 @RequestMapping("video")
 public class VideoController {

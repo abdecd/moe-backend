@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup;
+package com.abdecd.moebackend.business.pojo.vo.bangumiVideoGroup;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;

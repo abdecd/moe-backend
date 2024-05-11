@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.vo.common.tag;
+package com.abdecd.moebackend.business.pojo.vo.tag;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

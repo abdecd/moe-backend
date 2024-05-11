@@ -1,9 +1,9 @@
 package com.abdecd.moebackend.business.service;
 
-import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VideoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupVO;
-import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoVo;
 
 import java.util.ArrayList;
 

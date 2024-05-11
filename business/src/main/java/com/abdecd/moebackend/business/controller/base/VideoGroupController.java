@@ -1,8 +1,8 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoCompleteVO;
-import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoCompleteVO;
+import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 @Slf4j
 @RestController
 @RequestMapping("bangumi-video-group")
-public class BangumiVideoGroupContorller {
+public class BangumiVideoGroupController {
     @Resource
     private VideoGroupService videoGroupService;
 

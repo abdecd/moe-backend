@@ -3,6 +3,7 @@ import io.micrometer.common.lang.Nullable;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 
@@ -15,7 +16,7 @@ public class VideoGroup {
     private String title;
     private String cover;
     private String description;
-    private LocalTime createTime;
+    private LocalDateTime createTime;
     private Integer type;
     private Double weight;
 }

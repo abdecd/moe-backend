@@ -3,6 +3,8 @@ package com.abdecd.moebackend.business.dao.entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 @Accessors(chain = true)
 @Data
 public class Video {
@@ -13,6 +15,6 @@ public class Video {
     private String cover;
     private String description;
     private String link;
-    private String uploadTime;
+    private LocalDateTime uploadTime;
     private Integer status;
 }

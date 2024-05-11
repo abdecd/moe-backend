@@ -21,6 +21,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -67,7 +68,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                     .setTitle(videoGroupDTO.getTitle())
                     .setDescription(videoGroupDTO.getDescription())
                     .setCover(coverPath)
-                    .setCreateTime(LocalTime.parse(videoGroupDTO.getDate()))
+                    .setCreateTime(LocalDateTime.from(LocalTime.parse(videoGroupDTO.getDate())))
                     .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
                     .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
         }
@@ -113,10 +114,10 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public VideoGroupVO getById(Long id) {
         VideoGroupVO videoGroupVO = new VideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(id);
-        if(videoGroup == null)
-        {
+        if(videoGroup == null) {
             throw new BaseException("视频组缺失");
         }
+
         videoGroupVO.setVideoGroupId(id);
         videoGroupVO.setCover(videoGroup.getCover());
         videoGroupVO.setDescription(videoGroup.getDescription());

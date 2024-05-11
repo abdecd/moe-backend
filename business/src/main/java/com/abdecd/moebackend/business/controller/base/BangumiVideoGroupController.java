@@ -52,8 +52,7 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
     @CacheEvict(value = "bangumiVideoGroup",key = "#id")
-    public Result<String> deleteBangumiVideoGroup(@Valid Long id)
-    {
+    public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
         videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
         return Result.success();

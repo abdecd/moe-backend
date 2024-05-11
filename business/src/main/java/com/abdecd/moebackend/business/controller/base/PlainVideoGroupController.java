@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -34,8 +33,7 @@ public class PlainVideoGroupController {
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO)
-    {
+    public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
         String date = dtf.format(ldt);
@@ -44,10 +42,9 @@ public class PlainVideoGroupController {
         Long gorupId = videoGroupService.insert(videoGroupDTO);
 
         if (videoGroupDTO.getTagIds() != null) {
-            for(String i : videoGroupDTO.getTagIds())
-            {
+            for (String i : videoGroupDTO.getTagIds()) {
                 Long tagId = Long.valueOf(i);
-                videoGroupAndTagService.insert(tagId,gorupId);
+                videoGroupAndTagService.insert(tagId, gorupId);
             }
         }
 
@@ -56,8 +53,7 @@ public class PlainVideoGroupController {
 
     @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
-    public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id)
-    {
+    public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
         return Result.success();
     }
@@ -65,24 +61,22 @@ public class PlainVideoGroupController {
     @Operation(summary = "普通视频组更新")
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    @CacheEvict(cacheNames = "videoGroup",key = "#videoGroupDTO.id")
-    public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO)
-    {
+    @CacheEvict(cacheNames = "videoGroup", key = "#videoGroupDTO.id")
+    public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         videoGroupService.update(videoGroupDTO);
         return Result.success();
     }
 
     @Operation(summary = "普通视频组获取", description = "data字段返回普通视频组信息")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id)
-    {
+    public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id) {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
         return Result.success(videoGroupVO);
     }
 
     @Operation(summary = "普通视频组目录获取", description = "data字段返回普通视频组目录")
     @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>>getVideoGroupContent(@Valid @RequestParam("id") Long id){
+    public Result<ArrayList<VideoVo>> getVideoGroupContent(@Valid @RequestParam("id") Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }

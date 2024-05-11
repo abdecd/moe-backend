@@ -63,7 +63,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         bangumiVideoGroup.setVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
         if(bangumiVideoGroupUpdateDTO.getStatus() != null)
             bangumiVideoGroup.setStatus(Integer.valueOf(bangumiVideoGroupUpdateDTO.getStatus()));
-        bangumiVideoGroup.setReleaseTime(bangumiVideoGroupUpdateDTO.getReleaseTime());
+        bangumiVideoGroup.setReleaseTime(LocalDateTime.parse(bangumiVideoGroupUpdateDTO.getReleaseTime()));
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupUpdateDTO.getUpdateAtAnnouncement());
 
         bangumiVideoGroupMapper.update(bangumiVideoGroup);
@@ -76,7 +76,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(vid);
         log.info("bangumiVideoGroup:{}", bangumiVideoGroup);
 
-        bangumiVideoGroupVO.setReleaseTime(bangumiVideoGroup.getReleaseTime());
+        bangumiVideoGroupVO.setReleaseTime(String.valueOf(bangumiVideoGroup.getReleaseTime()));
         bangumiVideoGroupVO.setUpdateAtAnnouncement(bangumiVideoGroup.getUpdateAtAnnouncement());
         bangumiVideoGroupVO.setStatus(bangumiVideoGroup.getStatus());
 
@@ -106,7 +106,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         videoGroup.setTitle(bangumiVideoGroupAddDTO.getTitle());
         videoGroup.setDescription(bangumiVideoGroupAddDTO.getDescription());
         videoGroup.setCover(coverPath);
-        videoGroup.setCreateTime(LocalTime.parse(date));
+        videoGroup.setCreateTime(LocalDateTime.from(LocalTime.parse(date)));
         videoGroup.setUserId(uid);
         videoGroup.setWeight(VideoGroupConstant.DEFAULT_WEIGHT);
         videoGroup.setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
@@ -129,10 +129,11 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);
-        if(videoGroup == null)
-        {
+
+        if(videoGroup == null) {
             throw new BaseException("视频组缺失");
         }
+
         bangumiVideoGroupVO.setVideoGroupId(videoGroupId);
         bangumiVideoGroupVO.setCover(videoGroup.getCover());
         bangumiVideoGroupVO.setDescription(videoGroup.getDescription());

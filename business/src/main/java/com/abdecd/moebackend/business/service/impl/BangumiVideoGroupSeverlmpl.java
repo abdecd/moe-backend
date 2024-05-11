@@ -14,8 +14,6 @@ import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -72,9 +70,10 @@ public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "bangumiVideoGroupVO.id")
-    public BangumiVideoGroupVO getByVid(BangumiVideoGroupVO bangumiVideoGroupVO) {
-        BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(bangumiVideoGroupVO.getVideoGroupId());
+    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "vid")
+    public BangumiVideoGroupVO getByVid(Long vid) {
+        BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
+        BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(vid);
         log.info("bangumiVideoGroup:{}", bangumiVideoGroup);
 
         bangumiVideoGroupVO.setReleaseTime(bangumiVideoGroup.getReleaseTime());
@@ -96,7 +95,7 @@ public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
 
         try {
             //TODO 文件没有存下来
-            String randomImageName = UUID.randomUUID().toString() + ".jpg";
+            String randomImageName = UUID.randomUUID() + ".jpg";
             coverPath =  fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(),randomImageName);
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
@@ -107,7 +106,7 @@ public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
         videoGroup.setTitle(bangumiVideoGroupAddDTO.getTitle());
         videoGroup.setDescription(bangumiVideoGroupAddDTO.getDescription());
         videoGroup.setCover(coverPath);
-        videoGroup.setCreate_time(LocalTime.parse(date));
+        videoGroup.setCreateTime(LocalTime.parse(date));
         videoGroup.setUserId(uid);
         videoGroup.setWeight(VideoGroupConstant.DEFAULT_WEIGHT);
         videoGroup.setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
@@ -117,8 +116,8 @@ public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
 
         for(Integer tagid : bangumiVideoGroupAddDTO.getTagIds()){
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
-            videoGroupAndTag.setVideo_group_id(videoGroup.getId());
-            videoGroupAndTag.setTag_id(Long.valueOf(tagid));
+            videoGroupAndTag.setVideoGroupId(videoGroup.getId());
+            videoGroupAndTag.setTagId(Long.valueOf(tagid));
             videoGroupAndTagMapper.insert(videoGroupAndTag);
         }
 
@@ -126,7 +125,7 @@ public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "videoGroupId.id")
+    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "videoGroupId")
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);

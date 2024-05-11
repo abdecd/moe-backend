@@ -3,8 +3,8 @@ package com.abdecd.moebackend.business.controller.base;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
-import com.abdecd.moebackend.business.service.VIdeoGroupAndTagService;
-import com.abdecd.moebackend.business.service.VIdeoGroupService;
+import com.abdecd.moebackend.business.service.VideoGroupAndTagService;
+import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,7 +12,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -27,10 +26,10 @@ import java.util.ArrayList;
 public class PlainVideoGroupController {
 
     @Resource
-    private VIdeoGroupService videoGroupService;
+    private VideoGroupService videoGroupService;
 
     @Resource
-    private VIdeoGroupAndTagService videoGroupAndTagService; ;
+    private VideoGroupAndTagService videoGroupAndTagService; ;
 
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")

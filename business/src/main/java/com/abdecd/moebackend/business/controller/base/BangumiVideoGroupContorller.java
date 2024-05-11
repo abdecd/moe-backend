@@ -6,7 +6,7 @@ import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGro
 import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
 import com.abdecd.moebackend.business.service.BangumiVideoGroupServer;
-import com.abdecd.moebackend.business.service.VIdeoGroupService;
+import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 @RequestMapping("bangumi-video-group")
 public class BangumiVideoGroupContorller {
     @Resource
-    private VIdeoGroupService videoGroupService;
+    private VideoGroupService videoGroupService;
 
     @Autowired
     private BangumiVideoGroupServer bangumiVideoGroupServer;
@@ -78,7 +77,12 @@ public class BangumiVideoGroupContorller {
         bangumiVideoGroupVO.setVideoGroupId(id);
 
         bangumiVideoGroupVO = bangumiVideoGroupServer.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
-        bangumiVideoGroupVO = bangumiVideoGroupServer.getByVid(bangumiVideoGroupVO);
+        BangumiVideoGroupVO bangumiVideoGroupVO_ = bangumiVideoGroupServer.getByVid(bangumiVideoGroupVO.getVideoGroupId());
+
+        bangumiVideoGroupVO.setReleaseTime(bangumiVideoGroupVO_.getReleaseTime());
+        bangumiVideoGroupVO.setUpdateAtAnnouncement(bangumiVideoGroupVO_.getUpdateAtAnnouncement());
+        bangumiVideoGroupVO.setStatus(bangumiVideoGroupVO_.getStatus());
+
         return Result.success(bangumiVideoGroupVO);
     }
 

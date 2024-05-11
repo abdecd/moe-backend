@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Data
 public class VideoGroupAndTag {
     private Long id;
-    private Long tag_id;
-    private Long video_group_id;
+    private Long tagId;
+    private Long videoGroupId;
 }

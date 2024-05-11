@@ -3,7 +3,7 @@ package com.abdecd.moebackend.business.controller.base;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoCompleteVO;
 import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupListVO;
-import com.abdecd.moebackend.business.service.VIdeoGroupService;
+import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,8 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +23,7 @@ import java.util.ArrayList;
 @RequestMapping("video-group")
 public class VideoGroupController {
     @Resource
-    private VIdeoGroupService videoGroupService;
+    private VideoGroupService videoGroupService;
 
     @Resource
     private VideoService videoService;

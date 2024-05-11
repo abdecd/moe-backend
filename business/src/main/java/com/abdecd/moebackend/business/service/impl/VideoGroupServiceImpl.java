@@ -3,12 +3,10 @@ package com.abdecd.moebackend.business.service.impl;
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.*;
 import com.abdecd.moebackend.business.service.FileService;
-import com.abdecd.moebackend.business.service.VIdeoGroupService;
+import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -20,15 +18,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
 @Slf4j
-public class VideoGroupServiceImpl implements VIdeoGroupService {
+public class VideoGroupServiceImpl implements VideoGroupService {
     @Resource
     private VideoGroupMapper videoGroupMapper;
 
@@ -56,20 +52,22 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String randomImageName = UUID.randomUUID().toString() + ".jpg";
+            String randomImageName = UUID.randomUUID() + ".jpg";
             coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),randomImageName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         VideoGroup videoGroup = new VideoGroup();
-        videoGroup.setUserId(uid)
-                .setTitle(videoGroupDTO.getTitle())
-                .setDescription(videoGroupDTO.getDescription())
-                .setCover(coverPath)
-                .setCreate_time(LocalTime.parse(videoGroupDTO.getDate()))
-                .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
-                .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
+        if (videoGroupDTO.getDate() != null) {
+            videoGroup.setUserId(uid)
+                    .setTitle(videoGroupDTO.getTitle())
+                    .setDescription(videoGroupDTO.getDescription())
+                    .setCover(coverPath)
+                    .setCreateTime(LocalTime.parse(videoGroupDTO.getDate()))
+                    .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
+                    .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
+        }
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
@@ -87,13 +85,13 @@ public class VideoGroupServiceImpl implements VIdeoGroupService {
     @Override
     @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE,key = "#videoGroupDTO.id")
     public void update(VIdeoGroupDTO videoGroupDTO) {
-        String coverPath = new String();
+        String coverPath = "";
 
         if(videoGroupDTO.getCover() != null)
         {
             try {
                 //TODO 文件没有存下来
-                String randomImageName = UUID.randomUUID().toString() + ".jpg";
+                String randomImageName = UUID.randomUUID() + ".jpg";
                 coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),randomImageName);
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");

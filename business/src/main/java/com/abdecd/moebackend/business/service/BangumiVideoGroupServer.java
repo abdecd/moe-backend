@@ -10,7 +10,7 @@ public interface BangumiVideoGroupServer {
 
     void insert(BangumiVideoGroup bangumiVideoGroup);
 
-    BangumiVideoGroupVO getByVid(BangumiVideoGroupVO bangumiVideoGroupVO);
+    BangumiVideoGroupVO getByVid(Long vid);
 
     Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO);
 

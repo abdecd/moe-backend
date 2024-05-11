@@ -3,6 +3,7 @@ package com.abdecd.moebackend.business.pojo.vo.video;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 @Data
 public class VideoVO {
@@ -12,6 +13,6 @@ public class VideoVO {
     String title;
     String description;
     String cover;
-    String link;
+    ArrayList<VideoSrcVO> src;
     LocalDateTime uploadTime;
 }

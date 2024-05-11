@@ -5,7 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
 import com.abdecd.moebackend.business.service.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.FileService;

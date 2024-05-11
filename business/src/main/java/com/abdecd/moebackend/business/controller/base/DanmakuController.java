@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;
 import com.abdecd.moebackend.business.service.DanmakuService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "弹幕接口")
 @RestController
 @RequestMapping("/video/danmaku")
 public class DanmakuController {

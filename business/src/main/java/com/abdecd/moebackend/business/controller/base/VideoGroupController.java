@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupListVO;
 import com.abdecd.moebackend.business.service.VIdeoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -29,19 +30,19 @@ public class VideoGroupController {
     @Resource
     private VideoService videoService;
 
-    @GetMapping("/type")
+    @Operation(summary = "视频组类型获取", description = "data字段返回视频组类型")
     public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId){
         Integer videoGroupType =   videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId));
         return Result.success(videoGroupType);
     }
 
-    @GetMapping("/list")
+    @Operation(summary = "视频组列表获取", description = "data字段返回视频组列表")
     public Result<VideoGroupListVO> getVideoGroupList(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
         VideoGroupListVO videoGroupListVO = videoGroupService.getVideoGroupList(page,pageSize);
         return Result.success(videoGroupListVO);
     }
 
-    @GetMapping("/list-all-video")
+    @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     public Result<ArrayList<VideoCompleteVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Integer videoGroupId){
         ArrayList<VideoCompleteVO> videoCompleteVOArrayList = new ArrayList<>();
         ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);

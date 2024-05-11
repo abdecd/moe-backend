@@ -21,12 +21,6 @@ public interface VIdeoGroupService {
 
     ArrayList<VideoVo> getContentById(Long id);
 
-    Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO);
-
-    void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO);
-
-    BangumiVideoGroupVO getByVideoId(Long videoGroupId);
-
     Integer getTypeByVideoId(Long aLong);
 
     VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize);

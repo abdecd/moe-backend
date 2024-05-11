@@ -7,7 +7,7 @@ import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGro
 import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
-import com.abdecd.moebackend.business.service.BangumiVideoGroupServiceImpl;
+import com.abdecd.moebackend.business.service.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class BangumiVideoGroupSeverlmplImpl implements BangumiVideoGroupServiceImpl {
+public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     @Resource
     private BangumiVideoGroupMapper bangumiVideoGroupMapper;
 

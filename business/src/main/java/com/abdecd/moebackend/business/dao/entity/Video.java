@@ -21,7 +21,6 @@ public class Video {
     String title;
     String description;
     String cover;
-    String link;
     LocalDateTime uploadTime;
     Byte status;
 

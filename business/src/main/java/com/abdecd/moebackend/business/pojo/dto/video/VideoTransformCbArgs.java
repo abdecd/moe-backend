@@ -7,12 +7,8 @@ import lombok.Data;
 @Data
 public class VideoTransformCbArgs {
     private String taskId;
-    private Type type;
+    private VideoTransformTask.TaskType type;
     private Status status;
-
-    public enum Type {
-        VIDEO_TRANSFORM
-    }
 
     public enum Status {
         SUCCESS,

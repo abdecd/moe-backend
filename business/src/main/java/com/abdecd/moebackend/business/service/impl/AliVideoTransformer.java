@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformCbArgs;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 import com.abdecd.moebackend.business.service.VideoTransformer;
 import com.abdecd.moebackend.common.constant.RedisConstant;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class AliVideoTransformer implements VideoTransformer {
     @Autowired
@@ -25,9 +27,21 @@ public class AliVideoTransformer implements VideoTransformer {
 
     public void transform(VideoTransformTask task, int ttlSeconds) {
         // 访问视频转码服务
-        var aliTaskId = aliImmManager.transformVideo(task.getOriginPath(), task.getTargetPath());
-        System.out.println("aliTaskId: " + aliTaskId);
-        final String taskId = task.getId();
+        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P.NUM], "640x360", ttlSeconds);
+        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P.NUM], "1280x720", ttlSeconds);
+        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P.NUM], "1920x1080", ttlSeconds);
+    }
+    public void transform(
+            String taskId,
+            VideoTransformTask.TaskType taskType,
+            String originPath,
+            String targetPath,
+            String widthAndHeight,
+            int ttlSeconds
+    ) {
+        // 访问视频转码服务
+        var aliTaskId = aliImmManager.transformVideo(originPath, targetPath, widthAndHeight);
+        log.info("aliTaskId: " + aliTaskId);
         // 轮询转码结果
         int perAskTtl = ttlSeconds / 10;
         Runnable cb = new Runnable() {
@@ -35,9 +49,9 @@ public class AliVideoTransformer implements VideoTransformer {
             @Override
             public void run() {
                 var result = aliImmManager.getTransformResult(aliTaskId);
-                System.out.println("aliTaskId: " + aliTaskId + ", result: " + result);
+                log.info("aliTaskId: " + aliTaskId + ", result: " + result);
                 if (result.equals("Succeeded")) {
-                    transformCb(taskId);
+                    transformCb(taskId, taskType);
                     return;
                 } else if (result.equals("Failed")) {
                     return;
@@ -49,7 +63,7 @@ public class AliVideoTransformer implements VideoTransformer {
         scheduledExecutor.schedule(cb, perAskTtl, TimeUnit.SECONDS);
     }
 
-    public void transformCb(String taskId) {
+    public void transformCb(String taskId, VideoTransformTask.TaskType taskType) {
         // 用回调的taskId找到对应的task对象，使用反射触发回调
         var task = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + taskId);
         if (task == null) return;
@@ -59,10 +73,9 @@ public class AliVideoTransformer implements VideoTransformer {
             Method method = bean.getClass().getDeclaredMethod(strs[1], VideoTransformCbArgs.class);
             method.invoke(bean, new VideoTransformCbArgs(
                     taskId,
-                    VideoTransformCbArgs.Type.VIDEO_TRANSFORM,
+                    taskType,
                     VideoTransformCbArgs.Status.SUCCESS)
             );
-            // todo 删掉临时文件夹中的对应视频
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

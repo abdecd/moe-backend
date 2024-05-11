@@ -37,19 +37,20 @@ public class AliImmManager {
      * @param targetPath 目标视频路径 如 video/2022/01/01/video
      * @return 阿里云任务id
      */
-    public String transformVideo(String originPath, String targetPath) {
+    public String transformVideo(String originPath, String targetPath, String widthAndHeight) {
         com.aliyun.imm20200930.Client client = createClient();
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideoWatermarks targets0TargetVideoFilterVideoWatermarks0 = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideoWatermarks()
                 .setType("file")
                 .setDx(10F)
                 .setDy(10F)
+                .setHeight(0.10F)
                 .setURI("oss://" + aliProperties.getBucketName() + "/" + aliProperties.getWatermark());
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo targets0TargetVideoFilterVideo = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo()
                 .setWatermarks(java.util.Arrays.asList(
                     targets0TargetVideoFilterVideoWatermarks0
                 ));
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoTranscodeVideo targets0TargetVideoTranscodeVideo = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoTranscodeVideo()
-                .setResolution("1280x720")
+                .setResolution(widthAndHeight)
                 .setCodec("h264")
                 .setAdaptiveResolutionDirection(true)
                 .setCRF(18F);

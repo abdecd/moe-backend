@@ -29,7 +29,6 @@ public class AddVideoDTO {
                 .setTitle(title)
                 .setDescription(description)
                 .setCover(cover)
-                .setLink(link)
                 .setUploadTime(LocalDateTime.now())
                 .setStatus(Video.Status.TRANSFORMING);
     }

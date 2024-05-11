@@ -22,8 +22,7 @@ public class UpdateVideoDTO {
                 .setIndex(index)
                 .setTitle(title)
                 .setDescription(description)
-                .setCover(cover)
-                .setLink(link);
+                .setCover(cover);
         if (link != null) video = video.setStatus(Video.Status.TRANSFORMING);
         return video;
     }

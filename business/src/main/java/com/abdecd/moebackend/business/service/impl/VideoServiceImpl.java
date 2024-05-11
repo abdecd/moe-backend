@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -59,7 +60,7 @@ public class VideoServiceImpl implements VideoService {
     private RedissonClient redissonClient;
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-    private static final int TRANSFORM_TASK_TTL = 300;
+    private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
 
     @Transactional
@@ -190,6 +191,8 @@ public class VideoServiceImpl implements VideoService {
             var originPath = resourceLinkHandler.getRawPathFromVideoLink(updateVideoDTO.getLink());
             if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
+                throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
             createTransformTask(updateVideoDTO.getId(), originPath);
         }
 
@@ -218,7 +221,7 @@ public class VideoServiceImpl implements VideoService {
         var obj = videoMapper.selectById(videoId);
         if (obj == null) return;
         // 检查是否正在转码
-        if (obj.getStatus().equals(Video.Status.TRANSFORMING)) return;
+        if (obj.getStatus().equals(Video.Status.TRANSFORMING)) throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
         // todo 检查是不是拥有者
 
         fileService.deleteDirInSystem("/video/" + videoId);

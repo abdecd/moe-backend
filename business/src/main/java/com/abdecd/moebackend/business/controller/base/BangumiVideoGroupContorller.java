@@ -5,7 +5,7 @@ import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGro
 import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoVo;
-import com.abdecd.moebackend.business.service.BangumiVideoGroupServiceImpl;
+import com.abdecd.moebackend.business.service.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,13 +27,13 @@ public class BangumiVideoGroupContorller {
     private VideoGroupService videoGroupService;
 
     @Resource
-    private BangumiVideoGroupServiceImpl bangumiVideoGroupServiceImpl;
+    private BangumiVideoGroupService bangumiVideoGroupService;
 
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
     public Result<Long> addBangumiVideoGroup(@Valid  BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO){
-        Long vid = bangumiVideoGroupServiceImpl.insert(bangumiVideoGroupAddDTO);
+        Long vid = bangumiVideoGroupService.insert(bangumiVideoGroupAddDTO);
 
 
         Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结")?1:0;
@@ -44,7 +44,7 @@ public class BangumiVideoGroupContorller {
         bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
         bangumiVideoGroup.setStatus(status);
 
-        bangumiVideoGroupServiceImpl.insert(bangumiVideoGroup);
+        bangumiVideoGroupService.insert(bangumiVideoGroup);
 
         return Result.success(vid);
     }
@@ -55,7 +55,7 @@ public class BangumiVideoGroupContorller {
     public Result<String> deleteBangumiVideoGroup(@Valid Long id)
     {
         videoGroupService.delete(id);
-        bangumiVideoGroupServiceImpl.deleteByVid(id);
+        bangumiVideoGroupService.deleteByVid(id);
         return Result.success();
     }
 
@@ -64,8 +64,8 @@ public class BangumiVideoGroupContorller {
     @ResponseBody
     @CacheEvict(value = "bangumiVideoGroup",key = "#bangumiVideoGroupUpdateDTO.id")
     public  Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO){
-        bangumiVideoGroupServiceImpl.update(bangumiVideoGroupUpdateDTO);
-        bangumiVideoGroupServiceImpl.update(bangumiVideoGroupUpdateDTO);
+        bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
+        bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
     }
 
@@ -75,8 +75,8 @@ public class BangumiVideoGroupContorller {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         bangumiVideoGroupVO.setVideoGroupId(id);
 
-        bangumiVideoGroupVO = bangumiVideoGroupServiceImpl.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
-        BangumiVideoGroupVO bangumiVideoGroupVO_ = bangumiVideoGroupServiceImpl.getByVid(bangumiVideoGroupVO.getVideoGroupId());
+        bangumiVideoGroupVO = bangumiVideoGroupService.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
+        BangumiVideoGroupVO bangumiVideoGroupVO_ = bangumiVideoGroupService.getByVid(bangumiVideoGroupVO.getVideoGroupId());
 
         bangumiVideoGroupVO.setReleaseTime(bangumiVideoGroupVO_.getReleaseTime());
         bangumiVideoGroupVO.setUpdateAtAnnouncement(bangumiVideoGroupVO_.getUpdateAtAnnouncement());

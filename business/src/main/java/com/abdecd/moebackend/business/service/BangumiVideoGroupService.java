@@ -5,7 +5,7 @@ import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGro
 import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
 
-public interface BangumiVideoGroupServiceImpl {
+public interface BangumiVideoGroupService {
     void deleteByVid(Long id);
 
     void insert(BangumiVideoGroup bangumiVideoGroup);

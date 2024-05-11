@@ -43,6 +43,7 @@ public class AliImmManager {
                 .setType("file")
                 .setDx(10F)
                 .setDy(10F)
+                .setHeight(0.10F)
                 .setURI("oss://" + aliProperties.getBucketName() + "/" + aliProperties.getWatermark());
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo targets0TargetVideoFilterVideo = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo()
                 .setWatermarks(java.util.Arrays.asList(

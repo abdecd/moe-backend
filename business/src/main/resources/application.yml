@@ -27,9 +27,14 @@ token-login:
     - /user/login-by-email
     - /user/signup
     - /user/forget-password
+    - /plain-user
     - /common/captcha
     - /common/verify-email
     - /common/image/**
+    - /common/video/**
     - /common/public-key
     - /search
     - /search/suggestion
+    - /video/danmaku
+    - /video/comment
+    - /video

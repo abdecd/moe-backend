@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.UpdatePlainUserDTO;
 import com.abdecd.moebackend.business.service.PlainUserService;
 import com.abdecd.moebackend.common.result.Result;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,8 @@ public class PlainUserController {
 
     @Operation(summary = "获取用户信息")
     @GetMapping("")
-    public Result<PlainUserDetail> getUserInfo(@RequestParam Long uid) {
+    public Result<PlainUserDetail> getUserInfo(Long uid) {
+        if (uid == null) uid = UserContext.getUserId();
         return Result.success(plainUserService.getPlainUserDetail(uid));
     }
 

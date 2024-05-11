@@ -15,7 +15,7 @@ public class VideoGroup {
     private String title;
     private String cover;
     private String description;
-    private LocalTime create_time;
+    private LocalTime createTime;
     private Integer type;
     private Double weight;
 }

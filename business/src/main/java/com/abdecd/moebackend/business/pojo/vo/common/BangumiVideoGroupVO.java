@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.ArrayList;
 
 @Data
-public class BangumiVideoGroupVO {
+public class BangumiVideoGroupVO{
     private Long videoGroupId;
     private String title;
     private UploaderVO uploader;

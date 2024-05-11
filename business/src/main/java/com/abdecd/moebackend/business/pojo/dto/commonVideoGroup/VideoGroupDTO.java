@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 
 @Data
-public class VIdeoGroupDTO {
+public class VideoGroupDTO {
     private Long id;
     @Nullable
     private String title;

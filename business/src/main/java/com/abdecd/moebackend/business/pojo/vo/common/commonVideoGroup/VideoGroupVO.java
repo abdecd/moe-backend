@@ -1,9 +1,9 @@
-package com.abdecd.moebackend.business.pojo.vo.common;
+package com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
+import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 
@@ -19,10 +19,3 @@ public class VideoGroupVO {
     private Integer type;
 }
 
-@Data
-@Accessors(chain = true)
-class TagVO
-{
-    private Long id;
-    private String tagName;
-}

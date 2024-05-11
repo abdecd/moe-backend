@@ -1,11 +1,11 @@
 package com.abdecd.moebackend.business.service;
 
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
 
-public interface BangumiVideoGroupServer {
+public interface BangumiVideoGroupServiceImpl {
     void deleteByVid(Long id);
 
     void insert(BangumiVideoGroup bangumiVideoGroup);

@@ -1,8 +1,8 @@
 package com.abdecd.moebackend.business.controller.base;
 
-import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
+import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VideoGroupDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
@@ -29,12 +29,12 @@ public class PlainVideoGroupController {
     private VideoGroupService videoGroupService;
 
     @Resource
-    private VideoGroupAndTagService videoGroupAndTagService; ;
+    private VideoGroupAndTagService videoGroupAndTagService;
 
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addVideoGroup(@Valid VIdeoGroupDTO videoGroupDTO)
+    public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO)
     {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
@@ -43,10 +43,12 @@ public class PlainVideoGroupController {
 
         Long gorupId = videoGroupService.insert(videoGroupDTO);
 
-        for(String i : videoGroupDTO.getTagIds())
-        {
-            Long tagId = Long.valueOf(i);
-            videoGroupAndTagService.insert(tagId,gorupId);
+        if (videoGroupDTO.getTagIds() != null) {
+            for(String i : videoGroupDTO.getTagIds())
+            {
+                Long tagId = Long.valueOf(i);
+                videoGroupAndTagService.insert(tagId,gorupId);
+            }
         }
 
         return Result.success(gorupId);
@@ -54,7 +56,7 @@ public class PlainVideoGroupController {
 
     @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
-    public Result delVideoGroup(@Valid @RequestParam("id") Long id)
+    public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id)
     {
         videoGroupService.delete(id);
         return Result.success();
@@ -64,7 +66,7 @@ public class PlainVideoGroupController {
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
     @CacheEvict(cacheNames = "videoGroup",key = "#videoGroupDTO.id")
-    public Result updateVideoGroup(@Valid VIdeoGroupDTO videoGroupDTO)
+    public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO)
     {
         videoGroupService.update(videoGroupDTO);
         return Result.success();

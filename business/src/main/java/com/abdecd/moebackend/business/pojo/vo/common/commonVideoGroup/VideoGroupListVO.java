@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.vo.common;
+package com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup;
 
 import lombok.Data;
 

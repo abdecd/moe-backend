@@ -1,6 +1,7 @@
-package com.abdecd.moebackend.business.pojo.vo.common;
+package com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
+import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
 import lombok.Data;
 
 import java.util.ArrayList;

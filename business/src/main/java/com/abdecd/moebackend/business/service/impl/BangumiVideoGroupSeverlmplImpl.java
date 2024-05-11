@@ -3,11 +3,11 @@ package com.abdecd.moebackend.business.service.impl;
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupAddDTO;
-import com.abdecd.moebackend.business.pojo.dto.BangumiVideoGroup.BangumiVideoGroupUpdateDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.BangumiVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
-import com.abdecd.moebackend.business.service.BangumiVideoGroupServer;
+import com.abdecd.moebackend.business.service.BangumiVideoGroupServiceImpl;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
@@ -27,7 +27,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class BangumiVideoGroupSeverlmpl implements BangumiVideoGroupServer {
+public class BangumiVideoGroupSeverlmplImpl implements BangumiVideoGroupServiceImpl {
     @Resource
     private BangumiVideoGroupMapper bangumiVideoGroupMapper;
 

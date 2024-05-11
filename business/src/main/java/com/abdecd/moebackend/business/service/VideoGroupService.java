@@ -1,18 +1,18 @@
 package com.abdecd.moebackend.business.service;
 
-import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupListVO;
-import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoGroupVO;
-import com.abdecd.moebackend.business.pojo.vo.common.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VideoGroupDTO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoVo;
 
 import java.util.ArrayList;
 
 public interface VideoGroupService {
-    Long insert(VIdeoGroupDTO videoGroupDTO);
+    Long insert(VideoGroupDTO videoGroupDTO);
 
     void delete(Long id);
 
-    void update(VIdeoGroupDTO videoGroupDTO);
+    void update(VideoGroupDTO videoGroupDTO);
 
     VideoGroupVO getById(Long id);
 

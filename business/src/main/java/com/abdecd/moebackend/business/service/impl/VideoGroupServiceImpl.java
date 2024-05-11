@@ -3,8 +3,11 @@ package com.abdecd.moebackend.business.service.impl;
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
-import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VIdeoGroupDTO;
+import com.abdecd.moebackend.business.pojo.dto.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.common.*;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.common.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -45,7 +48,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
 
     @Override
-    public Long insert(VIdeoGroupDTO videoGroupDTO) {
+    public Long insert(VideoGroupDTO videoGroupDTO) {
         Long uid = UserContext.getUserId();
 
         String coverPath;
@@ -84,7 +87,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Override
     @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE,key = "#videoGroupDTO.id")
-    public void update(VIdeoGroupDTO videoGroupDTO) {
+    public void update(VideoGroupDTO videoGroupDTO) {
         String coverPath = "";
 
         if(videoGroupDTO.getCover() != null)

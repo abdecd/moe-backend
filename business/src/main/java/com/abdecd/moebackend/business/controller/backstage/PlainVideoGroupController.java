@@ -1,5 +1,7 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
+import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
@@ -31,15 +33,18 @@ public class PlainVideoGroupController {
     private VideoGroupAndTagService videoGroupAndTagService;
 
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
-    @RequestMapping(value = "/add", consumes = "multipart/form-data")
+    @PostMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
     public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
-        String date = dtf.format(ldt);
-        videoGroupDTO.setDate(date);
 
-        Long groupId = videoGroupService.insert(videoGroupDTO);
+        Long groupId = videoGroupService.insert(new VideoGroup()
+                .setCreateTime(ldt)
+                .setTitle(videoGroupDTO.getTitle())
+                .setDescription(videoGroupDTO.getDescription())
+                ,videoGroupDTO.getCover()
+            );
 
         if (videoGroupDTO.getTagIds() != null) {
             for (String i : videoGroupDTO.getTagIds()) {
@@ -59,7 +64,7 @@ public class PlainVideoGroupController {
     }
 
     @Operation(summary = "普通视频组更新")
-    @RequestMapping(value = "/update", consumes = "multipart/form-data")
+    @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
     @CacheEvict(cacheNames = "videoGroup", key = "#videoGroupDTO.id")
     public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {

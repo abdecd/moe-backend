@@ -29,7 +29,7 @@ public class BangumiVideoGroupController {
     private BangumiVideoGroupService bangumiVideoGroupService;
 
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
-    @RequestMapping(value = "/add", consumes = "multipart/form-data")
+    @PostMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
     public Result<Long> addBangumiVideoGroup(@Valid BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
         Long vid = bangumiVideoGroupService.insert(bangumiVideoGroupAddDTO);
@@ -57,7 +57,7 @@ public class BangumiVideoGroupController {
     }
 
     @Operation(summary = "番剧视频组更新")
-    @RequestMapping(value = "/update", consumes = "multipart/form-data")
+    @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
     public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);

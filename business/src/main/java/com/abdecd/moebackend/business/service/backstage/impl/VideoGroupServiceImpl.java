@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -49,7 +50,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
 
     @Override
-    public Long insert(VideoGroupDTO videoGroupDTO) {
+    public Long insert(VideoGroup videoGroup, MultipartFile cover) {
         Long uid = UserContext.getUserId();
 
         String coverPath;
@@ -57,21 +58,15 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         try {
             //TODO 文件没有存下来
             String randomImageName = UUID.randomUUID() + ".jpg";
-            coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),randomImageName);
+            coverPath =  fileService.uploadFile(cover,randomImageName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        VideoGroup videoGroup = new VideoGroup();
-        if (videoGroupDTO.getDate() != null) {
-            videoGroup.setUserId(uid)
-                    .setTitle(videoGroupDTO.getTitle())
-                    .setDescription(videoGroupDTO.getDescription())
-                    .setCover(coverPath)
-                    .setCreateTime(LocalDateTime.from(LocalTime.parse(videoGroupDTO.getDate())))
-                    .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
-                    .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
-        }
+        videoGroup.setCover(coverPath)
+                .setUserId(uid)
+                .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
+                .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
@@ -177,7 +172,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_PAGE_CACHE,key = "#page + ':' + #pageSize")
     public VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize) {
         VideoGroupListVO videoGroupListVO = new VideoGroupListVO();
         videoGroupListVO.setRecords(new ArrayList<>());

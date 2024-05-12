@@ -39,16 +39,16 @@ public class PlainVideoGroupController {
         String date = dtf.format(ldt);
         videoGroupDTO.setDate(date);
 
-        Long gorupId = videoGroupService.insert(videoGroupDTO);
+        Long groupId = videoGroupService.insert(videoGroupDTO);
 
         if (videoGroupDTO.getTagIds() != null) {
             for (String i : videoGroupDTO.getTagIds()) {
                 Long tagId = Long.valueOf(i);
-                videoGroupAndTagService.insert(tagId, gorupId);
+                videoGroupAndTagService.insert(tagId, groupId);
             }
         }
 
-        return Result.success(gorupId);
+        return Result.success(groupId);
     }
 
     @Operation(summary = "普通视频组删除")

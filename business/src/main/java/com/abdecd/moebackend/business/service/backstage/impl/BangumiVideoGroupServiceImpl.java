@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
@@ -7,7 +7,7 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.Bangu
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
-import com.abdecd.moebackend.business.service.BangumiVideoGroupService;
+import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;

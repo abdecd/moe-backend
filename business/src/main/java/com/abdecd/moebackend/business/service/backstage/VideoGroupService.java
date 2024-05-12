@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.backstage;
 
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;

@@ -3,7 +3,7 @@ package com.abdecd.moebackend.business.controller.backstage;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
-import com.abdecd.moebackend.business.service.VideoGroupService;
+import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;

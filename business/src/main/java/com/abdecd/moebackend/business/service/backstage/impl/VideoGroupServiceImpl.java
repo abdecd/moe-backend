@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.*;
@@ -9,7 +9,7 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.FileService;
-import com.abdecd.moebackend.business.service.VideoGroupService;
+import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;

@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.backstage;
 
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;

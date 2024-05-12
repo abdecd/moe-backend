@@ -4,7 +4,7 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoG
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.VideoGroupAndTagService;
-import com.abdecd.moebackend.business.service.VideoGroupService;
+import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

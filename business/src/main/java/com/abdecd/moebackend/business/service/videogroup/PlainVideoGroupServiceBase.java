@@ -7,18 +7,26 @@ import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
+import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
 import com.abdecd.moebackend.business.service.PlainUserService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.toolkit.Db;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,5 +81,40 @@ public class PlainVideoGroupServiceBase {
                         .setVideoCover(video.getCover())
                 ).toList()
         );
+    }
+
+    @Transactional
+    public Long addVideoGroupWithCoverResolved(PlainVideoGroupAddDTO plainVideoGroupAddDTO) {
+        var entity = plainVideoGroupAddDTO.toEntity(UserContext.getUserId());
+        videoGroupMapper.insert(entity);
+        var tags = Arrays.stream(plainVideoGroupAddDTO.getTagIds())
+                .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
+                .toList();
+        Db.saveBatch(tags);
+        return entity.getId();
+    }
+
+    @Transactional
+    public void updateVideoGroupWithCoverResolved(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO) {
+        var entity = plainVideoGroupUpdateDTO.toEntity(UserContext.getUserId());
+        videoGroupMapper.updateById(entity);
+        if (plainVideoGroupUpdateDTO.getTagIds() != null) {
+            var tags = Arrays.stream(plainVideoGroupUpdateDTO.getTagIds())
+                    .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
+                    .toList();
+            Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, entity.getId()));
+            Db.saveBatch(tags);
+        }
+    }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#videoGroupId")
+    })
+    @Transactional
+    public void deleteVideoGroup(Long videoGroupId) {
+        videoGroupMapper.deleteById(videoGroupId);
+        Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
+        // todo 删视频
     }
 }

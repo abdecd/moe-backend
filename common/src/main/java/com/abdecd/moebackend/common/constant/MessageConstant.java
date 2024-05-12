@@ -22,4 +22,5 @@ public class MessageConstant {
     public static final String INVALID_FILE_PATH = "文件路径错误";
     public static final String ALI_STS_NOT_AVAILABLE = "已上传大小超过上限";
     public static final String VIDEO_TRANSFORMING = "视频正在处理，请稍后再进行操作";
+    public static final String INVALID_VIDEO_GROUP = "视频组对不上";
 }

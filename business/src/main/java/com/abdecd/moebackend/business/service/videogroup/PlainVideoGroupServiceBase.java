@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.service.videogroup;
 
+import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
@@ -94,8 +95,11 @@ public class PlainVideoGroupServiceBase {
         return entity.getId();
     }
 
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#plainVideoGroupUpdateDTO.id")
     @Transactional
     public void updateVideoGroupWithCoverResolved(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO) {
+        checkUserHaveTheGroup(plainVideoGroupUpdateDTO.getId());
+
         var entity = plainVideoGroupUpdateDTO.toEntity(UserContext.getUserId());
         videoGroupMapper.updateById(entity);
         if (plainVideoGroupUpdateDTO.getTagIds() != null) {
@@ -113,8 +117,18 @@ public class PlainVideoGroupServiceBase {
     })
     @Transactional
     public void deleteVideoGroup(Long videoGroupId) {
+        checkUserHaveTheGroup(videoGroupId);
         videoGroupMapper.deleteById(videoGroupId);
         Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
         // todo 删视频
+    }
+
+    /**
+     * 检验空值以及是否是当前用户的视频组
+     * @param videoGroupId :
+     */
+    public void checkUserHaveTheGroup(Long videoGroupId) {
+        var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+        videoGroupService.checkUserHaveTheGroup(videoGroupId);
     }
 }

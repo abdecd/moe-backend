@@ -16,7 +16,5 @@ public class VideoGroupDTO {
     @Nullable
     private MultipartFile cover;
     @Nullable
-    private String date;
-    @Nullable
     private ArrayList<String> tagIds;
 }

@@ -38,3 +38,9 @@ token-login:
     - /video/danmaku
     - /video/comment
     - /video
+    - /video-group
+    - /video-group/type
+    - /bangumi-video-group
+    - /bangumi-video-group/contents
+    - /plain-video-group
+    - /plain-video-group/contents

@@ -257,8 +257,8 @@ public class VideoServiceImpl implements VideoService {
         // 检查是否正在转码
         if (obj.getStatus().equals(Video.Status.TRANSFORMING)) throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
 
+        videoMapper.deleteById(videoId); // 视频源有外键，不用手动处理
         fileService.deleteDirInSystem("/video/" + videoId);
-        videoMapper.deleteById(videoId);
     }
 
     @Cacheable(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId", unless = "#result == null")

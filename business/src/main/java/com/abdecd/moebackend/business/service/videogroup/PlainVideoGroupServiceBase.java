@@ -14,6 +14,7 @@ import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
 import com.abdecd.moebackend.business.service.PlainUserService;
+import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -43,6 +44,8 @@ public class PlainVideoGroupServiceBase {
     private VideoGroupTagMapper videoGroupTagMapper;
     @Autowired
     private VideoMapper videoMapper;
+    @Autowired
+    private VideoService videoService;
 
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public PlainVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
@@ -120,7 +123,9 @@ public class PlainVideoGroupServiceBase {
         checkUserHaveTheGroup(videoGroupId);
         videoGroupMapper.deleteById(videoGroupId);
         Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
-        // todo 删视频
+        // 删视频
+        for (var video : videoMapper.selectList(new LambdaQueryWrapper<Video>().eq(Video::getVideoGroupId, videoGroupId)))
+            videoService.deleteVideo(video.getId());
     }
 
     /**

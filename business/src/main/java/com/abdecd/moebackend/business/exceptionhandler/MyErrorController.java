@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class MyErrorController extends BasicErrorController {
@@ -60,6 +57,6 @@ public class MyErrorController extends BasicErrorController {
         resultBody.put("code", body.get("status"));
         resultBody.put("msg", errMsg);
         resultBody.put("data", "");
-        return new ResponseEntity<>(resultBody, HttpStatus.OK);
+        return new ResponseEntity<>(resultBody, Objects.requireNonNull(HttpStatus.resolve((Integer) body.get("status"))));
     }
 }

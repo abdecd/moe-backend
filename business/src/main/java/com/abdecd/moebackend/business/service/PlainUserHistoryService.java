@@ -54,7 +54,7 @@ public class PlainUserHistoryService {
                 .setNickname(uploader.getNickname());
         return new HistoryVO()
                 .setUploader(uploaderVO)
-                .setVideoGroupId(videoGroup.getVideoGroupId())
+                .setVideoGroupId(videoGroup.getId())
                 .setVideoGroupTitle(videoGroup.getTitle())
                 .setVideoGroupCover(videoGroup.getCover())
                 .setVideoId(video.getId())
@@ -76,7 +76,7 @@ public class PlainUserHistoryService {
     public void addHistory(AddHistoryDTO addHistoryDTO) {
         var video = videoService.getVideo(addHistoryDTO.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(video.getVideoGroupId());
-        var entity = addHistoryDTO.toEntity(UserContext.getUserId(), videoGroup.getVideoGroupId());
+        var entity = addHistoryDTO.toEntity(UserContext.getUserId(), videoGroup.getId());
 
         // add to redis
         var lock = redissonClient.getLock(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());

@@ -23,13 +23,13 @@ public class BangumiVideoGroupControllerBase {
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
-    public Result<BangumiVideoGroupVO> getVideoGroup(@RequestParam Long videoGroupId) {
-        return Result.success(bangumiVideoGroupServiceBase.getVideoGroupInfo(videoGroupId));
+    public Result<BangumiVideoGroupVO> getVideoGroup(@RequestParam Long id) {
+        return Result.success(bangumiVideoGroupServiceBase.getVideoGroupInfo(id));
     }
 
     @Operation(summary = "获取视频组目录")
     @GetMapping("contents")
-    public Result<List<ContentsItemVO>> getContents(@RequestParam Long videoGroupId) {
-        return Result.success(bangumiVideoGroupServiceBase.getContents(videoGroupId));
+    public Result<List<ContentsItemVO>> getContents(@RequestParam Long id) {
+        return Result.success(bangumiVideoGroupServiceBase.getContents(id));
     }
 }

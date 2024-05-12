@@ -25,8 +25,8 @@ public class VideoGroupServiceBase {
     @Autowired
     private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
 
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_TYPE_CACHE, key = "#videoGroupId")
-    public Byte getVideoGroupType(Long videoGroupId) {
+    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_TYPE_CACHE, key = "#videoGroupId", unless = "#result == null")
+    public Byte getVideoGroupType(long videoGroupId) {
         var obj = videoGroupMapper.selectById(videoGroupId);
         if (obj == null) return null;
         return obj.getType();

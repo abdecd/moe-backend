@@ -29,14 +29,14 @@ public class PlainVideoGroupControllerBase {
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(@RequestParam Long videoGroupId) {
-        return Result.success(plainVideoGroupServiceBase.getVideoGroupInfo(videoGroupId));
+    public Result<VideoGroupVO> getVideoGroup(@RequestParam Long id) {
+        return Result.success(plainVideoGroupServiceBase.getVideoGroupInfo(id));
     }
 
     @Operation(summary = "获取视频组目录")
     @GetMapping("contents")
-    public Result<List<ContentsItemVO>> getContents(@RequestParam Long videoGroupId) {
-        return Result.success(plainVideoGroupServiceBase.getContents(videoGroupId));
+    public Result<List<ContentsItemVO>> getContents(@RequestParam Long id) {
+        return Result.success(plainVideoGroupServiceBase.getContents(id));
     }
 
     @Operation(summary = "添加普通视频组综合接口")

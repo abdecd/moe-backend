@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 public class VideoGroupVO {
-    private Long videoGroupId;
+    private Long id;
     private String title;
     private UploaderVO uploader;
     private String cover;

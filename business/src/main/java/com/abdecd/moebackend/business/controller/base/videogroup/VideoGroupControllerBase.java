@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "视频组接口")
@@ -19,13 +20,13 @@ public class VideoGroupControllerBase {
 
     @Operation(summary = "获取视频组类型")
     @GetMapping("type")
-    public Result<Byte> getVideoGroupType(Long videoGroupId) {
-        return Result.success(videoGroupServiceBase.getVideoGroupType(videoGroupId));
+    public Result<Byte> getVideoGroupType(@RequestParam Long id) {
+        return Result.success(videoGroupServiceBase.getVideoGroupType(id));
     }
 
     @Operation(summary = "获取视频组")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(Long videoGroupId) {
-        return Result.success(videoGroupServiceBase.getVideoGroupInfo(videoGroupId));
+    public Result<VideoGroupVO> getVideoGroup(@RequestParam Long id) {
+        return Result.success(videoGroupServiceBase.getVideoGroupInfo(id));
     }
 }

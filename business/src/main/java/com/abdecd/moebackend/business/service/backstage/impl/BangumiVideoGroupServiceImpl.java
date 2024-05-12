@@ -46,7 +46,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
 
-    @CacheEvict(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#id")
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#id")
     @Override
     public void deleteByVid(Long id) {
         bangumiVideoGroupMapper.deleteByVid(id);
@@ -58,7 +58,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#bangumiVideoGroupUpdateDTO.id")
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#bangumiVideoGroupUpdateDTO.id")
     public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
 
@@ -74,7 +74,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#vid")
+    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#vid")
     public BangumiVideoGroupVO getByVid(Long vid) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(vid);
@@ -129,7 +129,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
+    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);

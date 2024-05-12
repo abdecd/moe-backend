@@ -35,7 +35,7 @@ public class BangumiVideoGroupServiceBase {
     @Autowired
     private VideoMapper videoMapper;
 
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
+    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public BangumiVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
         var base = videoGroupMapper.selectById(videoGroupId);
         if (base == null || !Objects.equals(base.getType(), VideoGroup.Type.ANIME_VIDEO_GROUP)) return null;
@@ -64,7 +64,7 @@ public class BangumiVideoGroupServiceBase {
         return vo;
     }
 
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#videoGroupId", unless = "#result == null")
+    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#videoGroupId", unless = "#result == null")
     public List<ContentsItemVO> getContents(Long videoGroupId) {
         var videoList = videoMapper.selectList(new LambdaQueryWrapper<Video>()
                 .eq(Video::getVideoGroupId, videoGroupId)

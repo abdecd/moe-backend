@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup;
+package com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

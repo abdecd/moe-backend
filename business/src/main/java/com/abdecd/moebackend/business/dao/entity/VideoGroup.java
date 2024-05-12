@@ -1,16 +1,19 @@
 package com.abdecd.moebackend.business.dao.entity;
-import io.micrometer.common.lang.Nullable;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 
 @Accessors(chain = true)
 @Data
+@TableName("video_group")
 public class VideoGroup {
-    @Nullable
+    @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
     private String title;

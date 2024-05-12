@@ -1,10 +1,10 @@
-package com.abdecd.moebackend.business.controller.base;
+package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
-import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupAddDTO;
-import com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
-import com.abdecd.moebackend.business.pojo.vo.bangumiVideoGroup.BangumiVideoGroupVO;
-import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
+import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @Tag(name = "番剧视频组接口")
 @Slf4j
 @RestController
-@RequestMapping("bangumi-video-group")
+@RequestMapping("/backstage/bangumi-video-group")
 public class BangumiVideoGroupController {
     @Resource
     private VideoGroupService videoGroupService;

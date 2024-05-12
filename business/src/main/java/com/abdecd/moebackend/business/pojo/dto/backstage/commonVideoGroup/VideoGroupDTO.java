@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.dto.commonVideoGroup;
+package com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup;
 
 import io.micrometer.common.lang.Nullable;
 import lombok.Data;

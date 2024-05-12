@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.pojo.dto.bangumiVideoGroup;
+package com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup;
 
 import jakarta.annotation.Nullable;
 import lombok.Data;

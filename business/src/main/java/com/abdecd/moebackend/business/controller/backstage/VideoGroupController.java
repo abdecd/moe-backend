@@ -1,7 +1,7 @@
-package com.abdecd.moebackend.business.controller.base;
+package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 @Tag(name = "通用视频组接口")
 @Slf4j
 @RestController
-@RequestMapping("video-group")
+@RequestMapping("/backstage/video-group")
 public class VideoGroupController {
     @Resource
     private VideoGroupService videoGroupService;

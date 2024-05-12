@@ -38,7 +38,7 @@ public interface VideoGroupService {
     /**
      * 根据id获取视频组类型
      */
-    Integer getTypeByVideoId(Long vid);
+    Byte getTypeByVideoId(Long vid);
 
     /**
      * 根据id获取视频组分页信息

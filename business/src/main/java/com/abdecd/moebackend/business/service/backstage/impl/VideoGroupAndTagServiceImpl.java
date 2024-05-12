@@ -1,8 +1,8 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
-import com.abdecd.moebackend.business.service.VideoGroupAndTagService;
+import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

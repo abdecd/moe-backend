@@ -1,13 +1,16 @@
 package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.dao.entity.*;
+import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
-import com.abdecd.moebackend.business.pojo.vo.common.*;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -22,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -166,7 +167,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Override
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_TYPE_CACHE,key = "#id")
-    public Integer getTypeByVideoId(Long id) {
+    public Byte getTypeByVideoId(Long id) {
         VideoGroup videoGroup = videoGroupMapper.selectById(id);
         return videoGroup.getType();
     }

@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
 @Data
-@TableName("video_group_tag")
+@TableName("video_group_and_tag")
 public class VideoGroupAndTag {
     @TableId(type = IdType.AUTO)
     private Long id;

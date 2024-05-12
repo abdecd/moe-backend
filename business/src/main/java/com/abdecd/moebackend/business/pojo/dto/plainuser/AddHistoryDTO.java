@@ -13,9 +13,9 @@ public class AddHistoryDTO {
     @NotNull
     private Long videoId;
 
-    public PlainUserHistory toEntity(Long uploaderId, Long videoGroupId) {
+    public PlainUserHistory toEntity(Long userId, Long videoGroupId) {
         return new PlainUserHistory()
-                .setUserId(uploaderId)
+                .setUserId(userId)
                 .setVideoGroupId(videoGroupId)
                 .setVideoId(videoId)
                 .setTimestamp(LocalDateTime.now());

@@ -13,5 +13,5 @@ public interface VideoMapper extends BaseMapper<Video> {
     ArrayList<Video> getByGroupid(Long id);
 
     @Select(("SELECT * FROM video WHERE video_group_id = #{videoGroupId}"))
-    ArrayList<Video> selectByGid(Integer videoGroupId);
+    ArrayList<Video> selectByGid(Long videoGroupId);
 }

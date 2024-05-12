@@ -45,6 +45,8 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
+
+    @CacheEvict(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#id")
     @Override
     public void deleteByVid(Long id) {
         bangumiVideoGroupMapper.deleteByVid(id);
@@ -56,21 +58,23 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "bangumiVideoGroupUpdateDTO.id")
+    @CacheEvict(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#bangumiVideoGroupUpdateDTO.id")
     public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
 
         bangumiVideoGroup.setVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
-        if(bangumiVideoGroupUpdateDTO.getStatus() != null)
+        if (bangumiVideoGroupUpdateDTO.getStatus() != null)
             bangumiVideoGroup.setStatus(Integer.valueOf(bangumiVideoGroupUpdateDTO.getStatus()));
-        bangumiVideoGroup.setReleaseTime(LocalDateTime.parse(bangumiVideoGroupUpdateDTO.getReleaseTime()));
+        if (bangumiVideoGroupUpdateDTO.getReleaseTime() != null) {
+            bangumiVideoGroup.setReleaseTime(LocalDateTime.parse(bangumiVideoGroupUpdateDTO.getReleaseTime()));
+        }
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupUpdateDTO.getUpdateAtAnnouncement());
 
         bangumiVideoGroupMapper.update(bangumiVideoGroup);
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "vid")
+    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#vid")
     public BangumiVideoGroupVO getByVid(Long vid) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(vid);
@@ -96,7 +100,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         try {
             //TODO 文件没有存下来
             String randomImageName = UUID.randomUUID() + ".jpg";
-            coverPath =  fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(),randomImageName);
+            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), randomImageName);
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }
@@ -114,7 +118,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
-        for(Integer tagid : bangumiVideoGroupAddDTO.getTagIds()){
+        for (Integer tagid : bangumiVideoGroupAddDTO.getTagIds()) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
             videoGroupAndTag.setVideoGroupId(videoGroup.getId());
             videoGroupAndTag.setTagId(Long.valueOf(tagid));
@@ -125,12 +129,12 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE,key = "videoGroupId")
+    @Cacheable(cacheNames = RedisConstant.BANFUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);
 
-        if(videoGroup == null) {
+        if (videoGroup == null) {
             throw new BaseException("视频组缺失");
         }
 
@@ -145,7 +149,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         for (Long id_ : tagIds) {
             VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
-            if(tag != null)
+            if (tag != null)
                 videoGroupTagList.add(tag);
         }
 
@@ -153,14 +157,14 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());
-        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
-        if(plainUserDetail != null){
+        PlainUserDetail plainUserDetail = plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+        if (plainUserDetail != null) {
             uploaderVO.setAvatar(plainUserDetail.getAvatar());
             uploaderVO.setNickname(plainUserDetail.getNickname());
         }
 
         bangumiVideoGroupVO.setUploader(uploaderVO);
 
-        return  bangumiVideoGroupVO;
+        return bangumiVideoGroupVO;
     }
 }

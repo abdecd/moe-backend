@@ -1,8 +1,8 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoCompleteVO;
 import com.abdecd.moebackend.business.pojo.vo.commonVideoGroup.VideoGroupListVO;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.VideoGroupService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.common.result.Result;
@@ -31,37 +31,29 @@ public class VideoGroupController {
 
     @Operation(summary = "视频组类型获取", description = "data字段返回视频组类型")
     @GetMapping("/type")
-    public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId){
-        Integer videoGroupType =   videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId));
+    public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId) {
+        Integer videoGroupType = videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId));
         return Result.success(videoGroupType);
     }
 
     @Operation(summary = "视频组列表获取", description = "data字段返回视频组列表")
     @GetMapping("/list")
-    public Result<VideoGroupListVO> getVideoGroupList(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
-        VideoGroupListVO videoGroupListVO = videoGroupService.getVideoGroupList(page,pageSize);
+    public Result<VideoGroupListVO> getVideoGroupList(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize) {
+        VideoGroupListVO videoGroupListVO = videoGroupService.getVideoGroupList(page, pageSize);
         return Result.success(videoGroupListVO);
     }
 
     @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoCompleteVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Integer videoGroupId){
-        ArrayList<VideoCompleteVO> videoCompleteVOArrayList = new ArrayList<>();
+    public Result<ArrayList<VideoVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Integer videoGroupId) {
+        ArrayList<VideoVO> videoCompleteVOArrayList = new ArrayList<>();
         ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);
 
-        for(Video video : videoList){
-            VideoCompleteVO videoCompleteVO = new VideoCompleteVO();
+        for (Video video : videoList) {
+            VideoVO videoVO = videoService.getVideo(video.getId());
 
-            videoCompleteVO.setId(video.getId());
-            videoCompleteVO.setTitle(video.getTitle());
-            videoCompleteVO.setDescription(video.getDescription());
-            videoCompleteVO.setCover(video.getCover());
-            videoCompleteVO.setVideoGroupId(Long.valueOf(videoGroupId));
-            videoCompleteVO.setIndex(video.getIndex());
-            videoCompleteVO.setLink(video.getLink());
-
-            videoCompleteVOArrayList.add(videoCompleteVO);
+            videoCompleteVOArrayList.add(videoVO);
         }
-        return  Result.success(videoCompleteVOArrayList);
+        return Result.success(videoCompleteVOArrayList);
     }
 }

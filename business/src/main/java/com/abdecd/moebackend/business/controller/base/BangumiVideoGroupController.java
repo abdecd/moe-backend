@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,11 +31,11 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
     @RequestMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addBangumiVideoGroup(@Valid  BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO){
+    public Result<Long> addBangumiVideoGroup(@Valid BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
         Long vid = bangumiVideoGroupService.insert(bangumiVideoGroupAddDTO);
 
 
-        Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结")?1:0;
+        Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结") ? 1 : 0;
 
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
         bangumiVideoGroup.setVideoGroupId(vid);
@@ -51,7 +50,6 @@ public class BangumiVideoGroupController {
 
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
-    @CacheEvict(value = "bangumiVideoGroup",key = "#id")
     public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
         videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
@@ -61,8 +59,7 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组更新")
     @RequestMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    @CacheEvict(value = "bangumiVideoGroup",key = "#bangumiVideoGroupUpdateDTO.id")
-    public  Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO){
+    public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
@@ -70,7 +67,7 @@ public class BangumiVideoGroupController {
 
     @Operation(summary = "番剧视频组获取", description = "data字段返回番剧视频组信息")
     @GetMapping("")
-    public  Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id){
+    public Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         bangumiVideoGroupVO.setVideoGroupId(id);
 
@@ -86,7 +83,7 @@ public class BangumiVideoGroupController {
 
     @Operation(summary = "番剧视频组目录获取", description = "data字段返回番剧视频组目录")
     @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id){
+    public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }

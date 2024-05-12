@@ -122,9 +122,7 @@ public class UserBaseService {
             }
             // 创建账号
             var user = User.ofEmpty()
-                    .setPassword("")
-                    .setPermission(permission)
-                    .setStatus((byte) 1);
+                    .setPermission(permission);
             userMapper.insert(user);
             var userId = user.getId();
             userMapper.updateById(user

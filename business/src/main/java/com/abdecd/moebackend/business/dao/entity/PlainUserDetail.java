@@ -15,4 +15,5 @@ public class PlainUserDetail {
     private String nickname;
     private String avatar;
     private String signature;
+    private String nickname;
 }

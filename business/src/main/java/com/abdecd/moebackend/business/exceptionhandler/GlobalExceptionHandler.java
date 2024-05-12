@@ -40,4 +40,15 @@ public class GlobalExceptionHandler {
             return Result.error("重复的值："+msg.split(" ")[2]);
         else return Result.error(MessageConstant.UNKNOWN_ERROR);
     }
+
+    /**
+     * 实例对象不完整
+     * @param ex 异常
+     * @return Result
+     */
+    @ExceptionHandler
+    public Result<String> nullPointerExceptionHandler(NullPointerException ex){
+        log.error("异常信息：{}", ex.getMessage());
+        return Result.error("信息不全");
+    }
 }

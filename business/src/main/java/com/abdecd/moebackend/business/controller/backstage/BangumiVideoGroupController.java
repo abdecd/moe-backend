@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
@@ -8,6 +9,7 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.common.result.Result;
+import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -28,6 +30,7 @@ public class BangumiVideoGroupController {
     @Resource
     private BangumiVideoGroupService bangumiVideoGroupService;
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
@@ -48,6 +51,7 @@ public class BangumiVideoGroupController {
         return Result.success(vid);
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
     public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
@@ -56,6 +60,7 @@ public class BangumiVideoGroupController {
         return Result.success();
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
@@ -65,6 +70,7 @@ public class BangumiVideoGroupController {
         return Result.success();
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组获取", description = "data字段返回番剧视频组信息")
     @GetMapping("")
     public Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id) {
@@ -81,6 +87,7 @@ public class BangumiVideoGroupController {
         return Result.success(bangumiVideoGroupVO);
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组目录获取", description = "data字段返回番剧视频组目录")
     @GetMapping("/contents")
     public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id) {

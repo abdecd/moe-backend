@@ -16,6 +16,7 @@ import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.business.service.VideoTransformer;
+import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -27,6 +28,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -63,10 +65,12 @@ public class VideoServiceImpl implements VideoService {
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
 
+    // todo 由于 BangumiVideoGroupServiceBase 上传修改删除还没用到这个类，故没有清除相关目录缓存
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId")
     @Transactional
     @Override
     public long addVideo(AddVideoDTO addVideoDTO) {
-        // todo 检查是否是该用户的 videogroup
+        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
@@ -80,7 +84,7 @@ public class VideoServiceImpl implements VideoService {
         try {
             var cover = fileService.changeTmpFileToStatic(
                     coverUrl,
-                    "/video/" + entity.getId(),
+                    "/video-group/" + entity.getVideoGroupId() + "/" + entity.getId(),
                     "cover" + coverUrl.substring(coverUrl.lastIndexOf('.'))
             );
             if (cover.isEmpty()) throw new Exception(); // will be caught
@@ -89,7 +93,26 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        createTransformTask(entity.getId(), originPath);
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath);
+
+        return entity.getId();
+    }
+
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId")
+    @Transactional
+    @Override
+    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
+        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
+
+        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+
+        var entity = addVideoDTO.toEntity();
+        videoMapper.insert(entity);
+
+        // 链接处理
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath);
 
         return entity.getId();
     }
@@ -99,13 +122,17 @@ public class VideoServiceImpl implements VideoService {
      * @param videoId :
      * @param originPath 如 tmp/1/video.mp4
      */
-    private void createTransformTask(Long videoId, String originPath) {
+    private void createTransformTask(Long videoGroupId, Long videoId, String originPath) {
         // 视频转码
         var task = new VideoTransformTask()
                 .setId(UUID.randomUUID() + "")
                 .setVideoId(videoId)
                 .setOriginPath(originPath)
-                .setTargetPaths(new String[]{"video/" + videoId + "/360p.mp4", "video/" + videoId + "/720p.mp4", "video/" + videoId + "/1080p.mp4"})
+                .setTargetPaths(new String[]{
+                        "video-group/" + videoGroupId + "/" + videoId + "/360p.mp4",
+                        "video-group/" + videoGroupId + "/" + videoId + "/720p.mp4",
+                        "video-group/" + videoGroupId + "/" + videoId + "/1080p.mp4"
+                })
                 .setStatus(new VideoTransformTask.Status[]{VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING})
                 .setCbBeanNameAndMethodName("videoServiceImpl.videoTransformCb");
         // 保存任务
@@ -156,6 +183,7 @@ public class VideoServiceImpl implements VideoService {
         self.videoTransformSave(task);
     }
 
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#task.videoId")
     @Transactional
     public void videoTransformSave(VideoTransformTask task) {
         for (var taskType : task.getTaskTypes()) {
@@ -182,10 +210,13 @@ public class VideoServiceImpl implements VideoService {
         return Boolean.TRUE.equals(stringRedisTemplate.hasKey(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + videoId));
     }
 
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
+    })
     @Override
     public void updateVideo(UpdateVideoDTO updateVideoDTO) {
-        // todo 检查是否是该用户的 videogroup
+        checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
 
         if (updateVideoDTO.getLink() != null) {
             var originPath = resourceLinkHandler.getRawPathFromVideoLink(updateVideoDTO.getLink());
@@ -193,7 +224,7 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-            createTransformTask(updateVideoDTO.getId(), originPath);
+            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath);
         }
 
         var coverUrl = updateVideoDTO.getCover();
@@ -201,7 +232,7 @@ public class VideoServiceImpl implements VideoService {
             try {
                 var cover = fileService.changeTmpFileToStatic(
                         coverUrl,
-                        "/video/" + updateVideoDTO.getId(),
+                        "/video-group/" + updateVideoDTO.getVideoGroupId() + "/" + updateVideoDTO.getId(),
                         "cover" + coverUrl.substring(coverUrl.lastIndexOf('.'))
                 );
                 if (cover.isEmpty()) throw new Exception();
@@ -215,17 +246,21 @@ public class VideoServiceImpl implements VideoService {
         videoMapper.updateById(entity);
     }
 
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideo(#videoId).getVideoGroupId()"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId")
+    })
     @Override
     public void deleteVideo(Long videoId) {
         var obj = videoMapper.selectById(videoId);
         if (obj == null) return;
+        // 检查是不是拥有者
+        checkUserHaveTheGroup(obj.getVideoGroupId());
         // 检查是否正在转码
         if (obj.getStatus().equals(Video.Status.TRANSFORMING)) throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-        // todo 检查是不是拥有者
 
-        fileService.deleteDirInSystem("/video/" + videoId);
-        videoMapper.deleteById(videoId);
+        videoMapper.deleteById(videoId); // 视频源有外键，不用手动处理
+        fileService.deleteDirInSystem("/video-group/" + obj.getVideoGroupId() + "/" + videoId);
     }
 
     @Cacheable(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId", unless = "#result == null")
@@ -243,5 +278,16 @@ public class VideoServiceImpl implements VideoService {
                 .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
         ));
         return vo;
+    }
+
+    @Override
+    @Cacheable(cacheNames = RedisConstant.VIDEO_LIST_CACHE,key = "#videoGroupId") // todo
+    public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
+        return videoMapper.selectByGid(videoGroupId);
+    }
+
+    public void checkUserHaveTheGroup(Long videoGroupId) {
+        var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+        videoGroupService.checkUserHaveTheGroup(videoGroupId);
     }
 }

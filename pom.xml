@@ -24,6 +24,7 @@
         <module>token-login</module>
     </modules>
 
+
     <dependencyManagement>
         <dependencies>
             <dependency>

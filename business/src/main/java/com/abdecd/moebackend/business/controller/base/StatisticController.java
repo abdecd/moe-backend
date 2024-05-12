@@ -2,7 +2,7 @@ package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.lib.RateLimiter;
 import com.abdecd.moebackend.business.pojo.dto.statistic.VideoPlayDTO;
-import com.abdecd.moebackend.business.service.StatisticService;
+import com.abdecd.moebackend.business.service.statistic.StatisticService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.Result;

@@ -3,7 +3,9 @@ package com.abdecd.moebackend.business.pojo.dto.video;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Accessors(chain = true)
 @Data
 public class UpdateVideoDTO {
     @NotNull

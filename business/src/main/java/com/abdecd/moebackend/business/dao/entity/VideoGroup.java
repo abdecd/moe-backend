@@ -20,6 +20,11 @@ public class VideoGroup {
     private String cover;
     private String description;
     private LocalDateTime createTime;
-    private Integer type;
+    private Byte type;
     private Double weight;
+
+    public static class Type {
+        public static final Byte PLAIN_VIDEO_GROUP = 0;
+        public static final Byte ANIME_VIDEO_GROUP = 1;
+    }
 }

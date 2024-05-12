@@ -18,7 +18,7 @@ public interface VideoGroupService {
 
     ArrayList<VideoVo> getContentById(Long id);
 
-    Integer getTypeByVideoId(Long vid);
+    Byte getTypeByVideoId(Long vid);
 
     VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize);
 }

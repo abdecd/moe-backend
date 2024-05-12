@@ -32,7 +32,7 @@ public class VideoGroupController {
     @Operation(summary = "视频组类型获取", description = "data字段返回视频组类型")
     @GetMapping("/type")
     public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId) {
-        Integer videoGroupType = videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId));
+        Integer videoGroupType = Integer.valueOf(videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId)));
         return Result.success(videoGroupType);
     }
 

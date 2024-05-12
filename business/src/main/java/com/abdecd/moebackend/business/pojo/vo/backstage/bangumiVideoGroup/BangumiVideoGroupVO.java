@@ -1,7 +1,7 @@
 package com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
-import com.abdecd.moebackend.business.pojo.vo.common.UploaderVO;
+import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class BangumiVideoGroupVO{
     private UploaderVO uploader;
     private String cover;
     private String description;
-    private Integer type;
+    private Byte type;
     private String releaseTime;
     private String updateAtAnnouncement;
     private Integer status;

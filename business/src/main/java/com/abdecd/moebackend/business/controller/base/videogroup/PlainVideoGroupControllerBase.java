@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.controller.base.videogroup;
 
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.*;
@@ -7,6 +8,7 @@ import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +48,7 @@ public class PlainVideoGroupControllerBase {
         var groupAddDTO = new PlainVideoGroupAddDTO();
         BeanUtils.copyProperties(addDTO, groupAddDTO);
         var videoGroupId = plainVideoGroupServiceBase.addVideoGroup(groupAddDTO);
+
         var videoAddDTO = new AddVideoDTO()
                 .setVideoGroupId(videoGroupId)
                 .setIndex(0)
@@ -59,12 +62,20 @@ public class PlainVideoGroupControllerBase {
 
     @Operation(summary = "修改普通视频组综合接口")
     @PostMapping("update")
-    public Result<Long> updateVideoGroup(@RequestBody PlainVideoGroupFullUpdateDTO updateDTO) {
+    @Transactional
+    public Result<String> updateVideoGroup(@RequestBody PlainVideoGroupFullUpdateDTO updateDTO) {
+        // todo 提前检验所有参数 防止非原子性
         var groupUpdateDTO = new PlainVideoGroupUpdateDTO();
         BeanUtils.copyProperties(updateDTO, groupUpdateDTO);
         plainVideoGroupServiceBase.updateVideoGroup(groupUpdateDTO);
+
         var videoGroupId = updateDTO.getId();
+        var contents = plainVideoGroupServiceBase.getContents(videoGroupId);
+        if (contents == null || contents.isEmpty()) throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
+        var videoId = contents.getFirst().getVideoId();
+
         var updateVideoDTO = new UpdateVideoDTO()
+                .setId(videoId)
                 .setVideoGroupId(videoGroupId)
                 .setIndex(0)
                 .setTitle(updateDTO.getTitle())
@@ -72,7 +83,7 @@ public class PlainVideoGroupControllerBase {
                 .setDescription(updateDTO.getDescription())
                 .setLink(updateDTO.getLink());
         videoService.updateVideo(updateVideoDTO);
-        return Result.success(videoGroupId);
+        return Result.success();
     }
 
     @Operation(summary = "删除普通视频组综合接口")

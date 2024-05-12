@@ -146,7 +146,7 @@ public class PlainVideoGroupServiceBase {
             var tags = Arrays.stream(plainVideoGroupUpdateDTO.getTagIds())
                     .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
                     .toList();
-            Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, entity.getId()));
+            videoGroupAndTagMapper.delete(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, entity.getId()));
             Db.saveBatch(tags);
         }
     }
@@ -159,10 +159,12 @@ public class PlainVideoGroupServiceBase {
     public void deleteVideoGroup(Long videoGroupId) {
         checkUserHaveTheGroup(videoGroupId);
         videoGroupMapper.deleteById(videoGroupId);
-        Db.remove(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
+        videoGroupAndTagMapper.delete(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
         // 删视频
         for (var video : videoMapper.selectList(new LambdaQueryWrapper<Video>().eq(Video::getVideoGroupId, videoGroupId)))
             videoService.deleteVideo(video.getId());
+        // 删文件夹
+        fileService.deleteDirInSystem("/video-group/" + videoGroupId);
     }
 
     /**

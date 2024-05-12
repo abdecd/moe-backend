@@ -180,7 +180,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_PAGE_CACHE,key = "#page + ':' + #pageSize")
     public VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize) {
         VideoGroupListVO videoGroupListVO = new VideoGroupListVO();
         videoGroupListVO.setRecords(new ArrayList<>());

@@ -45,7 +45,7 @@ public class VideoGroupController {
 
     @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Integer videoGroupId) {
+    public Result<ArrayList<VideoVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
         ArrayList<VideoVO> videoCompleteVOArrayList = new ArrayList<>();
         ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);
 

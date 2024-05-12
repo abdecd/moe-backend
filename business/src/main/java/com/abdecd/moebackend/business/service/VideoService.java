@@ -15,5 +15,5 @@ public interface VideoService {
     void deleteVideo(Long videoId);
     VideoVO getVideo(Long videoId);
 
-    ArrayList<Video> getVideoListByGid(Integer videoGroupId);
+    ArrayList<Video> getVideoListByGid(Long videoGroupId);
 }

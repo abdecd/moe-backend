@@ -266,7 +266,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     @Cacheable(cacheNames = RedisConstant.VIDEO_LIST_CACHE,key = "#videoGroupId")
-    public ArrayList<Video> getVideoListByGid(Integer videoGroupId) {
+    public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
         return videoMapper.selectByGid(videoGroupId);
     }
 }

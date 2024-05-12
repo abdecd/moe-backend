@@ -94,6 +94,24 @@ public class VideoServiceImpl implements VideoService {
         return entity.getId();
     }
 
+    @Transactional
+    @Override
+    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
+        // todo 检查是否是该用户的 videogroup
+
+        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+
+        var entity = addVideoDTO.toEntity();
+        videoMapper.insert(entity);
+
+        // 链接处理
+        createTransformTask(entity.getId(), originPath);
+
+        return entity.getId();
+    }
+
     /**
      * 创建转码任务，并在超时后删除
      * @param videoId :
@@ -156,6 +174,7 @@ public class VideoServiceImpl implements VideoService {
         self.videoTransformSave(task);
     }
 
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#task.videoId")
     @Transactional
     public void videoTransformSave(VideoTransformTask task) {
         for (var taskType : task.getTaskTypes()) {

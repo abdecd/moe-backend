@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public interface VideoService {
     long addVideo(AddVideoDTO addVideoDTO);
+    long addVideoWithCoverResolved(AddVideoDTO addVideoDTO);
     boolean checkVideoPending(Long videoId);
     void updateVideo(UpdateVideoDTO updateVideoDTO);
     void deleteVideo(Long videoId);

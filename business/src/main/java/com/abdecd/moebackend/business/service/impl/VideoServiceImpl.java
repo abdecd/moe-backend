@@ -60,8 +60,6 @@ public class VideoServiceImpl implements VideoService {
     private FileService fileService;
     @Autowired
     private RedissonClient redissonClient;
-    @Autowired
-    private VideoGroupServiceBase videoGroupServiceBase;
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private static final int TRANSFORM_TASK_TTL = 600;
@@ -72,7 +70,7 @@ public class VideoServiceImpl implements VideoService {
     @Transactional
     @Override
     public long addVideo(AddVideoDTO addVideoDTO) {
-        videoGroupServiceBase.checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
+        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
@@ -104,7 +102,7 @@ public class VideoServiceImpl implements VideoService {
     @Transactional
     @Override
     public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
-        videoGroupServiceBase.checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
+        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
@@ -214,7 +212,7 @@ public class VideoServiceImpl implements VideoService {
     })
     @Override
     public void updateVideo(UpdateVideoDTO updateVideoDTO) {
-        videoGroupServiceBase.checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
+        checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
 
         if (updateVideoDTO.getLink() != null) {
             var originPath = resourceLinkHandler.getRawPathFromVideoLink(updateVideoDTO.getLink());
@@ -253,7 +251,7 @@ public class VideoServiceImpl implements VideoService {
         var obj = videoMapper.selectById(videoId);
         if (obj == null) return;
         // 检查是不是拥有者
-        videoGroupServiceBase.checkUserHaveTheGroup(obj.getVideoGroupId());
+        checkUserHaveTheGroup(obj.getVideoGroupId());
         // 检查是否正在转码
         if (obj.getStatus().equals(Video.Status.TRANSFORMING)) throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
 
@@ -282,5 +280,10 @@ public class VideoServiceImpl implements VideoService {
     @Cacheable(cacheNames = RedisConstant.VIDEO_LIST_CACHE,key = "#videoGroupId") // todo
     public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
         return videoMapper.selectByGid(videoGroupId);
+    }
+    
+    public void checkUserHaveTheGroup(Long videoGroupId) {
+        var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+        videoGroupService.checkUserHaveTheGroup(videoGroupId);
     }
 }

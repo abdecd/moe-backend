@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.service.videogroup;
 
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
@@ -13,8 +14,10 @@ import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupUpdateD
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
+import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.moebackend.business.service.PlainUserService;
 import com.abdecd.moebackend.business.service.VideoService;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -46,6 +49,8 @@ public class PlainVideoGroupServiceBase {
     private VideoMapper videoMapper;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private FileService fileService;
 
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public PlainVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
@@ -88,9 +93,24 @@ public class PlainVideoGroupServiceBase {
     }
 
     @Transactional
-    public Long addVideoGroupWithCoverResolved(PlainVideoGroupAddDTO plainVideoGroupAddDTO) {
+    public Long addVideoGroup(PlainVideoGroupAddDTO plainVideoGroupAddDTO) {
         var entity = plainVideoGroupAddDTO.toEntity(UserContext.getUserId());
         videoGroupMapper.insert(entity);
+
+        // 封面处理
+        var coverUrl = plainVideoGroupAddDTO.getCover();
+        try {
+            var cover = fileService.changeTmpFileToStatic(
+                    coverUrl,
+                    "/video-group/" + entity.getId(),
+                    "cover" + coverUrl.substring(coverUrl.lastIndexOf('.'))
+            );
+            if (cover.isEmpty()) throw new Exception(); // will be caught
+            videoGroupMapper.updateById(entity.setCover(cover));
+        } catch (Exception e) {
+            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+        }
+
         var tags = Arrays.stream(plainVideoGroupAddDTO.getTagIds())
                 .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
                 .toList();
@@ -100,11 +120,28 @@ public class PlainVideoGroupServiceBase {
 
     @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#plainVideoGroupUpdateDTO.id")
     @Transactional
-    public void updateVideoGroupWithCoverResolved(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO) {
+    public void updateVideoGroup(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO) {
         checkUserHaveTheGroup(plainVideoGroupUpdateDTO.getId());
 
         var entity = plainVideoGroupUpdateDTO.toEntity(UserContext.getUserId());
         videoGroupMapper.updateById(entity);
+
+        // 封面处理
+        var coverUrl = plainVideoGroupUpdateDTO.getCover();
+        if (coverUrl != null) {
+            try {
+                var cover = fileService.changeTmpFileToStatic(
+                        coverUrl,
+                        "/video-group/" + entity.getId(),
+                        "cover" + coverUrl.substring(coverUrl.lastIndexOf('.'))
+                );
+                if (cover.isEmpty()) throw new Exception(); // will be caught
+                videoGroupMapper.updateById(entity.setCover(cover));
+            } catch (Exception e) {
+                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            }
+        }
+
         if (plainVideoGroupUpdateDTO.getTagIds() != null) {
             var tags = Arrays.stream(plainVideoGroupUpdateDTO.getTagIds())
                     .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))

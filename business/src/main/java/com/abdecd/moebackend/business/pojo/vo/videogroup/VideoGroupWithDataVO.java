@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
 @Data
-public class VideoGroupWithCntVO {
+public class VideoGroupWithDataVO {
     @JsonUnwrapped
     private VideoGroupVO videoGroupVO;
     @JsonUnwrapped

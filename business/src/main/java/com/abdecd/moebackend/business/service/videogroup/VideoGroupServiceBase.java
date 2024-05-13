@@ -7,7 +7,7 @@ import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithCntVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
 import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
@@ -65,10 +65,10 @@ public class VideoGroupServiceBase {
         } else return null;
     }
 
-    public VideoGroupWithCntVO getVideoGroupWithCnt(Long videoGroupId) {
+    public VideoGroupWithDataVO getVideoGroupWithCnt(Long videoGroupId) {
         var videoGroupInfo = getVideoGroupInfo(videoGroupId);
         if (videoGroupInfo == null) return null;
-        return new VideoGroupWithCntVO()
+        return new VideoGroupWithDataVO()
                 .setVideoGroupVO(videoGroupInfo)
                 .setStatisticDataVO(statisticService.getStatisticData(videoGroupId));
     }

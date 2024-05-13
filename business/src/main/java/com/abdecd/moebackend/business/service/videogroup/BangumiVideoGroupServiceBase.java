@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.service.videogroup;
 
+import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
@@ -8,6 +9,7 @@ import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeScheduleVO;
 import com.abdecd.moebackend.business.service.PlainUserService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -77,6 +81,28 @@ public class BangumiVideoGroupServiceBase {
                         .setTitle(video.getTitle())
                         .setVideoCover(video.getCover())
                 ).toList()
+        );
+    }
+
+    // todo
+    @Cacheable(cacheNames = RedisConstant.BANGUMI_TIME_SCHEDULE_CACHE, key = "#date", unless = "#result == null")
+    public List<BangumiVideoGroupTimeScheduleVO> getTimeSchedule(LocalDate date) {
+        if (date.isBefore(LocalDate.now().minusDays(1))) return null;
+        if (date.isAfter(LocalDate.now().plusDays(6))) return null;
+        var ids = bangumiVideoGroupMapper.selectList(new LambdaQueryWrapper<BangumiVideoGroup>()
+                .select(BangumiVideoGroup::getVideoGroupId)
+                .last("order by RAND() limit " + ((int) (Math.random() * 5) + 1))
+        );
+        if (ids.isEmpty()) return new ArrayList<>();
+        var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+        return new ArrayList<>(ids.stream()
+                .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getVideoGroupId()))
+                .map(videoGroupWithDataVO -> new BangumiVideoGroupTimeScheduleVO()
+                        .setVideoGroupWithDataVO(videoGroupWithDataVO)
+                        .setWillUpdateTime(LocalTime.of(((int) (Math.random() * 3) + 3), 0, 0))
+                        .setWillUpdateTitle("更新至第"+((int) (Math.random() * 5) + 2)+"话")
+                )
+                .toList()
         );
     }
 }

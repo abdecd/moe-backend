@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.service.statistic;
 
 import com.abdecd.moebackend.business.pojo.dto.statistic.VideoPlayDTO;
+import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +28,21 @@ public class StatisticService {
                 RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoPlayDTO.getVideoId(),
                 UserContext.getUserId() + ""
         );
+    }
+
+    public StatisticDataVO getStatisticData(Long videoGroupId) {
+        // 获取播放量
+        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
+                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
+        );
+        // todo
+        // 获取点赞量
+        Long likeCnt = (long) (Math.random()*100000);
+        // 获取收藏量
+        Long favoriteCnt = (long) (Math.random()*100000);
+        return new StatisticDataVO()
+                .setWatchCnt(watchCnt)
+                .setLikeCnt(likeCnt)
+                .setFavoriteCnt(favoriteCnt);
     }
 }

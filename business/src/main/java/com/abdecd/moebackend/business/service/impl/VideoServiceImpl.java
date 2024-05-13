@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoSrc;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoSrcMapper;
+import com.abdecd.moebackend.business.lib.BiliParser;
 import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
@@ -34,12 +35,11 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 @Slf4j
 @Service
@@ -61,6 +61,8 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private RedissonClient redissonClient;
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+    @Autowired
+    private BiliParser biliParser;
 
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
@@ -72,7 +74,7 @@ public class VideoServiceImpl implements VideoService {
     public long addVideo(AddVideoDTO addVideoDTO) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
-        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
 
@@ -104,7 +106,7 @@ public class VideoServiceImpl implements VideoService {
     public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
-        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
 
@@ -219,7 +221,7 @@ public class VideoServiceImpl implements VideoService {
         checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
 
         if (updateVideoDTO.getLink() != null) {
-            var originPath = resourceLinkHandler.getRawPathFromVideoLink(updateVideoDTO.getLink());
+            var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(updateVideoDTO.getLink());
             if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
@@ -277,7 +279,41 @@ public class VideoServiceImpl implements VideoService {
                 .select(VideoSrc::getSrcName, VideoSrc::getSrc))
                 .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
         ));
+        parseBV(vo);
+
         return vo;
+    }
+
+    /**
+     * 解析bv号 设置到src对象里面
+     */
+    private void parseBV(VideoVO vo) {
+        if (!vo.getSrc().isEmpty() && vo.getSrc().getFirst().getSrc().startsWith("BV")) {
+            // 设置bvid
+            var first = vo.getSrc().getFirst();
+            vo.setBvid(first.getSrc());
+            // 设置src
+            var taskList = new ArrayList<CompletableFuture<String>>(vo.getSrc().size());
+            for (var srcObj : vo.getSrc()) {
+                if (srcObj.getSrc().startsWith("BV")) {
+                    taskList.add(CompletableFuture.supplyAsync(() -> {
+                        try {
+                            return biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), vo.getIndex()+"");
+                        } catch (IOException e) {
+                            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+                        }
+                    }, Executors.newVirtualThreadPerTaskExecutor()));
+                }
+            }
+            try {
+                CompletableFuture.allOf(taskList.toArray(CompletableFuture[]::new)).get();
+            } catch (Exception e) {
+                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            }
+            for (int i = 0; i < taskList.size(); i++) {
+                vo.getSrc().get(i).setSrc(taskList.get(i).join());
+            }
+        }
     }
 
     @Override

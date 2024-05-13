@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.lib;
 
 import com.abdecd.moebackend.business.common.property.MoeProperties;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +15,12 @@ public class ResourceLinkHandler {
     }
 
     /**
-     * 不以 "/" 开头 错误返回空字符串
-     * @return 如 video/1.mp4
+     * 返回值不以 "/" 开头 错误返回空字符串
+     * @param link 如 tmp/user10000/xx.mp4
+     * @return 如 tmp/user10000/xx.mp4
      */
-    public String getRawPathFromVideoLink(String link) {
-        if (!link.startsWith(moeProperties.getVideoBasePath())) return "";
-        return link.substring(moeProperties.getVideoBasePath().length() + 1);
+    public String getRawPathFromTmpVideoLink(String link) {
+        if (!link.startsWith("tmp/user"+ UserContext.getUserId()+"/")) return "";
+        return link;
     }
 }

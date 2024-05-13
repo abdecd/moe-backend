@@ -22,7 +22,7 @@ public class SignUpDTO {
     private String email;
 
     @NotBlank
-    @Length(min = DTOConstant.EMAIL_VERIFY_CODE_LENGTH, max = DTOConstant.EMAIL_VERIFY_CODE_LENGTH)
+    @Length(message = "验证码长度需要为6位", min = DTOConstant.EMAIL_VERIFY_CODE_LENGTH, max = DTOConstant.EMAIL_VERIFY_CODE_LENGTH)
     @Schema(description = "6位邮箱验证码")
     private String verifyCode;
 }

@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
+import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupTagMapper;
@@ -66,8 +67,8 @@ public class PlainVideoGroupServiceBase {
                 .select(VideoGroupAndTag::getTagId)
                 .eq(VideoGroupAndTag::getVideoGroupId, videoGroupId)
         );
-        if (tagIds == null) tagIds = new ArrayList<>();
-        var tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
+        List<VideoGroupTag> tags = new ArrayList<>();
+        if (tagIds != null && !tagIds.isEmpty()) tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
 
         var vo = new PlainVideoGroupVO();
         BeanUtils.copyProperties(base, vo);

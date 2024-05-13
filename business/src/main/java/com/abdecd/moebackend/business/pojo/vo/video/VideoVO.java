@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.pojo.vo.video;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,4 +16,8 @@ public class VideoVO {
     String cover;
     ArrayList<VideoSrcVO> src;
     LocalDateTime uploadTime;
+    @JsonIgnore
+    String bvid;
+    @JsonIgnore
+    String epid;
 }

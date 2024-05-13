@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.controller.base.videogroup;
 
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,9 +24,9 @@ public class VideoGroupControllerBase {
         return Result.success(videoGroupServiceBase.getVideoGroupType(id));
     }
 
-    @Operation(summary = "获取视频组")
+    @Operation(summary = "获取视频组大接口")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(@RequestParam Long id) {
-        return Result.success(videoGroupServiceBase.getVideoGroupInfo(id));
+    public Result<VideoGroupBigVO> getVideoGroup(@RequestParam Long id) {
+        return Result.success(videoGroupServiceBase.getBigVideoGroup(id));
     }
 }

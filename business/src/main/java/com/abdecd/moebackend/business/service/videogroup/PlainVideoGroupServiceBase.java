@@ -168,6 +168,13 @@ public class PlainVideoGroupServiceBase {
         fileService.deleteDirInSystem("/video-group/" + videoGroupId);
     }
 
+    public boolean checkAddVideoGroupPending(Long id) {
+        var self = SpringContextUtil.getBean(PlainVideoGroupServiceBase.class);
+        var contents = self.getContents(id);
+        if (contents == null || contents.isEmpty()) return false;
+        return videoService.checkVideoPending(contents.getFirst().getVideoId());
+    }
+
     /**
      * 检验空值以及是否是当前用户的视频组
      * @param videoGroupId :

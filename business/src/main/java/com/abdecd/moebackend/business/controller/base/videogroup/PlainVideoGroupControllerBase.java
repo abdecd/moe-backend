@@ -60,6 +60,12 @@ public class PlainVideoGroupControllerBase {
         return Result.success(videoGroupId);
     }
 
+    @Operation(summary = "查看普通视频组处理状态")
+    @GetMapping("check-pending")
+    public Result<Boolean> checkAddVideoGroupPending(@RequestParam Long id) {
+        return Result.success(plainVideoGroupServiceBase.checkAddVideoGroupPending(id));
+    }
+
     @Operation(summary = "修改普通视频组综合接口")
     @PostMapping("update")
     @Transactional

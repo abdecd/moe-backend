@@ -74,7 +74,7 @@ public class VideoServiceImpl implements VideoService {
     public long addVideo(AddVideoDTO addVideoDTO) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
-        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
 
@@ -106,7 +106,7 @@ public class VideoServiceImpl implements VideoService {
     public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
-        var originPath = resourceLinkHandler.getRawPathFromVideoLink(addVideoDTO.getLink());
+        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
         if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
 
@@ -221,7 +221,7 @@ public class VideoServiceImpl implements VideoService {
         checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
 
         if (updateVideoDTO.getLink() != null) {
-            var originPath = resourceLinkHandler.getRawPathFromVideoLink(updateVideoDTO.getLink());
+            var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(updateVideoDTO.getLink());
             if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))

@@ -95,6 +95,16 @@
                 <artifactId>hutool-dfa</artifactId>
                 <version>5.8.26</version>
             </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-core</artifactId>
+                <version>5.8.26</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>4.12.0</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.aliyun.oss</groupId>

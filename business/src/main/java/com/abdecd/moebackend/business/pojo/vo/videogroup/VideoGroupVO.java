@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,4 +16,5 @@ public class VideoGroupVO {
     private String description;
     private List<VideoGroupTag> tags;
     private Byte type;
+    private LocalDateTime createTime;
 }

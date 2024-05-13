@@ -135,7 +135,7 @@ public class CommonController {
     @GetMapping("/video/**")
     public void viewVideo(HttpServletRequest request, HttpServletResponse response) {
         var path = request.getRequestURI().substring("/common/video".length());
-        var redirectPath = moeProperties.getVideoBasePath() + path;
+        var redirectPath = moeProperties.getVideoBasePath() + "/" + path;
 
         response.setStatus(HttpStatus.TEMPORARY_REDIRECT.value());
         response.setHeader("location", redirectPath);

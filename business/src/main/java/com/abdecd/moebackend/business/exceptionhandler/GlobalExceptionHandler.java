@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,8 +38,25 @@ public class GlobalExceptionHandler {
         var msg = ex.getMessage();
         log.error("异常信息：{}", msg);
         if (msg.contains("Duplicate entry"))
-            return Result.error("重复的值："+msg.split(" ")[2]);
+            return Result.error("重复的值：" + msg.split(" ")[2]);
         else return Result.error(MessageConstant.UNKNOWN_ERROR);
+    }
+
+    /**
+     * 处理参数校验异常
+     * @param ex 异常
+     * @return Result
+     */
+    @ExceptionHandler
+    public Result<String> exceptionHandler(MethodArgumentNotValidException ex) throws MethodArgumentNotValidException {
+        log.warn("异常信息：{}", ex.getMessage());
+        var err = ex.getBindingResult().getFieldError();
+        if (err == null) throw ex;
+        return Result.error(err.getField()
+                + ": "
+                + err.getDefaultMessage()
+        );
+//        return Result.error(err.getDefaultMessage());
     }
 
     /**
@@ -47,7 +65,7 @@ public class GlobalExceptionHandler {
      * @return Result
      */
     @ExceptionHandler
-    public Result<String> nullPointerExceptionHandler(NullPointerException ex){
+    public Result<String> nullPointerExceptionHandler(NullPointerException ex) {
         log.error("异常信息：{}", ex.getMessage());
         return Result.error("信息不全");
     }

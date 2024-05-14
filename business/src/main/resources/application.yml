@@ -49,3 +49,4 @@ token-login:
     - /plain-video-group
     - /plain-video-group/contents
     - /plain-video-group/check-pending
+    - /statistic/video-group-data

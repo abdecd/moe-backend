@@ -43,7 +43,7 @@ public class PlainUserHistoryController {
     }
 
     @Operation(summary = "获取用户视频上次看到哪里")
-    @PostMapping("video-last-watch-time")
+    @GetMapping("video-last-watch-time")
     public Result<Long> addHistory(@RequestParam Long videoId) {
         return Result.success(lastWatchTimeStatistic.get(videoId));
     }

@@ -5,10 +5,14 @@ import com.aliyun.tea.TeaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 public class AliImmManager {
     @Autowired
     AliProperties aliProperties;
+
+    private static final Map<String, Integer> fontSizeMap = Map.of("640x360", 15, "1280x720", 30, "1920x1080", 45);
 
     /**
      * 使用AK&SK初始化账号Client
@@ -33,8 +37,10 @@ public class AliImmManager {
 
     /**
      * 视频转码
+     * @param username 用户名
      * @param originPath 原始视频路径 如 video/2022/01/01/1.mp4
      * @param targetPath 目标视频路径 如 video/2022/01/01/video
+     * @param widthAndHeight 视频宽高 如 1920*1080
      * @return 阿里云任务id
      */
     public String transformVideo(String username, String originPath, String targetPath, String widthAndHeight) {
@@ -49,7 +55,7 @@ public class AliImmManager {
                 .setDx(30F)
                 .setDy(30F)
                 .setContent(username)
-                .setFontSize(30)
+                .setFontSize(fontSizeMap.get(widthAndHeight))
                 .setFontColor("#ffffff")
                 .setFontApha(0.4F);
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo targets0TargetVideoFilterVideo = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo()

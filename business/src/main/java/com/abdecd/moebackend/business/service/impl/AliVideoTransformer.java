@@ -25,13 +25,14 @@ public class AliVideoTransformer implements VideoTransformer {
     private AliImmManager aliImmManager;
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
-    public void transform(VideoTransformTask task, int ttlSeconds) {
+    public void transform(VideoTransformTask task, int ttlSeconds, String username) {
         // 访问视频转码服务
-        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P.NUM], "640x360", ttlSeconds);
-        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P.NUM], "1280x720", ttlSeconds);
-        transform(task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P.NUM], "1920x1080", ttlSeconds);
+        transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P.NUM], "640x360", ttlSeconds);
+        transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P.NUM], "1280x720", ttlSeconds);
+        transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P.NUM], "1920x1080", ttlSeconds);
     }
     public void transform(
+            String username,
             String taskId,
             VideoTransformTask.TaskType taskType,
             String originPath,
@@ -40,7 +41,7 @@ public class AliVideoTransformer implements VideoTransformer {
             int ttlSeconds
     ) {
         // 访问视频转码服务
-        var aliTaskId = aliImmManager.transformVideo(originPath, targetPath, widthAndHeight);
+        var aliTaskId = aliImmManager.transformVideo(username, originPath, targetPath, widthAndHeight);
         log.info("aliTaskId: " + aliTaskId);
         // 轮询转码结果
         int perAskTtl = ttlSeconds / 10;

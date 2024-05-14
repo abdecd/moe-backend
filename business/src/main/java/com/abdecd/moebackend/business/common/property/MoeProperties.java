@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 public class MoeProperties {
     private Integer captchaTtlSeconds;
     private String videoBasePath;
+    private String defaultVideoPath;
     private String biliSession;
     private String bvUrl;
     private String proxyPrefix;

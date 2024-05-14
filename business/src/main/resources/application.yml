@@ -40,7 +40,12 @@ token-login:
     - /video
     - /video-group
     - /video-group/type
+    - /video-group/related
+    - /video-group/recommend
+    - /video-group/carousel
     - /bangumi-video-group
     - /bangumi-video-group/contents
+    - /bangumi-video-group/time-schedule
     - /plain-video-group
     - /plain-video-group/contents
+    - /plain-video-group/check-pending

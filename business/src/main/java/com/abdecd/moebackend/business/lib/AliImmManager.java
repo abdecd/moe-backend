@@ -52,8 +52,8 @@ public class AliImmManager {
 //                .setHeight(0.10F)
 //                .setURI("oss://" + aliProperties.getBucketName() + "/" + aliProperties.getWatermark());
                 .setType("text")
-                .setDx(30F)
-                .setDy(30F)
+                .setDx(Float.valueOf(fontSizeMap.get(widthAndHeight)))
+                .setDy(Float.valueOf(fontSizeMap.get(widthAndHeight)))
                 .setContent(username)
                 .setFontSize(fontSizeMap.get(widthAndHeight))
                 .setFontColor("#ffffff")

@@ -29,7 +29,7 @@ public class RecommendService {
         );
         if (ids.isEmpty()) return new ArrayList<>();
         return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getId()))
+                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
                 .toList()
         );
     }
@@ -41,7 +41,7 @@ public class RecommendService {
         );
         if (ids.isEmpty()) return new ArrayList<>();
         return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getId()))
+                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
                 .toList()
         );
     }
@@ -53,7 +53,7 @@ public class RecommendService {
         );
         if (ids.isEmpty()) return new ArrayList<>();
         return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getId()))
+                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
                 .toList()
         );
     }

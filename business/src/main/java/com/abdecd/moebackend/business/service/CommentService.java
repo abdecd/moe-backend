@@ -14,4 +14,5 @@ public interface CommentService {
     Long addComment(AddCommentDTO addCommentDTO);
 
     void deleteComment(Long id);
+    Long getCommentCount(Long videoId);
 }

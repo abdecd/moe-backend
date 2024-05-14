@@ -1,12 +1,20 @@
 package com.abdecd.moebackend.business.service.statistic;
 
+import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.pojo.dto.statistic.VideoPlayDTO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
+import com.abdecd.moebackend.business.service.CommentService;
+import com.abdecd.moebackend.business.service.DanmakuService;
+import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class StatisticService {
@@ -16,6 +24,10 @@ public class StatisticService {
     private TotalWatchTimeStatistic totalWatchTimeStatistic;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private DanmakuService danmakuService;
 
     public void cntVideoPlay(VideoPlayDTO videoPlayDTO, int addTime) {
         // 记录上次观看位置
@@ -40,9 +52,17 @@ public class StatisticService {
         Long likeCnt = (long) (Math.random()*100000);
         // 获取收藏量
         Long favoriteCnt = (long) (Math.random()*100000);
+        // 获取评论量
+        var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+        List<ContentsItemVO> videoContents = (List<ContentsItemVO>) videoGroupServiceBase.getContents(videoGroupId);
+        if (videoContents == null) videoContents = new ArrayList<>();
+        Long commentCnt = videoContents.stream().map(x->commentService.getCommentCount(x.getVideoId())).reduce(0L, Long::sum);
+        Long danmakuCnt = videoContents.stream().map(x->danmakuService.getDanmakuCount(x.getVideoId())).reduce(0L, Long::sum);
         return new StatisticDataVO()
                 .setWatchCnt(watchCnt)
                 .setLikeCnt(likeCnt)
-                .setFavoriteCnt(favoriteCnt);
+                .setFavoriteCnt(favoriteCnt)
+                .setCommentCnt(commentCnt)
+                .setDanmakuCnt(danmakuCnt);
     }
 }

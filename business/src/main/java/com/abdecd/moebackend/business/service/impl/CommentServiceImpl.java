@@ -146,6 +146,14 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @Cacheable(value = RedisConstant.VIDEO_COMMENT_CNT, key = "#videoId")
+    @Override
+    public Long getCommentCount(Long videoId) {
+        return userCommentMapper.selectCount(new LambdaQueryWrapper<UserComment>()
+                .eq(UserComment::getVideoId, videoId)
+        );
+    }
+
     @SuppressWarnings("unused")
     public Long getSthIdByCommentId(Long id) {
         var obj = userCommentMapper.selectById(id);

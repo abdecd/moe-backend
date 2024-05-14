@@ -272,7 +272,8 @@ public class VideoServiceImpl implements VideoService {
     public VideoVO getVideo(Long videoId) {
         var video = videoMapper.selectById(videoId);
         if (video == null) return null;
-        // todo 在转码中的视频是否需要返回？
+        // 在转码中的视频不需要返回
+        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) return null;
         var vo = new VideoVO();
         BeanUtils.copyProperties(video, vo);
         vo.setSrc(new ArrayList<>(

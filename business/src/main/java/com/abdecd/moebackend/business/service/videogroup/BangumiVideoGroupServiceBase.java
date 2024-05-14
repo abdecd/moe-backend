@@ -96,7 +96,7 @@ public class BangumiVideoGroupServiceBase {
         if (ids.isEmpty()) return new ArrayList<>();
         var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
         return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getVideoGroupId()))
+                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getVideoGroupId()))
                 .map(videoGroupWithDataVO -> new BangumiVideoGroupTimeScheduleVO()
                         .setVideoGroupWithDataVO(videoGroupWithDataVO)
                         .setWillUpdateTime(LocalTime.of(((int) (Math.random() * 3) + 3), 0, 0))

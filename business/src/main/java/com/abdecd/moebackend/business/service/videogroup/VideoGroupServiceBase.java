@@ -14,6 +14,7 @@ import com.abdecd.moebackend.business.service.statistic.StatisticService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class VideoGroupServiceBase {
     @Autowired
     private VideoService videoService;
 
+    @Nullable
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_TYPE_CACHE, key = "#videoGroupId", unless = "#result == null")
     public Byte getVideoGroupType(long videoGroupId) {
         var obj = videoGroupMapper.selectById(videoGroupId);
@@ -65,7 +67,7 @@ public class VideoGroupServiceBase {
         } else return null;
     }
 
-    public VideoGroupWithDataVO getVideoGroupWithCnt(Long videoGroupId) {
+    public VideoGroupWithDataVO getVideoGroupWithData(Long videoGroupId) {
         var videoGroupInfo = getVideoGroupInfo(videoGroupId);
         if (videoGroupInfo == null) return null;
         return new VideoGroupWithDataVO()

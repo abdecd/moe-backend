@@ -40,4 +40,6 @@ public class RedisConstant {
     public static final String VIDEO_GROUP_CONTENTS_CACHE = "moe:video_group_contents_cache#300";
     public static final String RECOMMEND_CAROUSEL_CACHE = "moe:recommend_carousel_cache#d1";
     public static final String BANGUMI_TIME_SCHEDULE_CACHE = "moe:bangumi_time_schedule_cache#30000";
+    public static final String FAVORITES = "moe:favorite:";
+    public static final int FAVORITES_SIZE = 300;
 }

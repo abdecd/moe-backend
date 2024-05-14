@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +34,7 @@ public class SearchController {
     @Operation(summary = "搜索")
     @GetMapping("")
     public Result<PageVO<VideoGroupWithDataVO>> search(
-            @RequestParam String q,
+            @RequestParam @NotBlank String q,
             @RequestParam(required = false) Byte type,
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize
@@ -56,7 +57,7 @@ public class SearchController {
     @Operation(summary = "获得搜索建议")
     @GetMapping("suggestion")
     public Result<List<String>> getSuggestion(
-            @RequestParam String q,
+            @RequestParam @NotBlank String q,
             @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(15) Integer num
     ) {
         var titles = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()

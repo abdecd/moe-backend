@@ -14,9 +14,7 @@ import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformCbArgs;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
-import com.abdecd.moebackend.business.service.FileService;
-import com.abdecd.moebackend.business.service.VideoService;
-import com.abdecd.moebackend.business.service.VideoTransformer;
+import com.abdecd.moebackend.business.service.*;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -63,6 +61,8 @@ public class VideoServiceImpl implements VideoService {
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
     @Autowired
     private BiliParser biliParser;
+    @Autowired
+    private PlainUserService plainUserService;
 
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
@@ -141,7 +141,9 @@ public class VideoServiceImpl implements VideoService {
         redisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId(), task, TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
         stringRedisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId(), task.getId(), TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
 
-        videoTransformer.transform(task, TRANSFORM_TASK_TTL + 10);
+        var plainUser = plainUserService.getPlainUserDetail(UserContext.getUserId());
+        var name = plainUser == null ? "" : plainUser.getNickname();
+        videoTransformer.transform(task, TRANSFORM_TASK_TTL + 10, name);
         // todo 用消息队列 超时去删数据库
         var taskId = task.getId();
         scheduledExecutor.schedule(() -> {

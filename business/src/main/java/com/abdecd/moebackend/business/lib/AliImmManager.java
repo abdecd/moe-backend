@@ -37,14 +37,21 @@ public class AliImmManager {
      * @param targetPath 目标视频路径 如 video/2022/01/01/video
      * @return 阿里云任务id
      */
-    public String transformVideo(String originPath, String targetPath, String widthAndHeight) {
+    public String transformVideo(String username, String originPath, String targetPath, String widthAndHeight) {
         com.aliyun.imm20200930.Client client = createClient();
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideoWatermarks targets0TargetVideoFilterVideoWatermarks0 = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideoWatermarks()
-                .setType("file")
-                .setDx(10F)
-                .setDy(10F)
-                .setHeight(0.10F)
-                .setURI("oss://" + aliProperties.getBucketName() + "/" + aliProperties.getWatermark());
+//                .setType("file")
+//                .setDx(10F)
+//                .setDy(10F)
+//                .setHeight(0.10F)
+//                .setURI("oss://" + aliProperties.getBucketName() + "/" + aliProperties.getWatermark());
+                .setType("text")
+                .setDx(30F)
+                .setDy(30F)
+                .setContent(username)
+                .setFontSize(30)
+                .setFontColor("#ffffff")
+                .setFontApha(0.4F);
         com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo targets0TargetVideoFilterVideo = new com.aliyun.imm20200930.models.TargetVideo.TargetVideoFilterVideo()
                 .setWatermarks(java.util.Arrays.asList(
                     targets0TargetVideoFilterVideoWatermarks0

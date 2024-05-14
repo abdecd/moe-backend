@@ -57,4 +57,12 @@ public class DanmakuServiceImpl implements DanmakuService {
             danmakuMapper.deleteById(id);
         }
     }
+
+    @Cacheable(value = RedisConstant.VIDEO_DANMAKU_CNT, key = "#videoId")
+    @Override
+    public Long getDanmakuCount(Long videoId) {
+        return danmakuMapper.selectCount(new LambdaQueryWrapper<Danmaku>()
+                .eq(Danmaku::getVideoId, videoId)
+        );
+    }
 }

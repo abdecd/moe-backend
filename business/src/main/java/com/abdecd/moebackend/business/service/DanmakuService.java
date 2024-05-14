@@ -9,4 +9,5 @@ public interface DanmakuService {
     Long addDanmaku(AddDanmakuDTO addDanmakuDTO);
     List<DanmakuVO> getDanmaku(Long videoId, Integer segmentIndex);
     void deleteDanmaku(Long id);
+    Long getDanmakuCount(Long videoId);
 }

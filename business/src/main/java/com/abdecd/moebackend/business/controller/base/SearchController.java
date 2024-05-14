@@ -47,7 +47,7 @@ public class SearchController {
         var pageVO = new PageVO<VideoGroupWithDataVO>()
                 .setTotal((int) ids.getTotal())
                 .setRecords(ids.getRecords().stream()
-                        .map(id -> videoGroupServiceBase.getVideoGroupWithCnt(id.getId()))
+                        .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
                         .toList()
                 );
         return Result.success(pageVO);

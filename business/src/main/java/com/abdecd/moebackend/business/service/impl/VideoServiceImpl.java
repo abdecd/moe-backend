@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.service.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoSrc;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
@@ -63,6 +65,8 @@ public class VideoServiceImpl implements VideoService {
     private BiliParser biliParser;
     @Autowired
     private PlainUserService plainUserService;
+    @Autowired
+    private MoeProperties moeProperties;
 
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
@@ -272,17 +276,21 @@ public class VideoServiceImpl implements VideoService {
     public VideoVO getVideo(Long videoId) {
         var video = videoMapper.selectById(videoId);
         if (video == null) return null;
-        // 在转码中的视频不需要返回
-        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) return null;
+
         var vo = new VideoVO();
         BeanUtils.copyProperties(video, vo);
-        vo.setSrc(new ArrayList<>(
-                videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
-                .eq(VideoSrc::getVideoId, videoId)
-                .select(VideoSrc::getSrcName, VideoSrc::getSrc))
-                .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
-        ));
-        parseBV(vo);
+        // 在转码中的视频不需要返回
+        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
+            vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
+        } else {
+            vo.setSrc(new ArrayList<>(
+                    videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
+                                    .eq(VideoSrc::getVideoId, videoId)
+                                    .select(VideoSrc::getSrcName, VideoSrc::getSrc))
+                            .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
+            ));
+            parseBV(vo);
+        }
 
         return vo;
     }

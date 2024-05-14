@@ -8,5 +8,7 @@ import lombok.experimental.Accessors;
 public class StatisticDataVO {
     private Long watchCnt;
     private Long likeCnt;
+    private Long commentCnt;
+    private Long danmakuCnt;
     private Long favoriteCnt;
 }

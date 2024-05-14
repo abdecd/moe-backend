@@ -125,7 +125,7 @@ public class CommonController {
                 FileCopyUtils.copy(in, response.getOutputStream());
             } else throw new BaseException(MessageConstant.IMG_FILE_NOT_FOUND);
             return null;
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.warn(MessageConstant.IMG_FILE_READ_FAIL, e);
             return CompletableFuture.completedFuture(Result.error(MessageConstant.IMG_FILE_READ_FAIL));
         }

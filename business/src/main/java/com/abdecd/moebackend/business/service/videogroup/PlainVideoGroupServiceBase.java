@@ -59,16 +59,22 @@ public class PlainVideoGroupServiceBase {
         if (base == null || !Objects.equals(base.getType(), VideoGroup.Type.PLAIN_VIDEO_GROUP)) return null;
         // 为空是管理员
         var uploader = plainUserService.getPlainUserDetail(base.getUserId());
-        var uploaderVO = uploader == null ? null : new UploaderVO()
-                .setId(uploader.getUserId())
-                .setNickname(uploader.getNickname())
-                .setAvatar(uploader.getAvatar());
+        var uploaderVO = uploader == null
+                ? new UploaderVO()
+                    .setId(null)
+                    .setNickname(MessageConstant.ADMIN)
+                    .setAvatar(MessageConstant.ADMIN_AVATAR)
+                : new UploaderVO()
+                    .setId(uploader.getUserId())
+                    .setNickname(uploader.getNickname())
+                    .setAvatar(uploader.getAvatar());
         var tagIds = videoGroupAndTagMapper.selectList(new LambdaQueryWrapper<VideoGroupAndTag>()
                 .select(VideoGroupAndTag::getTagId)
                 .eq(VideoGroupAndTag::getVideoGroupId, videoGroupId)
         );
         List<VideoGroupTag> tags = new ArrayList<>();
-        if (tagIds != null && !tagIds.isEmpty()) tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
+        if (tagIds != null && !tagIds.isEmpty())
+            tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
 
         var vo = new PlainVideoGroupVO();
         BeanUtils.copyProperties(base, vo);

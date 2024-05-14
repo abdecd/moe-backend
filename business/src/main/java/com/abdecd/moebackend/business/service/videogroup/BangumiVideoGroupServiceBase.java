@@ -11,6 +11,7 @@ import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeScheduleVO;
 import com.abdecd.moebackend.business.service.PlainUserService;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.BeanUtils;
@@ -49,10 +50,15 @@ public class BangumiVideoGroupServiceBase {
         if (appendix == null) return null;
         // 为空是管理员
         var uploader = plainUserService.getPlainUserDetail(base.getUserId());
-        var uploaderVO = uploader == null ? null : new UploaderVO()
-                .setId(uploader.getUserId())
-                .setNickname(uploader.getNickname())
-                .setAvatar(uploader.getAvatar());
+        var uploaderVO = uploader == null
+                ? new UploaderVO()
+                    .setId(null)
+                    .setNickname(MessageConstant.ADMIN)
+                    .setAvatar(MessageConstant.ADMIN_AVATAR)
+                : new UploaderVO()
+                    .setId(uploader.getUserId())
+                    .setNickname(uploader.getNickname())
+                    .setAvatar(uploader.getAvatar());
         var tagIds = videoGroupAndTagMapper.selectList(new LambdaQueryWrapper<VideoGroupAndTag>()
                 .select(VideoGroupAndTag::getTagId)
                 .eq(VideoGroupAndTag::getVideoGroupId, videoGroupId)

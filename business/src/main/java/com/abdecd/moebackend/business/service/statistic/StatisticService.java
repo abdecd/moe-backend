@@ -44,9 +44,10 @@ public class StatisticService {
 
     public StatisticDataVO getStatisticData(Long videoGroupId) {
         // 获取播放量
-        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
-                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
-        );
+//        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
+//                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
+//        );
+        Long watchCnt = (long) (Math.random()*1000000);
         // todo
         // 获取点赞量
         Long likeCnt = (long) (Math.random()*100000);

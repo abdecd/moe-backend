@@ -25,4 +25,6 @@ public class MessageConstant {
     public static final String INVALID_VIDEO_GROUP = "视频组对不上";
     public static final String ADMIN = "管理员";
     public static final String ADMIN_AVATAR = "";
+    public static final String LIKE_EXIST = "已经点赞过了";
+    public static final String LIKE_NOT_EXIST = "还没有点赞过";
 }

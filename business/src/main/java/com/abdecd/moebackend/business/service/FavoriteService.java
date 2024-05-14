@@ -71,9 +71,13 @@ public class FavoriteService {
 
     public void addOrDeleteLike(Long userId, Long videoGroupId, Byte status) {
         if (Objects.equals(status, StatusConstant.DISABLE)) {
-            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
+            var effected = redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
+            if (effected == null || effected == 0)
+                throw new BaseException(MessageConstant.LIKE_NOT_EXIST);
         } else if (Objects.equals(status, StatusConstant.ENABLE)) {
-            redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
+            var effected = redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
+            if (effected == null || effected == 0)
+                throw new BaseException(MessageConstant.LIKE_EXIST);
         }
     }
 

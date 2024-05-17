@@ -2,7 +2,7 @@ package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.plainuser.DeleteHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
-import com.abdecd.moebackend.business.service.PlainUserHistoryService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
 import com.abdecd.moebackend.business.service.statistic.LastWatchTimeStatistic;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;

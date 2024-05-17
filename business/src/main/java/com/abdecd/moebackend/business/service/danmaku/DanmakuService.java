@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.danmaku;
 
 import com.abdecd.moebackend.business.pojo.dto.danmaku.AddDanmakuDTO;
 import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;

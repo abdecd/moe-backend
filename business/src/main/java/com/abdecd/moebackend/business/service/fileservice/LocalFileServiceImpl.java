@@ -1,6 +1,5 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.fileservice;
 
-import com.abdecd.moebackend.business.service.FileService;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

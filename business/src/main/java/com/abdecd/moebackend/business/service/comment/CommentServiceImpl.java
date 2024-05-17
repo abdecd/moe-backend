@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.comment;
 
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.common.util.UnionFind;
@@ -7,7 +7,6 @@ import com.abdecd.moebackend.business.dao.mapper.UserCommentMapper;
 import com.abdecd.moebackend.business.pojo.dto.comment.AddCommentDTO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVOBasic;
-import com.abdecd.moebackend.business.service.CommentService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;

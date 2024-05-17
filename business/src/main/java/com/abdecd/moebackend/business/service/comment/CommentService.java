@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.comment;
 
 import com.abdecd.moebackend.business.pojo.dto.comment.AddCommentDTO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVO;

@@ -1,9 +1,10 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.plainuser;
 
 import com.abdecd.moebackend.business.dao.entity.PlainUserHistory;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;

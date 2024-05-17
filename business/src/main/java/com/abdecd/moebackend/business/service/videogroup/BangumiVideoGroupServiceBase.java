@@ -11,7 +11,7 @@ import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeScheduleVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
-import com.abdecd.moebackend.business.service.PlainUserService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;

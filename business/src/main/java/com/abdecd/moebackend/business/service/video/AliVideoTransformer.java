@@ -1,10 +1,9 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.video;
 
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.lib.AliImmManager;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformCbArgs;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
-import com.abdecd.moebackend.business.service.VideoTransformer;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

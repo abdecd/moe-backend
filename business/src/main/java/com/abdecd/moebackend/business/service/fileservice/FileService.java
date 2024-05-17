@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.fileservice;
 
 import org.springframework.web.multipart.MultipartFile;
 

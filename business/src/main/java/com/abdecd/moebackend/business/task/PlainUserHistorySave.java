@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.task;
 
-import com.abdecd.moebackend.business.service.PlainUserHistoryBatchSaver;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryBatchSaver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.scheduling.annotation.Scheduled;

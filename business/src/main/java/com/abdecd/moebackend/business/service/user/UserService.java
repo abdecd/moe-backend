@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.user;
 
 import com.abdecd.moebackend.business.pojo.dto.user.*;
 import com.abdecd.tokenlogin.pojo.entity.User;

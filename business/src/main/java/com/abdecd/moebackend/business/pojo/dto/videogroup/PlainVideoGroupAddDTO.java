@@ -1,8 +1,9 @@
 package com.abdecd.moebackend.business.pojo.dto.videogroup;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.common.constant.DTOConstant;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,8 +16,9 @@ public class PlainVideoGroupAddDTO {
     private String description;
     @NotBlank
     private String cover;
-    @NotNull
-    private Long[] tagIds;
+    @NotBlank
+    @Pattern(regexp = DTOConstant.TAGS_REGEXP)
+    private String tags;
 
     public VideoGroup toEntity(Long userId) {
         return new VideoGroup()
@@ -26,6 +28,8 @@ public class PlainVideoGroupAddDTO {
                 .setDescription(description)
                 .setCreateTime(LocalDateTime.now())
                 .setType(VideoGroup.Type.PLAIN_VIDEO_GROUP)
-                .setWeight(1.0);
+                .setTags(tags)
+                .setWeight(1.0)
+                .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING);
     }
 }

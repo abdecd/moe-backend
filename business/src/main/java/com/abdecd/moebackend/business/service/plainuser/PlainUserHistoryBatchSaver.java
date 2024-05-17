@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.plainuser;
 
 import com.abdecd.moebackend.business.dao.entity.PlainUserHistory;
 import com.abdecd.moebackend.business.lib.BaseBatchSaver;

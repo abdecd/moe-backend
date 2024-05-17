@@ -2,8 +2,8 @@ package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
-import com.abdecd.moebackend.business.service.PlainUserHistoryService;
-import com.abdecd.moebackend.business.service.VideoService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

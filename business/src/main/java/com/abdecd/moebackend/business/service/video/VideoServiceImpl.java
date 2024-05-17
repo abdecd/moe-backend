@@ -1,10 +1,12 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.video;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.entity.VideoSrc;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoSrcMapper;
 import com.abdecd.moebackend.business.lib.BiliParser;
@@ -15,7 +17,8 @@ import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformCbArgs;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
-import com.abdecd.moebackend.business.service.*;
+import com.abdecd.moebackend.business.service.fileservice.FileService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -67,12 +70,16 @@ public class VideoServiceImpl implements VideoService {
     private PlainUserService plainUserService;
     @Autowired
     private MoeProperties moeProperties;
+    @Autowired
+    private VideoGroupMapper videoGroupMapper;
 
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
 
-    // todo 由于 BangumiVideoGroupServiceBase 上传修改删除还没用到这个类，故没有清除相关目录缓存
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+    })
     @Transactional
     @Override
     public long addVideo(AddVideoDTO addVideoDTO) {
@@ -104,7 +111,10 @@ public class VideoServiceImpl implements VideoService {
         return entity.getId();
     }
 
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId")
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+    })
     @Transactional
     @Override
     public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
@@ -211,6 +221,13 @@ public class VideoServiceImpl implements VideoService {
                 .setId(task.getVideoId())
                 .setStatus(Video.Status.ENABLE)
         );
+        // 如果视频组显示正在转码(转码没设缓存)，那放出来
+        var self = SpringContextUtil.getBean(VideoServiceImpl.class);
+        var videoGroup = videoGroupMapper.selectById(self.getVideo(task.getVideoId()).getVideoGroupId());
+        if (Objects.equals(videoGroup.getVideoGroupStatus(), VideoGroup.Status.TRANSFORMING)) {
+            var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+            videoGroupServiceBase.changeStatus(videoGroup.getId(), VideoGroup.Status.ENABLE);
+        }
     }
 
     @Override
@@ -220,6 +237,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId"),
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
     })
     @Override
@@ -256,6 +274,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Caching(evict = {
             @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideo(#videoId).getVideoGroupId()"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideo(#videoId).getVideoGroupId()"),
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId")
     })
     @Override

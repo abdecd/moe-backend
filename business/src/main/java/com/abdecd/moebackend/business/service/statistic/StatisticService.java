@@ -4,8 +4,8 @@ import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.pojo.dto.statistic.VideoPlayDTO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
-import com.abdecd.moebackend.business.service.CommentService;
-import com.abdecd.moebackend.business.service.DanmakuService;
+import com.abdecd.moebackend.business.service.comment.CommentService;
+import com.abdecd.moebackend.business.service.danmaku.DanmakuService;
 import com.abdecd.moebackend.business.service.FavoriteService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -47,17 +47,17 @@ public class StatisticService {
         var favoriteService = SpringContextUtil.getBean(FavoriteService.class);
         // todo
         // 获取播放量
-//        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
-//                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
-//        );
-        Long watchCnt = (long) (Math.random()*1000000);
+        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
+                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
+        );
+//        Long watchCnt = (long) (Math.random()*1000000);
         // 获取点赞量
-//        Long likeCnt = favoriteService.getVideoGroupLikeCount(videoGroupId);
-        Long likeCnt = (long) (Math.random()*100000);
+        Long likeCnt = favoriteService.getVideoGroupLikeCount(videoGroupId);
+//        Long likeCnt = (long) (Math.random()*100000);
         boolean userLike = favoriteService.isUserLike(UserContext.getUserId(), videoGroupId);
         // 获取收藏量
-//        Long favoriteCnt = favoriteService.getVideoGroupFavoriteCount(videoGroupId);
-        Long favoriteCnt = (long) (Math.random()*100000);
+        Long favoriteCnt = favoriteService.getVideoGroupFavoriteCount(videoGroupId);
+//        Long favoriteCnt = (long) (Math.random()*100000);
         boolean userFavorite = favoriteService.isUserFavorite(UserContext.getUserId(), videoGroupId);
         // 获取评论量
         var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);

@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.common;
 
 import org.springframework.data.util.Pair;
 

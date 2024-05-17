@@ -2,7 +2,7 @@ package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.danmaku.AddDanmakuDTO;
 import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;
-import com.abdecd.moebackend.business.service.DanmakuService;
+import com.abdecd.moebackend.business.service.danmaku.DanmakuService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

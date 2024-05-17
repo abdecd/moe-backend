@@ -4,7 +4,7 @@ import com.abdecd.moebackend.business.common.util.HttpCacheUtils;
 import com.abdecd.moebackend.business.pojo.dto.comment.AddCommentDTO;
 import com.abdecd.moebackend.business.pojo.dto.comment.DeleteCommentDTO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVO;
-import com.abdecd.moebackend.business.service.CommentService;
+import com.abdecd.moebackend.business.service.comment.CommentService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;

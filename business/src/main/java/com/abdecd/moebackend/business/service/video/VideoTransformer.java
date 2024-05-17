@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.service;
+package com.abdecd.moebackend.business.service.video;
 
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 

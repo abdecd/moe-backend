@@ -1,10 +1,10 @@
-package com.abdecd.moebackend.business.service.impl;
+package com.abdecd.moebackend.business.service.user;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
-import com.abdecd.moebackend.business.service.UserService;
+import com.abdecd.moebackend.business.service.common.CommonServiceImpl;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.tokenlogin.common.dataencrypt.EncryptStrHandler;
 import com.abdecd.tokenlogin.mapper.UserMapper;

@@ -3,6 +3,8 @@ package com.abdecd.moebackend.business.pojo.vo.plainuser;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
+
 @Accessors(chain = true)
 @Data
 public class HistoryVO {
@@ -12,4 +14,5 @@ public class HistoryVO {
     private String videoGroupCover;
     private Long videoId;
     private String videoTitle;
+    private LocalDateTime timestamp;
 }

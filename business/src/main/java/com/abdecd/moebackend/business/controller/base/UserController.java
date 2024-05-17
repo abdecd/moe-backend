@@ -1,8 +1,8 @@
 package com.abdecd.moebackend.business.controller.base;
 
 import com.abdecd.moebackend.business.pojo.dto.user.*;
-import com.abdecd.moebackend.business.service.CommonService;
-import com.abdecd.moebackend.business.service.UserService;
+import com.abdecd.moebackend.business.service.common.CommonService;
+import com.abdecd.moebackend.business.service.user.UserService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;

@@ -6,13 +6,13 @@ import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.StatusConstant;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -47,10 +47,13 @@ public class FavoriteService {
         }
     }
 
-    public List<VideoGroupWithDataVO> get(Long userId) {
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
-        if (list == null) return new ArrayList<>();
-        return list.stream().map(videoGroupId -> videoGroupServiceBase.getVideoGroupWithData(videoGroupId)).toList();
+    public PageVO<VideoGroupWithDataVO> get(Long userId, Integer page, Integer pageSize) {
+        var total = redisTemplate.opsForList().size(RedisConstant.FAVORITES + userId);
+        if (total == null) return new PageVO<>();
+        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, Math.max(0, (page - 1) * pageSize), Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE));
+        if (list == null) list = new ArrayList<>();
+        var arr = list.stream().map(videoGroupId -> videoGroupServiceBase.getVideoGroupWithData(videoGroupId)).toList();
+        return new PageVO<>(Math.toIntExact(total), arr);
     }
 
     public boolean exists(Long userId, Long videoGroupId) {

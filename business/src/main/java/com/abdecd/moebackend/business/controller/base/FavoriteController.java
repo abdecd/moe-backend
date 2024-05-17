@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.pojo.dto.favorite.AddFavoritesDTO;
 import com.abdecd.moebackend.business.pojo.dto.favorite.DeleteFavoritesDTO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.FavoriteService;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,8 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "收藏接口")
 @RestController
@@ -23,8 +22,11 @@ public class FavoriteController {
 
     @Operation(summary = "获取用户收藏列表")
     @GetMapping("")
-    public Result<List<VideoGroupWithDataVO>> getFavorites() {
-        return Result.success(favoriteService.get(UserContext.getUserId()));
+    public Result<PageVO<VideoGroupWithDataVO>> getFavorites(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize
+    ) {
+        return Result.success(favoriteService.get(UserContext.getUserId(), page, pageSize));
     }
 
     @Operation(summary = "获取用户是否收藏特定视频组")

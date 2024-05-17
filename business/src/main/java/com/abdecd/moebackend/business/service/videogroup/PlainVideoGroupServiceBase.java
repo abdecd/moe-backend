@@ -4,11 +4,7 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
-import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
-import com.abdecd.moebackend.business.dao.mapper.VideoGroupTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupUpdateDTO;
@@ -22,7 +18,6 @@ import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.toolkit.Db;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -32,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,10 +37,6 @@ public class PlainVideoGroupServiceBase {
     @Autowired
     private PlainUserService plainUserService;
     @Autowired
-    private VideoGroupAndTagMapper videoGroupAndTagMapper;
-    @Autowired
-    private VideoGroupTagMapper videoGroupTagMapper;
-    @Autowired
     private VideoMapper videoMapper;
     @Autowired
     private VideoService videoService;
@@ -56,7 +46,7 @@ public class PlainVideoGroupServiceBase {
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public PlainVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
         var base = videoGroupMapper.selectById(videoGroupId);
-        if (base == null || !Objects.equals(base.getType(), VideoGroup.Type.PLAIN_VIDEO_GROUP)) return null;
+        if (base == null || !Objects.equals(base.getVideoGroupStatus(), VideoGroup.Status.ENABLE) || !Objects.equals(base.getType(), VideoGroup.Type.PLAIN_VIDEO_GROUP)) return null;
         // 为空是管理员
         var uploader = plainUserService.getPlainUserDetail(base.getUserId());
         var uploaderVO = uploader == null
@@ -68,18 +58,10 @@ public class PlainVideoGroupServiceBase {
                     .setId(uploader.getUserId())
                     .setNickname(uploader.getNickname())
                     .setAvatar(uploader.getAvatar());
-        var tagIds = videoGroupAndTagMapper.selectList(new LambdaQueryWrapper<VideoGroupAndTag>()
-                .select(VideoGroupAndTag::getTagId)
-                .eq(VideoGroupAndTag::getVideoGroupId, videoGroupId)
-        );
-        List<VideoGroupTag> tags = new ArrayList<>();
-        if (tagIds != null && !tagIds.isEmpty())
-            tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
 
         var vo = new PlainVideoGroupVO();
         BeanUtils.copyProperties(base, vo);
         vo.setUploader(uploaderVO);
-        vo.setTags(tags);
         return vo;
     }
 
@@ -118,19 +100,16 @@ public class PlainVideoGroupServiceBase {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
 
-        var tags = Arrays.stream(plainVideoGroupAddDTO.getTagIds())
-                .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
-                .toList();
-        Db.saveBatch(tags);
         return entity.getId();
     }
 
     @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#plainVideoGroupUpdateDTO.id")
     @Transactional
-    public void updateVideoGroup(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO) {
+    public void updateVideoGroup(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO, Byte videoGroupStatus) {
         checkUserHaveTheGroup(plainVideoGroupUpdateDTO.getId());
 
         var entity = plainVideoGroupUpdateDTO.toEntity(UserContext.getUserId());
+        if (videoGroupStatus != null) entity.setVideoGroupStatus(videoGroupStatus);
         videoGroupMapper.updateById(entity);
 
         // 封面处理
@@ -148,14 +127,6 @@ public class PlainVideoGroupServiceBase {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             }
         }
-
-        if (plainVideoGroupUpdateDTO.getTagIds() != null) {
-            var tags = Arrays.stream(plainVideoGroupUpdateDTO.getTagIds())
-                    .map(tagId -> new VideoGroupAndTag().setTagId(tagId).setVideoGroupId(entity.getId()))
-                    .toList();
-            videoGroupAndTagMapper.delete(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, entity.getId()));
-            Db.saveBatch(tags);
-        }
     }
 
     @Caching(evict = {
@@ -166,7 +137,6 @@ public class PlainVideoGroupServiceBase {
     public void deleteVideoGroup(Long videoGroupId) {
         checkUserHaveTheGroup(videoGroupId);
         videoGroupMapper.deleteById(videoGroupId);
-        videoGroupAndTagMapper.delete(new LambdaQueryWrapper<VideoGroupAndTag>().eq(VideoGroupAndTag::getVideoGroupId, videoGroupId));
         // 删视频
         for (var video : videoMapper.selectList(new LambdaQueryWrapper<Video>().eq(Video::getVideoGroupId, videoGroupId)))
             videoService.deleteVideo(video.getId());

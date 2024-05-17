@@ -1,6 +1,10 @@
 package com.abdecd.moebackend.business.controller.base.videogroup;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
+import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.*;
@@ -10,6 +14,7 @@ import com.abdecd.moebackend.business.service.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.result.Result;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Tag(name = "普通视频组接口")
 @RestController
@@ -28,6 +34,10 @@ public class PlainVideoGroupControllerBase {
     private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
     @Autowired
     private VideoService videoService;
+    @Autowired
+    private ResourceLinkHandler resourceLinkHandler;
+    @Autowired
+    private VideoMapper videoMapper;
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
@@ -70,10 +80,18 @@ public class PlainVideoGroupControllerBase {
     @PostMapping("update")
     @Transactional
     public Result<String> updateVideoGroup(@RequestBody PlainVideoGroupFullUpdateDTO updateDTO) {
-        // todo 提前检验所有参数 防止非原子性
+        // 提前检验参数 防止非原子性
+        if (updateDTO.getLink() != null) {
+            var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(updateDTO.getLink());
+            if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            if (Objects.equals(videoMapper.selectById(updateDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
+                throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
+        }
+
         var groupUpdateDTO = new PlainVideoGroupUpdateDTO();
         BeanUtils.copyProperties(updateDTO, groupUpdateDTO);
-        plainVideoGroupServiceBase.updateVideoGroup(groupUpdateDTO);
+        plainVideoGroupServiceBase.updateVideoGroup(groupUpdateDTO, updateDTO.getLink() == null ? null : VideoGroup.Status.TRANSFORMING);
 
         var videoGroupId = updateDTO.getId();
         var contents = plainVideoGroupServiceBase.getContents(videoGroupId);

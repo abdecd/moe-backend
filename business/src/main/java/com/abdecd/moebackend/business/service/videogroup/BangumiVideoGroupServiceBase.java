@@ -4,12 +4,13 @@ import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
-import com.abdecd.moebackend.business.dao.mapper.*;
+import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeScheduleVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeScheduleVO;
 import com.abdecd.moebackend.business.service.PlainUserService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -34,16 +35,12 @@ public class BangumiVideoGroupServiceBase {
     @Autowired
     private PlainUserService plainUserService;
     @Autowired
-    private VideoGroupAndTagMapper videoGroupAndTagMapper;
-    @Autowired
-    private VideoGroupTagMapper videoGroupTagMapper;
-    @Autowired
     private VideoMapper videoMapper;
 
     @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public BangumiVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
         var base = videoGroupMapper.selectById(videoGroupId);
-        if (base == null || !Objects.equals(base.getType(), VideoGroup.Type.ANIME_VIDEO_GROUP)) return null;
+        if (base == null || !Objects.equals(base.getVideoGroupStatus(), VideoGroup.Status.ENABLE) || !Objects.equals(base.getType(), VideoGroup.Type.ANIME_VIDEO_GROUP)) return null;
         var appendix = bangumiVideoGroupMapper.selectOne(new LambdaQueryWrapper<BangumiVideoGroup>()
                 .eq(BangumiVideoGroup::getVideoGroupId, videoGroupId)
         );
@@ -59,18 +56,11 @@ public class BangumiVideoGroupServiceBase {
                     .setId(uploader.getUserId())
                     .setNickname(uploader.getNickname())
                     .setAvatar(uploader.getAvatar());
-        var tagIds = videoGroupAndTagMapper.selectList(new LambdaQueryWrapper<VideoGroupAndTag>()
-                .select(VideoGroupAndTag::getTagId)
-                .eq(VideoGroupAndTag::getVideoGroupId, videoGroupId)
-        );
-        if (tagIds == null) tagIds = new ArrayList<>();
-        var tags = videoGroupTagMapper.selectBatchIds(tagIds.stream().map(VideoGroupAndTag::getTagId).toList());
 
         var vo = new BangumiVideoGroupVO();
         BeanUtils.copyProperties(base, vo);
         BeanUtils.copyProperties(appendix, vo);
         vo.setUploader(uploaderVO);
-        vo.setTags(tags);
         return vo;
     }
 

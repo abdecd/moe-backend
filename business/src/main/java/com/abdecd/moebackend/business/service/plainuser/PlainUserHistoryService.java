@@ -59,7 +59,8 @@ public class PlainUserHistoryService {
                 .setVideoGroupTitle(videoGroup.getTitle())
                 .setVideoGroupCover(videoGroup.getCover())
                 .setVideoId(video.getId())
-                .setVideoTitle(video.getTitle());
+                .setVideoTitle(video.getTitle())
+                .setTimestamp(plainUserHistory.getTimestamp());
     }
 
     @Nullable

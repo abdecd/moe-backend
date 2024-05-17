@@ -93,6 +93,14 @@ public class VideoGroupServiceBase {
                 .setEpid(aVideo==null ? null : aVideo.getEpid());
     }
 
+    public void changeStatus(Long videoGroupId, Byte status) {
+        // todo 兼容es
+        videoGroupMapper.updateById(new VideoGroup()
+                .setId(videoGroupId)
+                .setVideoGroupStatus(status)
+        );
+    }
+
     /**
      * 检验空值以及是否是当前用户的视频组
      * @param videoGroupId :

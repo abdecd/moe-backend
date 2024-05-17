@@ -223,11 +223,10 @@ public class VideoServiceImpl implements VideoService {
         // 如果视频组显示正在转码(转码没设缓存)，那放出来
         var self = SpringContextUtil.getBean(VideoServiceImpl.class);
         var videoGroup = videoGroupMapper.selectById(self.getVideo(task.getVideoId()).getVideoGroupId());
-        if (Objects.equals(videoGroup.getVideoGroupStatus(), VideoGroup.Status.TRANSFORMING))
-            videoGroupMapper.updateById(new VideoGroup()
-                    .setId(videoGroup.getId())
-                    .setVideoGroupStatus(VideoGroup.Status.ENABLE)
-            );
+        if (Objects.equals(videoGroup.getVideoGroupStatus(), VideoGroup.Status.TRANSFORMING)) {
+            var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+            videoGroupServiceBase.changeStatus(videoGroup.getId(), VideoGroup.Status.ENABLE);
+        }
     }
 
     @Override

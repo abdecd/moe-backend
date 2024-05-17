@@ -1,7 +1,12 @@
 package com.abdecd.moebackend.business.service;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.pojo.vo.favorite.BangumiVideoGroupFavoriteVO;
+import com.abdecd.moebackend.business.pojo.vo.favorite.FavoriteVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
+import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -21,6 +26,10 @@ public class FavoriteService {
     private RedisTemplate<String, Long> redisTemplate;
     @Autowired
     private VideoGroupServiceBase videoGroupServiceBase;
+    @Autowired
+    private PlainUserHistoryService plainUserHistoryService;
+    @Autowired
+    private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
 
     public void add(Long userId, Long videoGroupId) {
         // 如果不存在
@@ -53,6 +62,50 @@ public class FavoriteService {
         var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, Math.max(0, (page - 1) * pageSize), Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE));
         if (list == null) list = new ArrayList<>();
         var arr = list.stream().map(videoGroupId -> videoGroupServiceBase.getVideoGroupWithData(videoGroupId)).toList();
+        return new PageVO<>(Math.toIntExact(total), arr);
+    }
+
+    public PageVO<FavoriteVO> getPlainFavorite(Long userId, Integer page, Integer pageSize) {
+        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
+        if (list == null) list = new ArrayList<>();
+        var total = list.stream().filter(
+                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.PLAIN_VIDEO_GROUP)
+        ).count();
+        var arr = list.stream().filter(
+                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.PLAIN_VIDEO_GROUP)
+        )
+        .skip(Math.max(0, (page - 1) * pageSize))
+        .limit(Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE))
+        .map(videoGroupId -> new FavoriteVO().setVideoGroupVO(videoGroupServiceBase.getVideoGroupInfo(videoGroupId))).toList();
+        return new PageVO<>(Math.toIntExact(total), arr);
+    }
+
+    public PageVO<FavoriteVO> getBangumiFavorite(Long userId, Integer page, Integer pageSize) {
+        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
+        if (list == null) list = new ArrayList<>();
+        var total = list.stream().filter(
+                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.ANIME_VIDEO_GROUP)
+        ).count();
+        var arr = list.stream().filter(
+                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.ANIME_VIDEO_GROUP)
+        )
+        .skip(Math.max(0, (page - 1) * pageSize))
+        .limit(Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE))
+        .map(videoGroupId -> {
+            var info = videoGroupServiceBase.getVideoGroupInfo(videoGroupId);
+            var contents = bangumiVideoGroupServiceBase.getContents(videoGroupId);
+            var latestVideoTitle = contents.isEmpty() ? null : contents.getFirst().getTitle();
+            var lastWatch = plainUserHistoryService.getLatestHistory(videoGroupId);
+            var lastWatchVideoTitle = lastWatch == null ? null : lastWatch.getVideoTitle();
+            var lastWatchVideoId = lastWatch == null ? null : lastWatch.getVideoId();
+            var vo = new BangumiVideoGroupFavoriteVO();
+            vo.setVideoGroupVO(info);
+            vo.setLatestVideoTitle(latestVideoTitle);
+            vo.setLastWatchVideoTitle(lastWatchVideoTitle);
+            vo.setLastWatchVideoId(lastWatchVideoId);
+            return (FavoriteVO) vo;
+        })
+        .toList();
         return new PageVO<>(Math.toIntExact(total), arr);
     }
 

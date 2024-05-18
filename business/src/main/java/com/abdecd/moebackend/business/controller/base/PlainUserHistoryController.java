@@ -8,6 +8,7 @@ import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,7 @@ public class PlainUserHistoryController {
 
     @Operation(summary = "删除用户观看历史")
     @PostMapping("delete")
-    public Result<String> deleteHistory(DeleteHistoryDTO deleteHistoryDTO) {
+    public Result<String> deleteHistory(@RequestBody @Valid DeleteHistoryDTO deleteHistoryDTO) {
         plainUserHistoryService.deleteHistory(deleteHistoryDTO.getVideoGroupIds());
         return Result.success();
     }

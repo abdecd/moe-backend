@@ -52,7 +52,7 @@ public class FavoriteService {
         for (var videoGroupId : videoGroupIds) {
             redisTemplate.opsForList().remove(RedisConstant.FAVORITES + userId, 0, videoGroupId);
             // 移除视频组收藏量
-            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, UserContext.getUserId());
+            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, userId);
         }
     }
 

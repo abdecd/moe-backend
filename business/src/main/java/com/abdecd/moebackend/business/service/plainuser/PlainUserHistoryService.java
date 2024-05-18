@@ -96,7 +96,7 @@ public class PlainUserHistoryService {
             var list = redisTemplate.opsForList().range(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, -1);
             if (list == null) list = new ArrayList<>();
             for (var item : list) {
-                if (item.getVideoId().equals(addHistoryDTO.getVideoId())) {
+                if (item.getVideoGroupId().equals(addHistoryDTO.getVideoId())) {
                     redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, item);
                     break;
                 }

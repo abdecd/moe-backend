@@ -7,9 +7,11 @@ import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "普通用户接口")
 @RestController
@@ -27,7 +29,7 @@ public class PlainUserController {
 
     @Operation(summary = "修改用户信息")
     @PostMapping("update")
-    public Result<String> updateUserInfo(@RequestBody @Valid UpdatePlainUserDTO updatePlainUserDTO) {
+    public Result<String> updateUserInfo(UpdatePlainUserDTO updatePlainUserDTO) {
         plainUserService.updatePlainUserDetail(updatePlainUserDTO);
         return Result.success();
     }

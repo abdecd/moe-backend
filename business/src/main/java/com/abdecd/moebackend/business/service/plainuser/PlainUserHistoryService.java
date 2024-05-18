@@ -53,7 +53,7 @@ public class PlainUserHistoryService {
     public PageVO<HistoryVO> getHistory2(Integer index, Integer pageSize) {
         var list = redisTemplate.opsForList().range(
                 RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
-                (long) Math.max(0, index),
+                Math.max(0, index),
                 (long) index + pageSize - 1
         );
         if (list == null) return new PageVO<>();

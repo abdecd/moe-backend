@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 public class HistoryVO {
     private UploaderVO uploader;
     private Long videoGroupId;
+    private Byte videoGroupType;
     private String videoGroupTitle;
     private String videoGroupCover;
     private Long videoId;
+    private Integer videoIndex;
     private String videoTitle;
     private LocalDateTime timestamp;
 }

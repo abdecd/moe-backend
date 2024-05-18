@@ -3,10 +3,8 @@ package com.abdecd.moebackend.business.service.plainuser;
 import com.abdecd.moebackend.business.dao.entity.PlainUserHistory;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
-import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
-import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -22,8 +20,6 @@ import java.util.ArrayList;
 public class PlainUserHistoryService {
     @Autowired
     private RedisTemplate<String, PlainUserHistory> redisTemplate;
-    @Autowired
-    private PlainUserService plainUserService;
     @Autowired
     private VideoService videoService;
     @Autowired
@@ -53,7 +49,7 @@ public class PlainUserHistoryService {
     public PageVO<HistoryVO> getHistory2(Integer index, Integer pageSize) {
         var list = redisTemplate.opsForList().range(
                 RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
-                (long) Math.max(0, index),
+                Math.max(0, index),
                 (long) index + pageSize - 1
         );
         if (list == null) return new PageVO<>();
@@ -65,17 +61,8 @@ public class PlainUserHistoryService {
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
         var video = videoService.getVideo(plainUserHistory.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());
-        var uploader = plainUserService.getPlainUserDetail(plainUserHistory.getUserId());
+        var uploaderVO = videoGroup.getUploader();
 
-        var uploaderVO = uploader == null
-            ? new UploaderVO()
-                .setId(-1L)
-                .setNickname(MessageConstant.ADMIN)
-                .setAvatar(MessageConstant.ADMIN_AVATAR)
-            : new UploaderVO()
-                .setId(uploader.getUserId())
-                .setAvatar(uploader.getAvatar())
-                .setNickname(uploader.getNickname());
         return new HistoryVO()
                 .setUploader(uploaderVO)
                 .setVideoGroupId(videoGroup.getId())

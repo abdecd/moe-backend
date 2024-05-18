@@ -47,14 +47,14 @@ public class PlainUserHistoryService {
 
     /**
      * 获取历史记录
-     * @param index 不包括index
+     * @param index index
      * @param pageSize 数量
      */
     public PageVO<HistoryVO> getHistory2(Integer index, Integer pageSize) {
         var list = redisTemplate.opsForList().range(
                 RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
-                (long) index + 1,
-                (long) index + pageSize
+                Math.max(0, index),
+                (long) index + pageSize - 1
         );
         if (list == null) return new PageVO<>();
         var total = redisTemplate.opsForList().size(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());

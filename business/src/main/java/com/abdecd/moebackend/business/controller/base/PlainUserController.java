@@ -27,7 +27,7 @@ public class PlainUserController {
 
     @Operation(summary = "修改用户信息")
     @PostMapping("update")
-    public Result<String> updateUserInfo(@RequestBody @Valid UpdatePlainUserDTO updatePlainUserDTO) {
+    public Result<String> updateUserInfo(@Valid UpdatePlainUserDTO updatePlainUserDTO) {
         plainUserService.updatePlainUserDetail(updatePlainUserDTO);
         return Result.success();
     }

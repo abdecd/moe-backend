@@ -7,13 +7,16 @@ import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
-import com.abdecd.moebackend.business.service.video.VideoService;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -91,6 +94,20 @@ public class VideoGroupServiceBase {
                 .setStatisticDataVO(cnts)
                 .setBvid(aVideo==null ? null : aVideo.getBvid())
                 .setEpid(aVideo==null ? null : aVideo.getEpid());
+    }
+
+    public PageVO<VideoGroupWithDataVO> pageMyUploadVideoGroup(Integer page, Integer pageSize) {
+        var userId = UserContext.getUserId();
+        var pageObj = new Page<VideoGroup>(page, pageSize);
+        var result = videoGroupMapper.selectPage(pageObj, new LambdaQueryWrapper<VideoGroup>()
+                .eq(VideoGroup::getUserId, userId)
+                .orderByDesc(VideoGroup::getId)
+        );
+        var self = SpringContextUtil.getBean(getClass());
+        return new PageVO<VideoGroupWithDataVO>()
+                .setTotal((int) result.getTotal())
+                .setRecords(result.getRecords().stream().map(it -> self.getVideoGroupWithData(it.getId())).toList()
+        );
     }
 
     public void changeStatus(Long videoGroupId, Byte status) {

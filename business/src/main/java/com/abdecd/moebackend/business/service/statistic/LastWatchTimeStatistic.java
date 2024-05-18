@@ -19,10 +19,10 @@ public class LastWatchTimeStatistic {
     @Autowired
     private PlainUserLastWatchTimeMapper plainUserLastWatchTimeMapper;
 
-    public void add(Long videoId, String watchTime) {
+    public void add(Long videoId, Long watchProgress) {
         stringRedisTemplate.opsForValue().set(
                 RedisConstant.PLAIN_USER_LAST_WATCH_TIME + UserContext.getUserId() + ":" + videoId,
-                watchTime
+                watchProgress + ""
         );
     }
 

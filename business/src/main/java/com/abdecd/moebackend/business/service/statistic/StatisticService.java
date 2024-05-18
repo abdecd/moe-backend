@@ -32,7 +32,7 @@ public class StatisticService {
 
     public void cntVideoPlay(VideoPlayDTO videoPlayDTO, int addTime) {
         // 记录上次观看位置
-        lastWatchTimeStatistic.add(videoPlayDTO.getVideoId(), videoPlayDTO.getWatchTime());
+        lastWatchTimeStatistic.add(videoPlayDTO.getVideoId(), videoPlayDTO.getWatchProgress());
         // 记录播放总时长
         totalWatchTimeStatistic.add(videoPlayDTO.getVideoId(), addTime);
         // 统计播放量

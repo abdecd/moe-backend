@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @Data
 public class AddHistoryDTO {
     @NotNull
+    private Long userId;
+    @NotNull
     private Long videoId;
 
-    public PlainUserHistory toEntity(Long userId, Long videoGroupId) {
+    public PlainUserHistory toEntity(Long videoGroupId) {
         return new PlainUserHistory()
                 .setUserId(userId)
                 .setVideoGroupId(videoGroupId)

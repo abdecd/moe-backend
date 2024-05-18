@@ -6,6 +6,7 @@ import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -45,11 +46,16 @@ public class PlainUserHistoryService {
     }
 
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
-        var uploader = plainUserService.getPlainUserDetail(plainUserHistory.getUserId());
         var video = videoService.getVideo(plainUserHistory.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());
+        var uploader = plainUserService.getPlainUserDetail(plainUserHistory.getUserId());
 
-        var uploaderVO = new UploaderVO()
+        var uploaderVO = uploader == null
+            ? new UploaderVO()
+                .setId(-1L)
+                .setNickname(MessageConstant.ADMIN)
+                .setAvatar(MessageConstant.ADMIN_AVATAR)
+            : new UploaderVO()
                 .setId(uploader.getUserId())
                 .setAvatar(uploader.getAvatar())
                 .setNickname(uploader.getNickname());
@@ -80,25 +86,25 @@ public class PlainUserHistoryService {
     public void addHistory(AddHistoryDTO addHistoryDTO) {
         var video = videoService.getVideo(addHistoryDTO.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(video.getVideoGroupId());
-        var entity = addHistoryDTO.toEntity(UserContext.getUserId(), videoGroup.getId());
+        var entity = addHistoryDTO.toEntity(videoGroup.getId());
 
         // add to redis
-        var lock = redissonClient.getLock(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());
+        var lock = redissonClient.getLock(RedisConstant.PLAIN_USER_HISTORY_LOCK + addHistoryDTO.getUserId());
         lock.lock();
         try {
             // delete old record
-            var list = redisTemplate.opsForList().range(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(), 0, -1);
+            var list = redisTemplate.opsForList().range(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, -1);
             if (list == null) list = new ArrayList<>();
             for (var item : list) {
                 if (item.getVideoId().equals(addHistoryDTO.getVideoId())) {
-                    redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(), 0, item);
+                    redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, item);
                     break;
                 }
             }
             // add new record
-            redisTemplate.opsForList().leftPush(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(), entity);
+            redisTemplate.opsForList().leftPush(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), entity);
             redisTemplate.opsForList().trim(
-                    RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
+                    RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(),
                     0,
                     RedisConstant.PLAIN_USER_HISTORY_SIZE
             );

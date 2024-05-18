@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.result.Result;
+import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,8 @@ public class VideoController {
     @GetMapping("")
     public CompletableFuture<Result<VideoVO>> getVideo(@RequestParam Long id) {
         // 添加观看历史记录
-        executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(id)));
+        var userId = UserContext.getUserId();
+        executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
         return CompletableFuture.completedFuture(Result.success(videoService.getVideo(id)));
     }
 }

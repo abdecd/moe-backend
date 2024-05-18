@@ -15,4 +15,5 @@ public class VideoGroupVO {
     private String tags;
     private Byte type;
     private LocalDateTime createTime;
+    private Byte videoGroupStatus;
 }

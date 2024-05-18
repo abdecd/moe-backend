@@ -19,4 +19,8 @@ public class AllProperties {
      * 测试模式; true 时启用虚拟用户允许所有请求 详见 interceptor/LoginInterceptor.inTest()
      */
     private Boolean test = false;
+    /**
+     * jwt 加密密钥 详见 common/util/JwtUtils
+     */
+    private String jwtHashKey;
 }

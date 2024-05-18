@@ -45,6 +45,23 @@ public class PlainUserHistoryService {
         return new PageVO<>(Math.toIntExact(total), list.stream().map(this::formHistoryVO).toList());
     }
 
+    /**
+     * 获取历史记录
+     * @param index 不包括index
+     * @param pageSize 数量
+     */
+    public PageVO<HistoryVO> getHistory2(Integer index, Integer pageSize) {
+        var list = redisTemplate.opsForList().range(
+                RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
+                (long) index + 1,
+                (long) index + pageSize
+        );
+        if (list == null) return new PageVO<>();
+        var total = redisTemplate.opsForList().size(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());
+        if (total == null) return new PageVO<>();
+        return new PageVO<>(Math.toIntExact(total), list.stream().map(this::formHistoryVO).toList());
+    }
+
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
         var video = videoService.getVideo(plainUserHistory.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());

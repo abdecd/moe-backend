@@ -117,7 +117,7 @@ public class PlainUserHistoryService {
 
     public void deleteHistory(long[] videoGroupIds) {
         // delete from redis
-        var lock = redissonClient.getLock(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());
+        var lock = redissonClient.getLock(RedisConstant.PLAIN_USER_HISTORY_LOCK + UserContext.getUserId());
         lock.lock();
         try {
             // delete record

@@ -85,6 +85,7 @@ public class PlainUserHistoryService {
 
     public void addHistory(AddHistoryDTO addHistoryDTO) {
         var video = videoService.getVideo(addHistoryDTO.getVideoId());
+        if (video == null) return;
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(video.getVideoGroupId());
         var entity = addHistoryDTO.toEntity(videoGroup.getId());
 
@@ -96,7 +97,7 @@ public class PlainUserHistoryService {
             var list = redisTemplate.opsForList().range(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, -1);
             if (list == null) list = new ArrayList<>();
             for (var item : list) {
-                if (item.getVideoGroupId().equals(addHistoryDTO.getVideoId())) {
+                if (item.getVideoGroupId().equals(entity.getVideoGroupId())) {
                     redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, item);
                 }
             }

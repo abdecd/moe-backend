@@ -7,6 +7,7 @@ import com.abdecd.moebackend.business.service.statistic.LastWatchTimeStatistic;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,22 @@ public class PlainUserHistoryController {
     @Autowired
     private LastWatchTimeStatistic lastWatchTimeStatistic;
 
+//    @Operation(summary = "获取用户观看历史")
+//    @GetMapping("")
+//    public Result<PageVO<HistoryVO>> getHistory(
+//            @RequestParam(defaultValue = "1") Integer page,
+//            @RequestParam(defaultValue = "10") Integer pageSize
+//    ) {
+//        return Result.success(plainUserHistoryService.getHistory(page, pageSize));
+//    }
+
     @Operation(summary = "获取用户观看历史")
     @GetMapping("")
     public Result<PageVO<HistoryVO>> getHistory(
-            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "1") @Schema(description = "不包括") Integer index,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        return Result.success(plainUserHistoryService.getHistory(page, pageSize));
+        return Result.success(plainUserHistoryService.getHistory2(index, pageSize));
     }
 
     @Operation(summary = "删除用户观看历史")

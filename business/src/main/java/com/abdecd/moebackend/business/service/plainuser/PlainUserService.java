@@ -53,7 +53,7 @@ public class PlainUserService {
                     .set(User::getNickname, updatePlainUserDTO.getNickname())
             );
         }
-        var entity = updatePlainUserDTO.toEntity();
+        var entity = updatePlainUserDTO.toEntity(UserContext.getUserId());
         if (newFileUrl != null) entity.setAvatar(newFileUrl);
         plainUserDetailMapper.updateById(entity);
         if (oldFileUrl != null) fileService.deleteFile(oldFileUrl);

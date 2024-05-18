@@ -59,7 +59,7 @@ public class VideoController {
     public CompletableFuture<Result<VideoVO>> getVideo(@RequestParam Long id) {
         // 添加观看历史记录
         var userId = UserContext.getUserId();
-        executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
+        if (userId != null) executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
         return CompletableFuture.completedFuture(Result.success(videoService.getVideo(id)));
     }
 }

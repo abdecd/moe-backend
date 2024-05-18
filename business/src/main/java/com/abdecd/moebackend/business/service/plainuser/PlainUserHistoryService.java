@@ -98,7 +98,6 @@ public class PlainUserHistoryService {
             for (var item : list) {
                 if (item.getVideoGroupId().equals(addHistoryDTO.getVideoId())) {
                     redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, item);
-                    break;
                 }
             }
             // add new record

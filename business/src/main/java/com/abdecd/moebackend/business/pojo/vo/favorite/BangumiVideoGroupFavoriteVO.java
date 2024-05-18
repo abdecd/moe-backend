@@ -11,4 +11,5 @@ public class BangumiVideoGroupFavoriteVO extends FavoriteVO {
     private String latestVideoTitle;
     private String lastWatchVideoTitle;
     private Long lastWatchVideoId;
+    private Integer lastWatchVideoIndex;
 }

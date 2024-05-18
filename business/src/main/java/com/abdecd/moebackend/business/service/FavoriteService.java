@@ -91,22 +91,26 @@ public class FavoriteService {
         )
         .skip(Math.max(0, (page - 1) * pageSize))
         .limit(Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE))
-        .map(videoGroupId -> {
-            var info = videoGroupServiceBase.getVideoGroupInfo(videoGroupId);
-            var contents = bangumiVideoGroupServiceBase.getContents(videoGroupId);
-            var latestVideoTitle = contents.isEmpty() ? null : contents.getFirst().getTitle();
-            var lastWatch = plainUserHistoryService.getLatestHistory(videoGroupId);
-            var lastWatchVideoTitle = lastWatch == null ? null : lastWatch.getVideoTitle();
-            var lastWatchVideoId = lastWatch == null ? null : lastWatch.getVideoId();
-            var vo = new BangumiVideoGroupFavoriteVO();
-            vo.setVideoGroupVO(info);
-            vo.setLatestVideoTitle(latestVideoTitle);
-            vo.setLastWatchVideoTitle(lastWatchVideoTitle);
-            vo.setLastWatchVideoId(lastWatchVideoId);
-            return (FavoriteVO) vo;
-        })
+        .map(this::formBangumiFavorite)
         .toList();
         return new PageVO<>(Math.toIntExact(total), arr);
+    }
+
+    public FavoriteVO formBangumiFavorite(Long videoGroupId) {
+        var info = videoGroupServiceBase.getVideoGroupInfo(videoGroupId);
+        var contents = bangumiVideoGroupServiceBase.getContents(videoGroupId);
+        var latestVideoTitle = contents.isEmpty() ? null : contents.getFirst().getTitle();
+        var lastWatch = plainUserHistoryService.getLatestHistory(videoGroupId);
+        var lastWatchVideoTitle = lastWatch == null ? null : lastWatch.getVideoTitle();
+        var lastWatchVideoId = lastWatch == null ? null : lastWatch.getVideoId();
+        var lastWatchVideoIndex = lastWatch == null ? null : lastWatch.getVideoIndex();
+        var vo = new BangumiVideoGroupFavoriteVO();
+        vo.setVideoGroupVO(info);
+        vo.setLatestVideoTitle(latestVideoTitle);
+        vo.setLastWatchVideoTitle(lastWatchVideoTitle);
+        vo.setLastWatchVideoId(lastWatchVideoId);
+        vo.setLastWatchVideoIndex(lastWatchVideoIndex);
+        return vo;
     }
 
     public boolean exists(Long userId, Long videoGroupId) {

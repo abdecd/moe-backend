@@ -56,9 +56,11 @@ public class PlainUserHistoryService {
         return new HistoryVO()
                 .setUploader(uploaderVO)
                 .setVideoGroupId(videoGroup.getId())
+                .setVideoGroupType(videoGroup.getType())
                 .setVideoGroupTitle(videoGroup.getTitle())
                 .setVideoGroupCover(videoGroup.getCover())
                 .setVideoId(video.getId())
+                .setVideoIndex(video.getIndex())
                 .setVideoTitle(video.getTitle())
                 .setTimestamp(plainUserHistory.getTimestamp());
     }

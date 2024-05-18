@@ -25,6 +25,7 @@ public class RedisConstant {
     public static final String DANMAKU = "moe:danmaku#20";
     public static final String PLAIN_USER_DETAIL = "moe:plain_user:detail#300";
     public static final String PLAIN_USER_HISTORY = "moe:plain_user:history:";
+    public static final String PLAIN_USER_HISTORY_LOCK = "moe:plain_user:history_lock:";
     public static final int PLAIN_USER_HISTORY_SIZE = 300;
     public static final String STATISTIC_VIDEO_PLAY_LOCK = "moe:statistic:video_play_statistic_lock:";
     public static final int STATISTIC_VIDEO_PLAY_RESET_TIME = 5;

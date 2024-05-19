@@ -43,7 +43,7 @@ public class FavoriteService {
         // 如果已经加过了
         if (list != null && list.contains(videoGroupId))
             throw new BaseException(MessageConstant.FAVORITES_EXIST);
-        redisTemplate.opsForList().rightPushAll(RedisConstant.FAVORITES + userId, videoGroupId);
+        redisTemplate.opsForList().leftPushAll(RedisConstant.FAVORITES + userId, videoGroupId);
         // 添加到视频组收藏量
         redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, UserContext.getUserId());
     }

@@ -60,6 +60,17 @@ public class VideoGroupServiceBase {
         } else return null;
     }
 
+    public VideoGroupVO getVideoGroupInfoForce(Long videoGroupId) {
+        var self = SpringContextUtil.getBean(getClass());
+        var type = self.getVideoGroupType(videoGroupId);
+
+        if (Objects.equals(type, VideoGroup.Type.PLAIN_VIDEO_GROUP)) {
+            return plainVideoGroupServiceBase.getVideoGroupInfoForce(videoGroupId);
+        } else if (Objects.equals(type, VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            return bangumiVideoGroupServiceBase.getVideoGroupInfoForce(videoGroupId);
+        } else return null;
+    }
+
     // todo 待重构
     public Object getContents(Long videoGroupId) {
         var self = SpringContextUtil.getBean(getClass());
@@ -98,7 +109,7 @@ public class VideoGroupServiceBase {
                 .setEpid(aVideo==null ? null : aVideo.getEpid());
     }
 
-    public PageVO<VideoGroupWithDataVO> pageMyUploadVideoGroup(Integer page, Integer pageSize) {
+    public PageVO<VideoGroupVO> pageMyUploadVideoGroup(Integer page, Integer pageSize) {
         var userId = UserContext.getUserId();
         var pageObj = new Page<VideoGroup>(page, pageSize);
         var result = videoGroupMapper.selectPage(pageObj, new LambdaQueryWrapper<VideoGroup>()
@@ -106,9 +117,9 @@ public class VideoGroupServiceBase {
                 .orderByDesc(VideoGroup::getId)
         );
         var self = SpringContextUtil.getBean(getClass());
-        return new PageVO<VideoGroupWithDataVO>()
+        return new PageVO<VideoGroupVO>()
                 .setTotal((int) result.getTotal())
-                .setRecords(result.getRecords().stream().map(it -> self.getVideoGroupWithData(it.getId())).toList()
+                .setRecords(result.getRecords().stream().map(it -> self.getVideoGroupInfoForce(it.getId())).toList()
         );
     }
 

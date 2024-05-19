@@ -90,6 +90,13 @@ public class VideoGroupServiceBase {
                 .setVideoGroupVO(videoGroupInfo)
                 .setStatisticDataVO(statisticService.getStatisticData(videoGroupId));
     }
+    public VideoGroupWithDataVO getVideoGroupWithDataForce(Long videoGroupId) {
+        var videoGroupInfo = getVideoGroupInfoForce(videoGroupId);
+        if (videoGroupInfo == null) return null;
+        return new VideoGroupWithDataVO()
+                .setVideoGroupVO(videoGroupInfo)
+                .setStatisticDataVO(statisticService.getStatisticData(videoGroupId));
+    }
 
     public VideoGroupBigVO getBigVideoGroup(Long videoGroupId) {
         var videoGroupInfo = getVideoGroupInfo(videoGroupId);
@@ -109,7 +116,7 @@ public class VideoGroupServiceBase {
                 .setEpid(aVideo==null ? null : aVideo.getEpid());
     }
 
-    public PageVO<VideoGroupVO> pageMyUploadVideoGroup(Integer page, Integer pageSize) {
+    public PageVO<VideoGroupWithDataVO> pageMyUploadVideoGroup(Integer page, Integer pageSize) {
         var userId = UserContext.getUserId();
         var pageObj = new Page<VideoGroup>(page, pageSize);
         var result = videoGroupMapper.selectPage(pageObj, new LambdaQueryWrapper<VideoGroup>()
@@ -117,9 +124,9 @@ public class VideoGroupServiceBase {
                 .orderByDesc(VideoGroup::getId)
         );
         var self = SpringContextUtil.getBean(getClass());
-        return new PageVO<VideoGroupVO>()
+        return new PageVO<VideoGroupWithDataVO>()
                 .setTotal((int) result.getTotal())
-                .setRecords(result.getRecords().stream().map(it -> self.getVideoGroupInfoForce(it.getId())).toList()
+                .setRecords(result.getRecords().stream().map(it -> self.getVideoGroupWithDataForce(it.getId())).toList()
         );
     }
 

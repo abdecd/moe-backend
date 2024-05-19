@@ -4,7 +4,6 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
-import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
@@ -47,6 +46,9 @@ public class VideoGroupServiceBase {
         return obj.getType();
     }
 
+    /**
+     * 获取状态为已经启用的视频详情
+     */
     public VideoGroupVO getVideoGroupInfo(Long videoGroupId) {
         var self = SpringContextUtil.getBean(getClass());
         var type = self.getVideoGroupType(videoGroupId);
@@ -123,11 +125,12 @@ public class VideoGroupServiceBase {
      * @param videoGroupId :
      */
     public void checkUserHaveTheGroup(Long videoGroupId) {
-        var old = getVideoGroupInfo(videoGroupId);
+        var old = videoGroupMapper.selectById(videoGroupId);
         if (old == null) throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
         if (!Optional.of(old)
-                .map(VideoGroupVO::getUploader)
-                .map(UploaderVO::getId).orElse(-1L).equals(UserContext.getUserId()))
+                .map(VideoGroup::getUserId)
+                .orElse(-1L)
+                .equals(UserContext.getUserId()))
             throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
     }
 }

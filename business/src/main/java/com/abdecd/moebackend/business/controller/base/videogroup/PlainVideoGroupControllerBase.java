@@ -61,7 +61,7 @@ public class PlainVideoGroupControllerBase {
 
         var videoAddDTO = new AddVideoDTO()
                 .setVideoGroupId(videoGroupId)
-                .setIndex(0)
+                .setIndex(1)
                 .setTitle(addDTO.getTitle())
                 .setCover(addDTO.getCover())
                 .setDescription(addDTO.getDescription())

@@ -2,6 +2,7 @@ package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@Tag(name = "普通视频组接口")
+@Tag(name = "后台普通视频组接口")
 @Slf4j
 @RestController
 @RequestMapping("/backstage/plain-video-group")
@@ -37,19 +38,22 @@ public class PlainVideoGroupController {
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
+    public Result<Long> addVideoGroup(@Valid VideoGroupAddDTO videoGroupAddDTO) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
+        ldt.format(dtf);
 
         Long groupId = videoGroupService.insert(new VideoGroup()
                 .setCreateTime(ldt)
-                .setTitle(videoGroupDTO.getTitle())
-                .setDescription(videoGroupDTO.getDescription())
-                ,videoGroupDTO.getCover()
+                .setTitle(videoGroupAddDTO.getTitle())
+                .setDescription(videoGroupAddDTO.getDescription())
+                .setTags(String.join(",",videoGroupAddDTO.getTagIds()))
+                .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
+                ,videoGroupAddDTO.getCover()
             );
 
-        if (videoGroupDTO.getTagIds() != null) {
-            for (String i : videoGroupDTO.getTagIds()) {
+        if (videoGroupAddDTO.getTagIds() != null) {
+            for (String i : videoGroupAddDTO.getTagIds()) {
                 Long tagId = Long.valueOf(i);
                 videoGroupAndTagService.insert(tagId, groupId);
             }
@@ -63,6 +67,7 @@ public class PlainVideoGroupController {
     @PostMapping(value = "/delete")
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
+        videoGroupAndTagService.deleteByVideoGroupId(id);
         return Result.success();
     }
 

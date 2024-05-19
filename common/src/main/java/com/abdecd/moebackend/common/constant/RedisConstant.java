@@ -31,7 +31,7 @@ public class RedisConstant {
     public static final int STATISTIC_VIDEO_PLAY_RESET_TIME = 5;
     public static final String PLAIN_USER_LAST_WATCH_TIME = "moe:plain_user:last_watch_time:";
     public static final String PLAIN_USER_TOTAL_WATCH_TIME = "moe:plain_user:total_watch_time:";
-    public static final String STATISTIC_WATCH_CNT = "moe:statistic:watch_cnt:";
+    public static final String STATISTIC_VIDEO_PLAY_CNT = "moe:statistic:video_play_cnt:";
     public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";
     public static final String VIDEO_GROUP_CONTENT_CACHE = "moe:video_group_content_cache#300";
     public static final String VIDEO_GROUP_TYPE_CACHE = "moe:video_group_type_cache#300";

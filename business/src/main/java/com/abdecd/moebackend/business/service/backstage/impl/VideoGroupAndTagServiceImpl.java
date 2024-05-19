@@ -21,4 +21,22 @@ public class VideoGroupAndTagServiceImpl implements VideoGroupAndTagService {
                 .setTagId(tagId)
         );
     }
+
+    @Override
+    public void insertByTags(String tags, Long groupId) {
+        String[] tagIds = tags.split(",");
+
+        for (String tagId : tagIds) {
+            videoGroupAndTagMapper.insert(
+                    new VideoGroupAndTag()
+                        .setVideoGroupId(groupId)
+                        .setTagId(Long.valueOf(tagId))
+            );
+        }
+    }
+
+    @Override
+    public void deleteByVideoGroupId(Long id) {
+        videoGroupAndTagMapper.deleteByVideoGroupId(id);
+    }
 }

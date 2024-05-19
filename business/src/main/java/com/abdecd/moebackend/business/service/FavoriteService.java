@@ -43,7 +43,7 @@ public class FavoriteService {
         // 如果已经加过了
         if (list != null && list.contains(videoGroupId))
             throw new BaseException(MessageConstant.FAVORITES_EXIST);
-        redisTemplate.opsForList().leftPushAll(RedisConstant.FAVORITES + userId, videoGroupId);
+        redisTemplate.opsForList().rightPushAll(RedisConstant.FAVORITES + userId, videoGroupId);
         // 添加到视频组收藏量
         redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, UserContext.getUserId());
     }
@@ -52,7 +52,7 @@ public class FavoriteService {
         for (var videoGroupId : videoGroupIds) {
             redisTemplate.opsForList().remove(RedisConstant.FAVORITES + userId, 0, videoGroupId);
             // 移除视频组收藏量
-            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, userId);
+            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, UserContext.getUserId());
         }
     }
 

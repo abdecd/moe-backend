@@ -16,4 +16,6 @@ public interface VideoService {
     VideoVO getVideo(Long videoId);
 
     ArrayList<Video> getVideoListByGid(Long videoGroupId);
+
+    Long addVideo(Video video);
 }

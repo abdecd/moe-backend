@@ -1,7 +1,6 @@
 package com.abdecd.moebackend.business.service.plainuser;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.controller.base.CommonController;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.UpdatePlainUserDTO;
@@ -18,7 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -29,8 +28,6 @@ public class PlainUserService {
     private UserMapper userMapper;
     @Autowired
     private FileService fileService;
-    @Autowired
-    private CommonController commonController;
 
     @Cacheable(value = RedisConstant.PLAIN_USER_DETAIL, key = "#uid", unless = "#result == null")
     public PlainUserDetail getPlainUserDetail(Long uid) {
@@ -44,14 +41,9 @@ public class PlainUserService {
         String oldFileUrl = null;
         if (updatePlainUserDTO.getAvatar() != null) {
             try {
-                var result = commonController.uploadImg(updatePlainUserDTO.getAvatar());
-                if (Objects.requireNonNull(result.join().getBody()).getCode() != 200) throw new Exception();
-                var avatarBody = result.join().getBody();
-                if (avatarBody == null) throw new Exception();
-                var avatar = avatarBody.getData();
-                newFileUrl = fileService.changeTmpFileToStatic(avatar, "/user", "avatar-" + UUID.randomUUID() + avatar.substring(avatar.lastIndexOf('.')));
+                newFileUrl = fileService.uploadFile(updatePlainUserDTO.getAvatar(), "/user", "avatar" + UUID.randomUUID());
                 oldFileUrl = plainUserDetailMapper.selectById(UserContext.getUserId()).getAvatar();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 throw new BaseException(MessageConstant.IMG_FILE_UPLOAD_FAIL);
             }
         }
@@ -61,7 +53,7 @@ public class PlainUserService {
                     .set(User::getNickname, updatePlainUserDTO.getNickname())
             );
         }
-        var entity = updatePlainUserDTO.toEntity(UserContext.getUserId());
+        var entity = updatePlainUserDTO.toEntity();
         if (newFileUrl != null) entity.setAvatar(newFileUrl);
         plainUserDetailMapper.updateById(entity);
         if (oldFileUrl != null) fileService.deleteFile(oldFileUrl);

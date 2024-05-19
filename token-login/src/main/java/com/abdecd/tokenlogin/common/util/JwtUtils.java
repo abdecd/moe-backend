@@ -31,20 +31,6 @@ public class JwtUtils {
         }
     }
     Algorithm HMAC256 = Algorithm.HMAC256(UUID.randomUUID()+"");
-    {
-        new Thread(() -> {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            String hash = null;
-            try {
-                hash = TokenLoginSpringContextUtil.getApplicationContext().getEnvironment().getProperty("token-login.jwt-hash-key");
-            } catch (Exception ignored) {}
-            if (hash != null) HMAC256 = Algorithm.HMAC256(hash);
-        }).start();
-    }
 
     public String encodeJWT(int ttlSeconds, Map<String, String> claims) {
         var expiredDate = Calendar.getInstance();

@@ -22,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -58,8 +59,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String randomImageName = UUID.randomUUID() + ".jpg";
-            coverPath =  fileService.uploadFile(cover,randomImageName);
+            String coverName = cover.getName() + ".jpg";
+            coverPath =  fileService.uploadFile(cover,coverName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -91,8 +92,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         {
             try {
                 //TODO 文件没有存下来
-                String randomImageName = UUID.randomUUID() + ".jpg";
-                coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),randomImageName);
+                String coverName = videoGroupDTO.getCover().getName() + ".jpg";
+                coverPath =  fileService.uploadFile(videoGroupDTO.getCover(),coverName);
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }

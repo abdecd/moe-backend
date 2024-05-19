@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
-@Tag(name = "番剧视频组接口")
+@Tag(name = "后台番剧视频组接口")
 @Slf4j
 @RestController
 @RequestMapping("/backstage/bangumi-video-group")

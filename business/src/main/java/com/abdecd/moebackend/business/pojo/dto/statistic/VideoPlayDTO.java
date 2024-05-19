@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.pojo.dto.statistic;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -7,6 +8,6 @@ import lombok.Data;
 public class VideoPlayDTO {
     @NotNull
     private Long videoId;
-    @NotNull
-    private Long watchProgress;
+    @NotBlank
+    private String watchTime;
 }

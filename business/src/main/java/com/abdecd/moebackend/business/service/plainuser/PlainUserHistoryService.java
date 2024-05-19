@@ -3,8 +3,10 @@ package com.abdecd.moebackend.business.service.plainuser;
 import com.abdecd.moebackend.business.dao.entity.PlainUserHistory;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
+import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 public class PlainUserHistoryService {
     @Autowired
     private RedisTemplate<String, PlainUserHistory> redisTemplate;
+    @Autowired
+    private PlainUserService plainUserService;
     @Autowired
     private VideoService videoService;
     @Autowired
@@ -41,28 +45,20 @@ public class PlainUserHistoryService {
         return new PageVO<>(Math.toIntExact(total), list.stream().map(this::formHistoryVO).toList());
     }
 
-    /**
-     * 获取历史记录
-     * @param index index
-     * @param pageSize 数量
-     */
-    public PageVO<HistoryVO> getHistory2(Integer index, Integer pageSize) {
-        var list = redisTemplate.opsForList().range(
-                RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId(),
-                Math.max(0, index),
-                (long) index + pageSize - 1
-        );
-        if (list == null) return new PageVO<>();
-        var total = redisTemplate.opsForList().size(RedisConstant.PLAIN_USER_HISTORY + UserContext.getUserId());
-        if (total == null) return new PageVO<>();
-        return new PageVO<>(Math.toIntExact(total), list.stream().map(this::formHistoryVO).toList());
-    }
-
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
         var video = videoService.getVideo(plainUserHistory.getVideoId());
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());
-        var uploaderVO = videoGroup.getUploader();
+        var uploader = plainUserService.getPlainUserDetail(plainUserHistory.getUserId());
 
+        var uploaderVO = uploader == null
+            ? new UploaderVO()
+                .setId(-1L)
+                .setNickname(MessageConstant.ADMIN)
+                .setAvatar(MessageConstant.ADMIN_AVATAR)
+            : new UploaderVO()
+                .setId(uploader.getUserId())
+                .setAvatar(uploader.getAvatar())
+                .setNickname(uploader.getNickname());
         return new HistoryVO()
                 .setUploader(uploaderVO)
                 .setVideoGroupId(videoGroup.getId())
@@ -89,7 +85,6 @@ public class PlainUserHistoryService {
 
     public void addHistory(AddHistoryDTO addHistoryDTO) {
         var video = videoService.getVideo(addHistoryDTO.getVideoId());
-        if (video == null) return;
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(video.getVideoGroupId());
         var entity = addHistoryDTO.toEntity(videoGroup.getId());
 
@@ -101,8 +96,9 @@ public class PlainUserHistoryService {
             var list = redisTemplate.opsForList().range(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, -1);
             if (list == null) list = new ArrayList<>();
             for (var item : list) {
-                if (item.getVideoGroupId().equals(entity.getVideoGroupId())) {
+                if (item.getVideoGroupId().equals(addHistoryDTO.getVideoId())) {
                     redisTemplate.opsForList().remove(RedisConstant.PLAIN_USER_HISTORY + addHistoryDTO.getUserId(), 0, item);
+                    break;
                 }
             }
             // add new record

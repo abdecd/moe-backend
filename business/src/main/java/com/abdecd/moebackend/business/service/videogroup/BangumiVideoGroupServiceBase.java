@@ -63,31 +63,6 @@ public class BangumiVideoGroupServiceBase {
         vo.setUploader(uploaderVO);
         return vo;
     }
-    public BangumiVideoGroupVO getVideoGroupInfoForce(Long videoGroupId) {
-        var base = videoGroupMapper.selectById(videoGroupId);
-        if (base == null || !Objects.equals(base.getType(), VideoGroup.Type.ANIME_VIDEO_GROUP)) return null;
-        var appendix = bangumiVideoGroupMapper.selectOne(new LambdaQueryWrapper<BangumiVideoGroup>()
-                .eq(BangumiVideoGroup::getVideoGroupId, videoGroupId)
-        );
-        if (appendix == null) return null;
-        // 为空是管理员
-        var uploader = plainUserService.getPlainUserDetail(base.getUserId());
-        var uploaderVO = uploader == null
-                ? new UploaderVO()
-                .setId(null)
-                .setNickname(MessageConstant.ADMIN)
-                .setAvatar(MessageConstant.ADMIN_AVATAR)
-                : new UploaderVO()
-                .setId(uploader.getUserId())
-                .setNickname(uploader.getNickname())
-                .setAvatar(uploader.getAvatar());
-
-        var vo = new BangumiVideoGroupVO();
-        BeanUtils.copyProperties(base, vo);
-        BeanUtils.copyProperties(appendix, vo);
-        vo.setUploader(uploaderVO);
-        return vo;
-    }
 
     @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#videoGroupId", unless = "#result == null")
     public List<ContentsItemVO> getContents(Long videoGroupId) {

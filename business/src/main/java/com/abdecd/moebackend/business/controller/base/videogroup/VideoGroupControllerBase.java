@@ -2,10 +2,8 @@ package com.abdecd.moebackend.business.controller.base.videogroup;
 
 import com.abdecd.moebackend.business.pojo.dto.videogroup.LikeDTO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.FavoriteService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
-import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,14 +42,5 @@ public class VideoGroupControllerBase {
     public Result<String> like(@RequestBody @Valid LikeDTO likeDTO) {
         favoriteService.addOrDeleteLike(UserContext.getUserId(), likeDTO.getId(), likeDTO.getStatus());
         return Result.success();
-    }
-
-    @Operation(summary = "获取投稿列表")
-    @GetMapping("my-upload-list")
-    public Result<PageVO<VideoGroupWithDataVO>> like(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize
-    ) {
-        return Result.success(videoGroupServiceBase.pageMyUploadVideoGroup(page, pageSize));
     }
 }

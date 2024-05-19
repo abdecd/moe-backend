@@ -3,6 +3,7 @@ package com.abdecd.moebackend.business.controller.base;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
+import com.abdecd.moebackend.business.service.statistic.StatisticService;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -25,6 +26,8 @@ public class VideoController {
     private VideoService videoService;
     @Autowired
     private PlainUserHistoryService plainUserHistoryService;
+    @Autowired
+    private StatisticService statisticService;
     private final ExecutorService executor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(100000));
 
 //    @Operation(summary = "添加视频")
@@ -60,6 +63,8 @@ public class VideoController {
         // 添加观看历史记录
         var userId = UserContext.getUserId();
         if (userId != null) executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
-        return CompletableFuture.completedFuture(Result.success(videoService.getVideo(id)));
+        var video = videoService.getVideo(id);
+        statisticService.cntWatchCnt(video.getVideoGroupId());
+        return CompletableFuture.completedFuture(Result.success(video));
     }
 }

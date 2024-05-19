@@ -35,21 +35,21 @@ public class StatisticService {
         lastWatchTimeStatistic.add(videoPlayDTO.getVideoId(), videoPlayDTO.getWatchProgress());
         // 记录播放总时长
         totalWatchTimeStatistic.add(videoPlayDTO.getVideoId(), addTime);
-        // 统计播放量
-        // todo 统计未登录用户
-        stringRedisTemplate.opsForHyperLogLog().add(
-                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoPlayDTO.getVideoId(),
-                UserContext.getUserId() + ""
+    }
+
+    public void cntWatchCnt(Long videoGroupId) {
+        stringRedisTemplate.opsForValue().increment(
+                RedisConstant.STATISTIC_WATCH_CNT + videoGroupId
         );
     }
 
     public StatisticDataVO getStatisticData(Long videoGroupId) {
         var favoriteService = SpringContextUtil.getBean(FavoriteService.class);
-        // todo
         // 获取播放量
-        Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
-                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
+        String watchCntStr = stringRedisTemplate.opsForValue().get(
+                RedisConstant.STATISTIC_WATCH_CNT + videoGroupId
         );
+        Long watchCnt = watchCntStr == null ? 0L : Long.parseLong(watchCntStr);
 //        Long watchCnt = (long) (Math.random()*1000000);
         // 获取点赞量
         Long likeCnt = favoriteService.getVideoGroupLikeCount(videoGroupId);

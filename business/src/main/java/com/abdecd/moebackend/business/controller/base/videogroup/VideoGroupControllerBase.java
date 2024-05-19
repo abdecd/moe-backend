@@ -2,7 +2,7 @@ package com.abdecd.moebackend.business.controller.base.videogroup;
 
 import com.abdecd.moebackend.business.pojo.dto.videogroup.LikeDTO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupBigVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
 import com.abdecd.moebackend.business.service.FavoriteService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.PageVO;
@@ -48,7 +48,7 @@ public class VideoGroupControllerBase {
 
     @Operation(summary = "获取投稿列表")
     @GetMapping("my-upload-list")
-    public Result<PageVO<VideoGroupWithDataVO>> like(
+    public Result<PageVO<VideoGroupVO>> like(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {

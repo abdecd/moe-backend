@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.Report;
 import com.abdecd.moebackend.business.dao.mapper.ReportMapper;
 import com.abdecd.moebackend.business.pojo.dto.report.AddReportDTO;
 import com.abdecd.moebackend.business.service.report.ReportService;
+import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ public class ReportServiceImpl implements ReportService {
         BeanUtils.copyProperties(addReportDTO, report);
         report.setUserId(UserContext.getUserId());
         report.setCreateTime(LocalDateTime.now());
-        report.setStatus(1); // 设置初始状态为等待处理
+        report.setStatus(Integer.valueOf(StatusConstant.ENABLE)); // 设置初始状态为等待处理
+
         reportMapper.insert(report);
         return report.getId();
     }

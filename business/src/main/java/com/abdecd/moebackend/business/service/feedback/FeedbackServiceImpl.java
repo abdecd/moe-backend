@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.Feedback;
 import com.abdecd.moebackend.business.dao.mapper.FeedbackMapper;
 import com.abdecd.moebackend.business.pojo.dto.feedback.AddFeedbackDTO;
 import com.abdecd.moebackend.business.service.feedback.FeedbackService;
+import com.abdecd.moebackend.common.constant.StatusConstant;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         Feedback feedback = new Feedback();
         BeanUtils.copyProperties(addFeedbackDTO, feedback);
         feedback.setTimestamp(LocalDateTime.now());
-        feedback.setStatus(0); // 设置初始状态为等待处理
+        feedback.setStatus(Integer.valueOf(StatusConstant.ENABLE)); // 设置初始状态为等待处理
         feedbackMapper.insert(feedback);
         return feedback.getId();
     }

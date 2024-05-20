@@ -47,4 +47,7 @@ public class RedisConstant {
     public static final String VIDEO_DANMAKU_CNT = "moe:video_danmaku_cnt#300";
     public static final String VIDEO_GROUP_FAVORITES_SET = "moe:video_group_favorite_set:";
     public static final String VIDEO_GROUP_LIKE_SET = "moe:video_group_like_set:";
+    public static final String LIMIT_FEEDBACK_ADD = "moe:limit_feedback_add:";
+    public static final int LIMIT_FEEDBACK_ADD_CNT = 10;
+    public static final int LIMIT_FEEDBACK_ADD_RESET_TIME = 3; // seconds
 }

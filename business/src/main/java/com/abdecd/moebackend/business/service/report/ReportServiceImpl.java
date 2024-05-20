@@ -23,7 +23,7 @@ public class ReportServiceImpl implements ReportService {
         BeanUtils.copyProperties(addReportDTO, report);
         report.setUserId(UserContext.getUserId());
         report.setCreateTime(LocalDateTime.now());
-        report.setStatus(0); // 设置初始状态为等待处理
+        report.setStatus(1); // 设置初始状态为等待处理
         reportMapper.insert(report);
         return report.getId();
     }

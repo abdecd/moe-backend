@@ -20,6 +20,6 @@ public class ReportController {
     @PostMapping("/add")
     public Result<String> addReport(@RequestBody @Valid AddReportDTO addReportDTO) {
         Long reportId = reportService.addReport(addReportDTO);
-        return Result.success("ok");
+        return Result.success();
     }
 }

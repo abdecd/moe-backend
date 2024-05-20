@@ -21,7 +21,7 @@ public class ReportServiceImpl implements ReportService {
     public Long addReport(AddReportDTO addReportDTO) {
         Report report = new Report();
         BeanUtils.copyProperties(addReportDTO, report);
-        report.setUserId(UserContext.getUserId()); // 假设 UserContext 提供当前用户ID
+        report.setUserId(UserContext.getUserId());
         report.setCreateTime(LocalDateTime.now());
         report.setStatus(0); // 设置初始状态为等待处理
         reportMapper.insert(report);

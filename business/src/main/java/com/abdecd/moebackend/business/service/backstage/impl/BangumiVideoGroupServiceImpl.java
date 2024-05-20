@@ -41,6 +41,9 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     private VideoGroupAndTagMapper videoGroupAndTagMapper;
 
     @Resource
+    private PlainUserHistoryMapper plainUserHistoryMapper;
+
+    @Resource
     private VideoGroupTagMapper videoGroupTagMapper;
 
     @Resource
@@ -63,8 +66,9 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
 
         bangumiVideoGroup.setVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
+        Integer status = bangumiVideoGroupUpdateDTO.getStatus().equals("已完结")?1:0;
         if (bangumiVideoGroupUpdateDTO.getStatus() != null)
-            bangumiVideoGroup.setStatus(Integer.valueOf(bangumiVideoGroupUpdateDTO.getStatus()));
+            bangumiVideoGroup.setStatus(status);
         if (bangumiVideoGroupUpdateDTO.getReleaseTime() != null) {
             bangumiVideoGroup.setReleaseTime(LocalDateTime.parse(bangumiVideoGroupUpdateDTO.getReleaseTime()));
         }
@@ -89,9 +93,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
     @Override
     public Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
-        String date = dtf.format(ldt);
 
         Long uid = UserContext.getUserId();
 
@@ -104,21 +106,23 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }
+        Byte status = (byte) (bangumiVideoGroupAddDTO.getStatus().equals("已完结") ? 1 : 0);
 
-        VideoGroup videoGroup = new VideoGroup();
-
-        videoGroup.setTitle(bangumiVideoGroupAddDTO.getTitle());
-        videoGroup.setDescription(bangumiVideoGroupAddDTO.getDescription());
-        videoGroup.setCover(coverPath);
-        videoGroup.setCreateTime(LocalDateTime.from(LocalTime.parse(date)));
-        videoGroup.setUserId(uid);
-        videoGroup.setWeight(VideoGroupConstant.DEFAULT_WEIGHT);
-        videoGroup.setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
+        VideoGroup videoGroup = new VideoGroup()
+                .setTitle(bangumiVideoGroupAddDTO.getTitle())
+                .setDescription(bangumiVideoGroupAddDTO.getDescription())
+                .setCover(coverPath)
+                .setCreateTime(ldt)
+                .setUserId(uid)
+                .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
+                .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
+                .setVideoGroupStatus(status)
+                .setTags(String.join(",", bangumiVideoGroupAddDTO.getTagIds()));
 
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
-        for (Integer tagid : bangumiVideoGroupAddDTO.getTagIds()) {
+        for (String tagid : bangumiVideoGroupAddDTO.getTagIds()) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
             videoGroupAndTag.setVideoGroupId(videoGroup.getId());
             videoGroupAndTag.setTagId(Long.valueOf(tagid));
@@ -129,7 +133,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
+    //@Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);
@@ -142,7 +146,8 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         bangumiVideoGroupVO.setCover(videoGroup.getCover());
         bangumiVideoGroupVO.setDescription(videoGroup.getDescription());
         bangumiVideoGroupVO.setTitle(videoGroup.getTitle());
-        bangumiVideoGroupVO.setType(videoGroup.getType());
+        bangumiVideoGroupVO.setType(Integer.valueOf(videoGroup.getType()));
+        bangumiVideoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
         ArrayList<Long> tagIds = videoGroupAndTagMapper.selectByVid(videoGroupId);
         ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
@@ -153,7 +158,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 videoGroupTagList.add(tag);
         }
 
-        bangumiVideoGroupVO.setTags(videoGroupTagList);
+        bangumiVideoGroupVO.setTags(videoGroup.getTags());
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());

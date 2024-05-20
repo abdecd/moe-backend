@@ -14,6 +14,7 @@ public class BangumiVideoGroup {
     private LocalDateTime releaseTime;
     private String updateAtAnnouncement;
     private Integer status;
+    private LocalDateTime updateTime;
 
     public static class Status {
         static final Integer FINISHED = 0;

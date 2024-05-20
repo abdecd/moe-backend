@@ -50,3 +50,4 @@ token-login:
     - /plain-video-group/contents
     - /plain-video-group/check-pending
     - /statistic/video-group-data
+    - /feedback/add

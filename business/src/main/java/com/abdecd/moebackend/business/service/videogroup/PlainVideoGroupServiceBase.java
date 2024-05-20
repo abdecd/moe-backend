@@ -11,6 +11,7 @@ import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupUpdateD
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
 import com.abdecd.moebackend.business.service.video.VideoService;
@@ -42,6 +43,8 @@ public class PlainVideoGroupServiceBase {
     private VideoService videoService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private ElasticSearchService elasticSearchService;
 
     @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public PlainVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
@@ -103,7 +106,7 @@ public class PlainVideoGroupServiceBase {
         return entity.getId();
     }
 
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, key = "#plainVideoGroupUpdateDTO.id")
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#plainVideoGroupUpdateDTO.id")
     @Transactional
     public void updateVideoGroup(PlainVideoGroupUpdateDTO plainVideoGroupUpdateDTO, Byte videoGroupStatus) {
         checkUserHaveTheGroup(plainVideoGroupUpdateDTO.getId());
@@ -127,6 +130,13 @@ public class PlainVideoGroupServiceBase {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             }
         }
+
+        // 更新es
+        var self = SpringContextUtil.getBean(PlainVideoGroupServiceBase.class);
+        var vo = self.getVideoGroupInfo(plainVideoGroupUpdateDTO.getId());
+        if (vo != null) {
+            elasticSearchService.saveSearchEntity(vo);
+        } else elasticSearchService.deleteSearchEntity(plainVideoGroupUpdateDTO.getId());
     }
 
     @Caching(evict = {
@@ -142,6 +152,8 @@ public class PlainVideoGroupServiceBase {
             videoService.deleteVideo(video.getId());
         // 删文件夹
         fileService.deleteDirInSystem("/video-group/" + videoGroupId);
+        // 删es
+        elasticSearchService.deleteSearchEntity(videoGroupId);
     }
 
     public boolean checkAddVideoGroupPending(Long id) {

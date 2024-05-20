@@ -38,7 +38,7 @@ public class StatisticService {
         // 统计播放量
         // todo 统计未登录用户
         stringRedisTemplate.opsForHyperLogLog().add(
-                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoPlayDTO.getVideoId(),
+                RedisConstant.STATISTIC_WATCH_CNT + videoPlayDTO.getVideoId(),
                 UserContext.getUserId() + ""
         );
     }
@@ -48,7 +48,7 @@ public class StatisticService {
         // todo
         // 获取播放量
         Long watchCnt = stringRedisTemplate.opsForHyperLogLog().size(
-                RedisConstant.STATISTIC_VIDEO_PLAY_CNT + videoGroupId
+                RedisConstant.STATISTIC_WATCH_CNT + videoGroupId
         );
 //        Long watchCnt = (long) (Math.random()*1000000);
         // 获取点赞量

@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.common.constant;
+package com.abdecd.moebackend.business.dao;
 
 public class RedisConstant {
     public static final String LIMIT_IP_RATE = "moe:limit_ip_rate:";

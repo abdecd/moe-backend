@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
@@ -47,6 +48,9 @@ public class BangumiVideoGroupController {
     @ResponseBody
     public Result<Long> addBangumiVideoGroup(@Valid BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        now.format(formatter);
+
         Long vid = bangumiVideoGroupService.insert(bangumiVideoGroupAddDTO);
 
         Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结") ? 1 : 0;
@@ -56,6 +60,7 @@ public class BangumiVideoGroupController {
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
         bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
         bangumiVideoGroup.setStatus(status);
+        bangumiVideoGroup.setUpdateTime(now);
 
         bangumiVideoGroupService.insert(bangumiVideoGroup);
 

@@ -201,14 +201,14 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
             videoGroupVO.setUploader(uploaderVO);
 
-            /*StatisticDataVO statisticDataVO = statisticService.getStatisticData(videoGroupVO.getId());
+            StatisticDataVO statisticDataVO = statisticService.getStatisticData(videoGroupVO.getId());
             videoGroupVO.setWatchCnt(Math.toIntExact(statisticDataVO.getWatchCnt()));
             videoGroupVO.setFavoriteCnt(Math.toIntExact(statisticDataVO.getFavoriteCnt()));
             videoGroupVO.setLikeCnt(Math.toIntExact(statisticDataVO.getLikeCnt()));
             videoGroupVO.setUserLike(statisticDataVO.getUserLike());
             videoGroupVO.setUserFavorite(statisticDataVO.getUserFavorite());
             videoGroupVO.setCommentCnt(Math.toIntExact(statisticDataVO.getCommentCnt()));
-            videoGroupVO.setDanmakuCnt(Math.toIntExact(statisticDataVO.getDanmakuCnt()));*/
+            videoGroupVO.setDanmakuCnt(Math.toIntExact(statisticDataVO.getDanmakuCnt()));
 
             videoGroupListVO.getRecords().add(videoGroupVO);
         }

@@ -94,7 +94,7 @@ public class FavoriteService {
         }
     }
 
-    @Cacheable(value = RedisConstant.FAVORITE_PLAIN, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
+//    @Cacheable(value = RedisConstant.FAVORITE_PLAIN, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
     public PageVO<FavoriteVO> getPlainFavorite(Long userId, Integer page, Integer pageSize) {
         var total = plainUserFavoriteMapper.countFavoriteWithType(userId, VideoGroup.Type.PLAIN_VIDEO_GROUP);
         var result = plainUserFavoriteMapper.pageFavoriteWithType(userId, VideoGroup.Type.PLAIN_VIDEO_GROUP, Math.max(0, (page - 1) * pageSize), pageSize);
@@ -104,7 +104,7 @@ public class FavoriteService {
         return new PageVO<>(Math.toIntExact(total), new ArrayList<>(arr));
     }
 
-    @Cacheable(value = RedisConstant.FAVORITE_BANGUMI, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
+//    @Cacheable(value = RedisConstant.FAVORITE_BANGUMI, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
     public PageVO<FavoriteVO> getBangumiFavorite(Long userId, Integer page, Integer pageSize) {
         var total = plainUserFavoriteMapper.countFavoriteWithType(userId, VideoGroup.Type.ANIME_VIDEO_GROUP);
         var result = plainUserFavoriteMapper.pageFavoriteWithType(userId, VideoGroup.Type.ANIME_VIDEO_GROUP, Math.max(0, (page - 1) * pageSize), pageSize);

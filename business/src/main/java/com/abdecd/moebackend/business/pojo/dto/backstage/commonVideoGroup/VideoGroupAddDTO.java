@@ -10,5 +10,5 @@ public class VideoGroupAddDTO {
     private String title;
     private String description;
     private MultipartFile cover;
-    private ArrayList<String> tags;
+    private String tags;
 }

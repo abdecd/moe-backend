@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,19 +51,17 @@ public class VideoGroupAndTagServiceImpl implements VideoGroupAndTagService {
 
     @Override
     public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
-        String result = bangumiVideoGroupUpdateDTO.getTags().stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
 
         Integer updateID = videoGroupMapper.updateTagsByID(
                 new VideoGroup()
                         .setId(bangumiVideoGroupUpdateDTO.getId())
-                        .setTags(result)
+                        .setTags(bangumiVideoGroupUpdateDTO.getTags())
         );
 
         if(updateID == 1){
             videoGroupAndTagMapper.deleteByVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
-            for(Integer tagid : bangumiVideoGroupUpdateDTO.getTags()) {
+            String[] tags = bangumiVideoGroupUpdateDTO.getTags().split(";");
+            for(String tagid : tags) {
                 videoGroupAndTagMapper.insert(
                         new VideoGroupAndTag()
                                 .setTagId(Long.valueOf(tagid))

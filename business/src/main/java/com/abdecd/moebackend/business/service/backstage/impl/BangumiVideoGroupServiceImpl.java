@@ -114,12 +114,13 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
                 .setVideoGroupStatus(status)
-                .setTags(String.join(",", bangumiVideoGroupAddDTO.getTags()));
+                .setTags(bangumiVideoGroupAddDTO.getTags());
 
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
-        for (String tagid : bangumiVideoGroupAddDTO.getTags()) {
+        String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
+        for (String tagid : tags) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
             videoGroupAndTag.setVideoGroupId(videoGroup.getId());
             videoGroupAndTag.setTagId(Long.valueOf(tagid));

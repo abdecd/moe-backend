@@ -229,10 +229,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
             }
         }
 
-        String result = videoGroup.getTags().stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-
         videoGroupMapper.update(
                 new VideoGroup()
                         .setId(videoGroup.getId())
@@ -240,7 +236,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                         .setTitle(videoGroup.getTitle())
                         .setCover(coverPath)
                         .setDescription(videoGroup.getDescription())
-                        .setTags(result)
+                        .setTags(videoGroup.getTags())
         );
     }
 }

@@ -53,7 +53,8 @@ public class PlainVideoGroupController {
             );
 
         if (videoGroupAddDTO.getTags() != null) {
-            for (String i : videoGroupAddDTO.getTags()) {
+            String[] tags = videoGroupAddDTO.getTags().split(";");
+            for (String i : tags) {
                 Long tagId = Long.valueOf(i);
                 videoGroupAndTagService.insert(tagId, groupId);
             }

@@ -98,7 +98,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String randomImageName = UUID.randomUUID() + ".jpg";
+            String randomImageName = bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
             coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), randomImageName);
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
@@ -147,13 +147,13 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         bangumiVideoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
         ArrayList<Long> tagIds = videoGroupAndTagMapper.selectByVid(videoGroupId);
-        ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
+        //ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
 
-        for (Long id_ : tagIds) {
+       /* for (Long id_ : tagIds) {
             VideoGroupTag tag = videoGroupTagMapper.selectById(id_);
             if (tag != null)
                 videoGroupTagList.add(tag);
-        }
+        }*/
 
         bangumiVideoGroupVO.setTags(videoGroup.getTags());
 

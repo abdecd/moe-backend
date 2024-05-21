@@ -64,9 +64,8 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
 
         bangumiVideoGroup.setVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
-        Integer status = bangumiVideoGroupUpdateDTO.getStatus().equals("已完结")?1:0;
         if (bangumiVideoGroupUpdateDTO.getStatus() != null)
-            bangumiVideoGroup.setStatus(status);
+            bangumiVideoGroup.setStatus(Integer.valueOf(bangumiVideoGroupUpdateDTO.getStatus()));
         if (bangumiVideoGroupUpdateDTO.getReleaseTime() != null) {
             bangumiVideoGroup.setReleaseTime(LocalDateTime.parse(bangumiVideoGroupUpdateDTO.getReleaseTime()));
         }
@@ -103,7 +102,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }
-        Byte status = (byte) (bangumiVideoGroupAddDTO.getStatus().equals("已完结") ? 1 : 0);
 
         VideoGroup videoGroup = new VideoGroup()
                 .setTitle(bangumiVideoGroupAddDTO.getTitle())
@@ -113,7 +111,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 .setUserId(uid)
                 .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
-                .setVideoGroupStatus(status)
+                .setVideoGroupStatus(Byte.valueOf(bangumiVideoGroupAddDTO.getStatus()))
                 .setTags(bangumiVideoGroupAddDTO.getTags());
 
 

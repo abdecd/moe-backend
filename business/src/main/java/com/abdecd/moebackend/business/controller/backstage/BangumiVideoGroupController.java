@@ -53,13 +53,11 @@ public class BangumiVideoGroupController {
 
         Long vid = bangumiVideoGroupService.insert(bangumiVideoGroupAddDTO);
 
-        Integer status = bangumiVideoGroupAddDTO.getStatus().equals("已完结") ? 1 : 0;
-
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
         bangumiVideoGroup.setVideoGroupId(vid);
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
         bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
-        bangumiVideoGroup.setStatus(status);
+        bangumiVideoGroup.setStatus(bangumiVideoGroup.getStatus());
         bangumiVideoGroup.setUpdateTime(now);
 
         bangumiVideoGroupService.insert(bangumiVideoGroup);

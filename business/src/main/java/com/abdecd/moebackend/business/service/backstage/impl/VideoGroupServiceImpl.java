@@ -214,8 +214,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Override
     public void update(@Valid BangumiVideoGroupUpdateDTO videoGroup) {
-
-        Byte status = (byte) (videoGroup.getStatus().equals("已完结")?1:0);
         String coverPath = null;
 
         if(videoGroup.getCover() != null)
@@ -232,7 +230,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupMapper.update(
                 new VideoGroup()
                         .setId(videoGroup.getId())
-                        .setVideoGroupStatus(status)
+                        .setVideoGroupStatus(Byte.valueOf(videoGroup.getStatus()))
                         .setTitle(videoGroup.getTitle())
                         .setCover(coverPath)
                         .setDescription(videoGroup.getDescription())

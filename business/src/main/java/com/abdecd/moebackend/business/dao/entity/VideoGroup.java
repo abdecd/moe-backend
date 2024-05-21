@@ -1,6 +1,5 @@
 package com.abdecd.moebackend.business.dao.entity;
 
-import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,7 +8,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Accessors(chain = true)
@@ -38,20 +36,5 @@ public class VideoGroup {
         public static final Byte TRANSFORMING = 2;
         public static final Byte ENABLE = 1;
         public static final Byte DISABLE = 0;
-    }
-
-    public SearchVideoGroupEntity toSearchNovelEntity(String uploaderName) {
-        var obj = new SearchVideoGroupEntity();
-        obj.setId(id);
-        obj.setTitle(title);
-        obj.setUploaderName(uploaderName);
-        obj.setDescription(description);
-        obj.setTags(List.of(tags.split(";")));
-        obj.setType(type);
-        obj.setYear(String.valueOf(createTime.getYear()));
-        obj.setYear(null);
-        obj.refreshSuggestion();
-        obj.setWeight(weight);
-        return obj;
     }
 }

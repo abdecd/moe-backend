@@ -13,7 +13,6 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
-import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
@@ -58,9 +57,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     @Resource
     private VideoGroupAndTagMapper videoGroupandTagMapper;
 
-    @Resource
-    private ElasticSearchService elasticSearchService;
-
 
     @Override
     public Long insert(VideoGroup videoGroup, MultipartFile cover) {
@@ -83,9 +79,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
-        if(videoGroup.getVideoGroupStatus() == 1)
-            elasticSearchService.saveSearchEntity(videoGroup,plainUserDetailMapper.selectByUid(uid).getNickname());
-
         return  videoGroup.getId();
     }
 
@@ -94,8 +87,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         VideoGroup videoGroup = new VideoGroup();
         videoGroup.setId(id);
         videoGroupMapper.deleteById(videoGroup);
-
-        elasticSearchService.deleteSearchEntity(id);
     }
 
     @Override
@@ -116,11 +107,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         VideoGroup videoGroup = new VideoGroup();
         BeanUtils.copyProperties(videoGroupDTO,videoGroup);
         videoGroup.setCover(coverPath);
-
-        if(videoGroup.getVideoGroupStatus() == 1)
-            elasticSearchService.saveSearchEntity(videoGroup,plainUserDetailMapper.selectByUid(videoGroupMapper.selectById(videoGroup.getId()).getUserId()).getNickname());
-        else
-            elasticSearchService.deleteSearchEntity(videoGroup.getId());
 
         videoGroupMapper.update(videoGroup);
     }
@@ -247,19 +233,14 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
-        VideoGroup videoGroup_ = new VideoGroup()
-                .setId(videoGroup.getId())
-                .setVideoGroupStatus(status)
-                .setTitle(videoGroup.getTitle())
-                .setCover(coverPath)
-                .setDescription(videoGroup.getDescription())
-                .setTags(result);
-
-        videoGroupMapper.update(videoGroup_);
-
-        if(videoGroup_.getVideoGroupStatus() == 1)
-            elasticSearchService.saveSearchEntity(videoGroup_,plainUserDetailMapper.selectByUid(videoGroupMapper.selectById(videoGroup_.getId()).getUserId()).getNickname());
-        else
-            elasticSearchService.deleteSearchEntity(videoGroup_.getId());
+        videoGroupMapper.update(
+                new VideoGroup()
+                        .setId(videoGroup.getId())
+                        .setVideoGroupStatus(status)
+                        .setTitle(videoGroup.getTitle())
+                        .setCover(coverPath)
+                        .setDescription(videoGroup.getDescription())
+                        .setTags(result)
+        );
     }
 }

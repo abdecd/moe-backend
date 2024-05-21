@@ -13,8 +13,6 @@ public class PlainUserLastWatchTime {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long userId;
-    private Long videoGroupId;
     private Long videoId;
-    private Integer index;
     private Long lastWatchTime;
 }

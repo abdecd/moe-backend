@@ -5,9 +5,7 @@ import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
-import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.SearchVideoGroupEntity;
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
@@ -135,15 +133,6 @@ public class ElasticSearchService {
         );
         return response.suggest().get("suggestion").getFirst().completion().options()
                 .stream().map(CompletionSuggestOption::text).toList();
-    }
-
-    @SneakyThrows
-    public void saveSearchEntity(VideoGroup videoGroup,String uploaderName) {
-        esClient.index(u -> u
-                .index(ElasticSearchConstant.INDEX_NAME)
-                .id(videoGroup.getId().toString())
-                .document(videoGroup.toSearchNovelEntity(uploaderName))
-        );
     }
 }
 

@@ -8,9 +8,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -51,8 +53,17 @@ public class TotalWatchTimeStatistic {
     }
 
     public void saveAll() {
-        var keys = stringRedisTemplate.keys(RedisConstant.PLAIN_USER_TOTAL_WATCH_TIME + "*:*");
-        if (keys == null) return;
+        var keys = new ArrayList<String>();
+        ScanOptions options = ScanOptions.scanOptions()
+                .match(RedisConstant.PLAIN_USER_TOTAL_WATCH_TIME + "*:*")
+                .count(10)
+                .build();
+        try (var iter = stringRedisTemplate.scan(options)) {
+            while (iter.hasNext()) {
+                keys.add(iter.next());
+            }
+        }
+        if (keys.isEmpty()) return;
         for (var key : keys) {
             var totalWatchTime = stringRedisTemplate.opsForValue().get(key);
             if (totalWatchTime == null) continue;

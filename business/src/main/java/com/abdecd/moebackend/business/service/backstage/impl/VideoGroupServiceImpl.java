@@ -83,7 +83,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE,key = "#id")
     public void delete(Long id) {
         VideoGroup videoGroup = new VideoGroup();
         videoGroup.setId(id);
@@ -91,7 +90,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE,key = "#videoGroupDTO.id")
     public void update(VideoGroupDTO videoGroupDTO) {
         String coverPath = "";
 
@@ -114,7 +112,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CACHE,key = "#id")
     public VideoGroupVO getById(Long id) {
         VideoGroupVO videoGroupVO = new VideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(id);
@@ -144,7 +141,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_CONTENT_CACHE,key = "#id")
     public ArrayList<VideoVo> getContentById(Long id) {
         ArrayList<VideoVo> videoVOList = new ArrayList<>();
         ArrayList<Video> videoList = videoMapper.getByGroupid(id);
@@ -165,7 +161,6 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_GROUP_TYPE_CACHE,key = "#id")
     public Byte getTypeByVideoId(Long id) {
         VideoGroup videoGroup = videoGroupMapper.selectById(id);
         return videoGroup.getType();
@@ -234,7 +229,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
             }
         }
 
-        String result = videoGroup.getTagIds().stream()
+        String result = videoGroup.getTags().stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 

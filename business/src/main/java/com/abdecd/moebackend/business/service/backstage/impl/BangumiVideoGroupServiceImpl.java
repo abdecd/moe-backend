@@ -49,7 +49,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
 
-    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#id")
     @Override
     public void deleteByVid(Long id) {
         bangumiVideoGroupMapper.deleteByVid(id);
@@ -61,7 +60,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#bangumiVideoGroupUpdateDTO.id")
     public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         BangumiVideoGroup bangumiVideoGroup = new BangumiVideoGroup();
 
@@ -78,7 +76,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#vid")
     public BangumiVideoGroupVO getByVid(Long vid) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         BangumiVideoGroup bangumiVideoGroup = bangumiVideoGroupMapper.selectByVid(vid);
@@ -117,12 +114,12 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
                 .setVideoGroupStatus(status)
-                .setTags(String.join(",", bangumiVideoGroupAddDTO.getTagIds()));
+                .setTags(String.join(",", bangumiVideoGroupAddDTO.getTags()));
 
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
-        for (String tagid : bangumiVideoGroupAddDTO.getTagIds()) {
+        for (String tagid : bangumiVideoGroupAddDTO.getTags()) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
             videoGroupAndTag.setVideoGroupId(videoGroup.getId());
             videoGroupAndTag.setTagId(Long.valueOf(tagid));
@@ -133,7 +130,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    //@Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(videoGroupId);

@@ -16,7 +16,7 @@ public class BangumiVideoGroupUpdateDTO {
     @Nullable
     private MultipartFile cover;
     @Nullable
-    private ArrayList<Integer> tagIds;
+    private ArrayList<Integer> tags;
     @Nullable
     private String releaseTime;
     @Nullable

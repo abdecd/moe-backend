@@ -50,7 +50,7 @@ public class VideoGroupAndTagServiceImpl implements VideoGroupAndTagService {
 
     @Override
     public void update(BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
-        String result = bangumiVideoGroupUpdateDTO.getTagIds().stream()
+        String result = bangumiVideoGroupUpdateDTO.getTags().stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
@@ -62,7 +62,7 @@ public class VideoGroupAndTagServiceImpl implements VideoGroupAndTagService {
 
         if(updateID == 1){
             videoGroupAndTagMapper.deleteByVideoGroupId(bangumiVideoGroupUpdateDTO.getId());
-            for(Integer tagid : bangumiVideoGroupUpdateDTO.getTagIds()) {
+            for(Integer tagid : bangumiVideoGroupUpdateDTO.getTags()) {
                 videoGroupAndTagMapper.insert(
                         new VideoGroupAndTag()
                                 .setTagId(Long.valueOf(tagid))

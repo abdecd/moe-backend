@@ -47,13 +47,13 @@ public class PlainVideoGroupController {
                 .setCreateTime(ldt)
                 .setTitle(videoGroupAddDTO.getTitle())
                 .setDescription(videoGroupAddDTO.getDescription())
-                .setTags(String.join(",",videoGroupAddDTO.getTagIds()))
+                .setTags(String.join(",",videoGroupAddDTO.getTags()))
                 .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
                 ,videoGroupAddDTO.getCover()
             );
 
-        if (videoGroupAddDTO.getTagIds() != null) {
-            for (String i : videoGroupAddDTO.getTagIds()) {
+        if (videoGroupAddDTO.getTags() != null) {
+            for (String i : videoGroupAddDTO.getTags()) {
                 Long tagId = Long.valueOf(i);
                 videoGroupAndTagService.insert(tagId, groupId);
             }

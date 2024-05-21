@@ -52,7 +52,7 @@ public class FavoriteController {
     @Operation(summary = "获取用户是否收藏特定视频组")
     @GetMapping("contains")
     public Result<Boolean> getExists(@RequestParam Long videoGroupId) {
-        return Result.success(favoriteService.exists(UserContext.getUserId(), videoGroupId));
+        return Result.success(favoriteService.isUserFavorite(UserContext.getUserId(), videoGroupId));
     }
 
     @Operation(summary = "删除用户收藏")

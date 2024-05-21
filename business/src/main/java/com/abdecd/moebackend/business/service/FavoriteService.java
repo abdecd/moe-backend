@@ -1,10 +1,13 @@
 package com.abdecd.moebackend.business.service;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.dao.entity.PlainUserFavorite;
+import com.abdecd.moebackend.business.dao.entity.PlainUserLike;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserFavoriteMapper;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserLikeMapper;
 import com.abdecd.moebackend.business.pojo.vo.favorite.BangumiVideoGroupFavoriteVO;
 import com.abdecd.moebackend.business.pojo.vo.favorite.FavoriteVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserHistoryService;
 import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
@@ -12,9 +15,13 @@ import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.moebackend.common.result.PageVO;
-import com.abdecd.tokenlogin.common.context.UserContext;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,77 +30,88 @@ import java.util.Objects;
 @Service
 public class FavoriteService {
     @Autowired
-    private RedisTemplate<String, Long> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private VideoGroupServiceBase videoGroupServiceBase;
     @Autowired
     private PlainUserHistoryService plainUserHistoryService;
     @Autowired
     private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
+    @Autowired
+    private PlainUserFavoriteMapper plainUserFavoriteMapper;
+    @Autowired
+    private PlainUserLikeMapper plainUserLikeMapper;
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.FAVORITE_PLAIN, key = "#userId"),
+            @CacheEvict(cacheNames = RedisConstant.FAVORITE_BANGUMI, key = "#userId"),
+            @CacheEvict(cacheNames = RedisConstant.IS_USER_FAVORITE, key = "#userId + ':' + #videoGroupId")
+    })
     public void add(Long userId, Long videoGroupId) {
         // 如果不存在
         if (videoGroupServiceBase.getVideoGroupType(videoGroupId) == null)
             throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
         // 如果超过最大收藏数
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
-        var count = list == null ? 0L : list.size();
-        if (1 + count > RedisConstant.FAVORITES_SIZE)
-            throw new BaseException(MessageConstant.FAVORITES_EXCEED_LIMIT);
+        if (
+                plainUserFavoriteMapper.selectCount(
+                        new LambdaQueryWrapper<PlainUserFavorite>()
+                        .eq(PlainUserFavorite::getUserId, userId)
+                ) >= RedisConstant.FAVORITES_SIZE
+        ) throw new BaseException(MessageConstant.FAVORITES_EXCEED_LIMIT);
         // 如果已经加过了
-        if (list != null && list.contains(videoGroupId))
-            throw new BaseException(MessageConstant.FAVORITES_EXIST);
-        redisTemplate.opsForList().leftPushAll(RedisConstant.FAVORITES + userId, videoGroupId);
+        if (
+                plainUserFavoriteMapper.selectOne(
+                        new LambdaQueryWrapper<PlainUserFavorite>()
+                                .eq(PlainUserFavorite::getUserId, userId)
+                                .eq(PlainUserFavorite::getVideoGroupId, videoGroupId)
+                ) != null
+        ) throw new BaseException(MessageConstant.FAVORITES_EXIST);
+        plainUserFavoriteMapper.insert(new PlainUserFavorite()
+                .setUserId(userId)
+                .setVideoGroupId(videoGroupId)
+        );
         // 添加到视频组收藏量
-        redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, UserContext.getUserId());
+        stringRedisTemplate.opsForValue().increment(RedisConstant.VIDEO_GROUP_FAVORITE_CNT + videoGroupId);
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.FAVORITE_PLAIN, key = "#userId"),
+            @CacheEvict(cacheNames = RedisConstant.FAVORITE_BANGUMI, key = "#userId"),
+    })
     public void delete(Long userId, long[] videoGroupIds) {
         for (var videoGroupId : videoGroupIds) {
-            redisTemplate.opsForList().remove(RedisConstant.FAVORITES + userId, 0, videoGroupId);
-            // 移除视频组收藏量
-            redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId, userId);
+            if (
+                    plainUserFavoriteMapper.delete(
+                            new LambdaUpdateWrapper<PlainUserFavorite>()
+                                    .eq(PlainUserFavorite::getUserId, userId)
+                                    .eq(PlainUserFavorite::getVideoGroupId, videoGroupId)
+                    ) == 1
+            ) {
+                stringRedisTemplate.opsForValue().decrement(RedisConstant.VIDEO_GROUP_FAVORITE_CNT + videoGroupId);
+                // 清除缓存
+                stringRedisTemplate.delete(RedisConstant.IS_USER_FAVORITE.substring(0, RedisConstant.IS_USER_FAVORITE.lastIndexOf("#")) + "::" + userId + ":" + videoGroupId);
+            }
         }
     }
 
-    public PageVO<VideoGroupWithDataVO> get(Long userId, Integer page, Integer pageSize) {
-        var total = redisTemplate.opsForList().size(RedisConstant.FAVORITES + userId);
-        if (total == null) return new PageVO<>();
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, Math.max(0, (page - 1) * pageSize), Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE));
-        if (list == null) list = new ArrayList<>();
-        var arr = list.stream().map(videoGroupId -> videoGroupServiceBase.getVideoGroupWithData(videoGroupId)).toList();
-        return new PageVO<>(Math.toIntExact(total), arr);
-    }
-
+    @Cacheable(value = RedisConstant.FAVORITE_PLAIN, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
     public PageVO<FavoriteVO> getPlainFavorite(Long userId, Integer page, Integer pageSize) {
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
-        if (list == null) list = new ArrayList<>();
-        var total = list.stream().filter(
-                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.PLAIN_VIDEO_GROUP)
-        ).count();
-        var arr = list.stream().filter(
-                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.PLAIN_VIDEO_GROUP)
-        )
-        .skip(Math.max(0, (page - 1) * pageSize))
-        .limit(Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE))
-        .map(videoGroupId -> new FavoriteVO().setVideoGroupVO(videoGroupServiceBase.getVideoGroupInfo(videoGroupId))).toList();
-        return new PageVO<>(Math.toIntExact(total), arr);
+        var total = plainUserFavoriteMapper.countFavoriteWithType(userId, VideoGroup.Type.PLAIN_VIDEO_GROUP);
+        var result = plainUserFavoriteMapper.pageFavoriteWithType(userId, VideoGroup.Type.PLAIN_VIDEO_GROUP, Math.max(0, (page - 1) * pageSize), pageSize);
+        var arr = result
+                .stream()
+                .map(favorite -> new FavoriteVO().setVideoGroupVO(videoGroupServiceBase.getVideoGroupInfo(favorite.getVideoGroupId()))).toList();
+        return new PageVO<>(Math.toIntExact(total), new ArrayList<>(arr));
     }
 
+    @Cacheable(value = RedisConstant.FAVORITE_BANGUMI, key = "#userId", unless = "#page != 1 || #pageSize != 10 || #result.total == 0")
     public PageVO<FavoriteVO> getBangumiFavorite(Long userId, Integer page, Integer pageSize) {
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
-        if (list == null) list = new ArrayList<>();
-        var total = list.stream().filter(
-                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.ANIME_VIDEO_GROUP)
-        ).count();
-        var arr = list.stream().filter(
-                videoGroupId -> Objects.equals(videoGroupServiceBase.getVideoGroupType(videoGroupId), VideoGroup.Type.ANIME_VIDEO_GROUP)
-        )
-        .skip(Math.max(0, (page - 1) * pageSize))
-        .limit(Math.min((page * pageSize), RedisConstant.FAVORITES_SIZE))
-        .map(this::formBangumiFavorite)
-        .toList();
-        return new PageVO<>(Math.toIntExact(total), arr);
+        var total = plainUserFavoriteMapper.countFavoriteWithType(userId, VideoGroup.Type.ANIME_VIDEO_GROUP);
+        var result = plainUserFavoriteMapper.pageFavoriteWithType(userId, VideoGroup.Type.ANIME_VIDEO_GROUP, Math.max(0, (page - 1) * pageSize), pageSize);
+        var arr = result
+                .stream()
+                .map(favorite -> formBangumiFavorite(favorite.getVideoGroupId())).toList();
+        return new PageVO<>(Math.toIntExact(total), new ArrayList<>(arr));
     }
 
     public FavoriteVO formBangumiFavorite(Long videoGroupId) {
@@ -113,41 +131,48 @@ public class FavoriteService {
         return vo;
     }
 
-    public boolean exists(Long userId, Long videoGroupId) {
-        var list = redisTemplate.opsForList().range(RedisConstant.FAVORITES + userId, 0, RedisConstant.FAVORITES_SIZE);
-        if (list == null) return false;
-        return list.contains(videoGroupId);
-    }
-
     public Long getVideoGroupFavoriteCount(Long videoGroupId) {
-        var count = redisTemplate.opsForSet().size(RedisConstant.VIDEO_GROUP_FAVORITES_SET + videoGroupId);
+        var count = stringRedisTemplate.opsForValue().get(RedisConstant.VIDEO_GROUP_FAVORITE_CNT + videoGroupId);
         if (count == null) return 0L;
-        return count;
+        return Long.parseLong(count);
     }
 
+    @Cacheable(value = RedisConstant.IS_USER_FAVORITE, key = "#userId + ':' + #videoGroupId")
     public boolean isUserFavorite(Long userId, Long videoGroupId) {
-        return exists(userId, videoGroupId);
+        return plainUserFavoriteMapper.selectOne(new LambdaQueryWrapper<PlainUserFavorite>()
+                .eq(PlainUserFavorite::getUserId, userId)
+                .eq(PlainUserFavorite::getVideoGroupId, videoGroupId)
+        ) != null;
     }
 
+    @CacheEvict(value = RedisConstant.IS_USER_LIKE, key = "#userId + ':' + #videoGroupId")
     public void addOrDeleteLike(Long userId, Long videoGroupId, Byte status) {
+        var previous = plainUserLikeMapper.selectOne(new LambdaQueryWrapper<PlainUserLike>()
+                .eq(PlainUserLike::getUserId, userId)
+                .eq(PlainUserLike::getVideoGroupId, videoGroupId)
+        );
         if (Objects.equals(status, StatusConstant.DISABLE)) {
-            var effected = redisTemplate.opsForSet().remove(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
-            if (effected == null || effected == 0)
-                throw new BaseException(MessageConstant.LIKE_NOT_EXIST);
+            if (previous == null) throw new BaseException(MessageConstant.LIKE_NOT_EXIST);
+            plainUserLikeMapper.deleteById(previous);
+            stringRedisTemplate.opsForValue().decrement(RedisConstant.VIDEO_GROUP_LIKE_CNT + videoGroupId);
         } else if (Objects.equals(status, StatusConstant.ENABLE)) {
-            var effected = redisTemplate.opsForSet().add(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId);
-            if (effected == null || effected == 0)
-                throw new BaseException(MessageConstant.LIKE_EXIST);
+            if (previous != null) throw new BaseException(MessageConstant.LIKE_EXIST);
+            plainUserLikeMapper.insert(new PlainUserLike().setUserId(userId).setVideoGroupId(videoGroupId));
+            stringRedisTemplate.opsForValue().increment(RedisConstant.VIDEO_GROUP_LIKE_CNT + videoGroupId);
         }
     }
 
     public Long getVideoGroupLikeCount(Long videoGroupId) {
-        var count = redisTemplate.opsForSet().size(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId);
+        var count = stringRedisTemplate.opsForValue().get(RedisConstant.VIDEO_GROUP_LIKE_CNT + videoGroupId);
         if (count == null) return 0L;
-        return count;
+        return Long.parseLong(count);
     }
 
+    @Cacheable(value = RedisConstant.IS_USER_LIKE, key = "#userId + ':' + #videoGroupId")
     public boolean isUserLike(Long userId, Long videoGroupId) {
-        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(RedisConstant.VIDEO_GROUP_LIKE_SET + videoGroupId, userId));
+        return plainUserLikeMapper.selectOne(new LambdaQueryWrapper<PlainUserLike>()
+                .eq(PlainUserLike::getUserId, userId)
+                .eq(PlainUserLike::getVideoGroupId, videoGroupId)
+        ) != null;
     }
 }

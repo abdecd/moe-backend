@@ -44,7 +44,7 @@ public class DanmakuServiceImpl implements DanmakuService {
                     .eq(Danmaku::getVideoId, videoId)
                     .ge(Danmaku::getBegin, (segmentIndex - 1) * 360000)
                     .lt(Danmaku::getBegin, segmentIndex * 360000)
-                    .orderByAsc(Danmaku::getBegin)
+                    .orderByDesc(Danmaku::getTime)
                     .last("limit 5000")
             );
             return new ArrayList<>(list.stream().map(x -> {

@@ -3,6 +3,7 @@ package com.abdecd.moebackend.business.lib;
 import cn.hutool.core.util.URLUtil;
 import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class BiliParser {
     @Autowired
@@ -21,9 +23,10 @@ public class BiliParser {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final Map<String, String> bvQualityMap = Map.of("360P","16", "480P","32", "720P","64", "1080P","80");
+    private final Map<String, String> bvQualityMap = Map.of("360p","16", "480p","32", "720p","64", "1080p","80");
 
     public String parseBV(String bvid, String quality, String p) throws IOException {
+        log.info("parseBV: bvid={}, quality={}, p={}", bvid, quality, p);
         try (var resp = okHttpClient.newCall(new Request.Builder()
                 .url(HttpUrl.get(moeProperties.getBvUrl()).newBuilder()
                         .addQueryParameter("bvid", bvid)

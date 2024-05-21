@@ -60,10 +60,10 @@ public class VideoController {
     @Operation(summary = "获取视频")
     @GetMapping("")
     public CompletableFuture<Result<VideoVO>> getVideo(@RequestParam Long id) {
+        var video = videoService.getVideo(id);
         // 添加观看历史记录
         var userId = UserContext.getUserId();
         if (userId != null) executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
-        var video = videoService.getVideo(id);
         statisticService.cntWatchCnt(video.getVideoGroupId());
         return CompletableFuture.completedFuture(Result.success(video));
     }

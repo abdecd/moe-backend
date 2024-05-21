@@ -7,6 +7,7 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.Bangu
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -48,6 +49,9 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
+
+    @Resource
+    private ElasticSearchService elasticSearchService;
 
     @Override
     public void deleteByVid(Long id) {
@@ -125,6 +129,10 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
             videoGroupAndTag.setTagId(Long.valueOf(tagid));
             videoGroupAndTagMapper.insert(videoGroupAndTag);
         }
+
+        //只添加enable状态
+        if(videoGroup.getVideoGroupStatus() == 1)
+            elasticSearchService.saveSearchEntity(videoGroup,plainUserDetailMapper.selectByUid(uid).getNickname());
 
         return videoGroup.getId();
     }

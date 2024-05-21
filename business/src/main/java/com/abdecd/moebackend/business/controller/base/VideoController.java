@@ -64,7 +64,8 @@ public class VideoController {
         // 添加观看历史记录
         var userId = UserContext.getUserId();
         if (userId != null) executor.submit(() -> plainUserHistoryService.addHistory(new AddHistoryDTO(userId, id)));
-        statisticService.cntWatchCnt(video.getVideoGroupId());
+        //TODO 加回来
+        //statisticService.cntWatchCnt(video.getVideoGroupId());
         return CompletableFuture.completedFuture(Result.success(video));
     }
 }

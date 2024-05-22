@@ -10,25 +10,19 @@ import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.*;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
-import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.MessageConstant;
-import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.moebackend.common.result.Result;
-import com.abdecd.tokenlogin.aspect.RequirePermission;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,8 +38,6 @@ public class PlainVideoGroupControllerBase {
     private ResourceLinkHandler resourceLinkHandler;
     @Autowired
     private VideoMapper videoMapper;
-    @Resource
-    VideoGroupAndTagService videoGroupAndTagService;
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
@@ -69,7 +61,7 @@ public class PlainVideoGroupControllerBase {
 
         var videoAddDTO = new AddVideoDTO()
                 .setVideoGroupId(videoGroupId)
-                .setIndex(0)
+                .setIndex(1)
                 .setTitle(addDTO.getTitle())
                 .setCover(addDTO.getCover())
                 .setDescription(addDTO.getDescription())
@@ -124,37 +116,4 @@ public class PlainVideoGroupControllerBase {
         plainVideoGroupServiceBase.deleteVideoGroup(deleteDTO.getId());
         return Result.success();
     }
-
-    /*@RequirePermission(value = "99", exception = BaseException.class)
-    @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
-    @PostMapping(value = "/add")
-    @ResponseBody
-    public Result<Long> addVideoGroup(@Valid com.abdecd.moebackend.business.pojo.dto.foreground.PlainVideoGroupAddDTO plainVideoGroupAddDTO) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
-        LocalDateTime ldt = LocalDateTime.now();
-
-        Long uid = UserContext.getUserId();
-
-        Long groupId = foregroundPlainVideoGroupService.insert(new VideoGroup()
-                .setCreateTime(ldt)
-                .setUserId(uid)
-                .setTitle(plainVideoGroupAddDTO.getTitle())
-                .setDescription(plainVideoGroupAddDTO.getDescription())
-                .setCover(plainVideoGroupAddDTO.getCover())
-                .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
-                .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
-        );
-
-        Long videoId = videoService.addVideo(new Video()
-                .setVideoGroupId(groupId)
-                .setLink(plainVideoGroupAddDTO.getLink())
-                .setDescription(plainVideoGroupAddDTO.getDescription())
-                .setTitle(plainVideoGroupAddDTO.getTitle())
-                .setUploadTime(ldt)
-        );
-
-        videoGroupAndTagService.insertByTags(plainVideoGroupAddDTO.getTags(),groupId);
-
-        return Result.success(groupId);
-    }*/
 }

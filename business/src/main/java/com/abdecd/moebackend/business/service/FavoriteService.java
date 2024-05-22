@@ -79,6 +79,16 @@ public class FavoriteService {
             @CacheEvict(cacheNames = RedisConstant.FAVORITE_BANGUMI, key = "#userId"),
     })
     public void delete(Long userId, long[] videoGroupIds) {
+        Long[] ids = new Long[videoGroupIds.length];
+        for (int i = 0; i < videoGroupIds.length; i++) {
+            ids[i] = videoGroupIds[i];
+        }
+        var cnt = plainUserFavoriteMapper.selectCount(new LambdaQueryWrapper<PlainUserFavorite>()
+                .eq(PlainUserFavorite::getUserId, userId)
+                .in(PlainUserFavorite::getVideoGroupId, (Object[]) ids)
+        );
+        if (cnt == null || cnt != videoGroupIds.length) throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
+
         for (var videoGroupId : videoGroupIds) {
             if (
                     plainUserFavoriteMapper.delete(

@@ -33,7 +33,6 @@ public class RedisConstant {
     public static final String PLAIN_USER_TOTAL_WATCH_TIME = "moe:plain_user:total_watch_time:";
     public static final String STATISTIC_WATCH_CNT = "moe:statistic:watch_cnt:";
     public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";// todo 随机过期时间
-    public static final String VIDEO_GROUP_CONTENT_CACHE = "moe:video_group_content_cache#300";
     public static final String VIDEO_GROUP_TYPE_CACHE = "moe:video_group_type_cache#300";
     public static final String VIDEO_LIST_CACHE = "moe:video_list_cache#300";
     public static final String BANGUMI_VIDEO_GROUP_CACHE = "moe:bangumi_video_group_cache#300";
@@ -53,4 +52,9 @@ public class RedisConstant {
     public static final String LIMIT_FEEDBACK_ADD = "moe:limit_feedback_add:";
     public static final int LIMIT_FEEDBACK_ADD_CNT = 10;
     public static final int LIMIT_FEEDBACK_ADD_RESET_TIME = 3; // seconds
+    public static final String BANGUMI_INDEX_HOT = "moe:bangumi_index:hot";
+    public static final String BANGUMI_INDEX_FAVORITE_CNT = "moe:bangumi_index:favorite_cnt";
+    public static final String BANGUMI_INDEX_FAVORITE_CNT_LOCK = "moe:bangumi_index:favorite_cnt_lock";
+    public static final String BANGUMI_INDEX_WATCH_CNT = "moe:bangumi_index:watch_cnt";
+    public static final String BANGUMI_INDEX_IDS = "moe:bangumi_index:ids#20";
 }

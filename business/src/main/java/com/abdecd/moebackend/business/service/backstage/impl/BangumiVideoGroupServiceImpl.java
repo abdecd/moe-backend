@@ -143,7 +143,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
             throw new BaseException("视频组缺失");
         }
 
-        bangumiVideoGroupVO.setVideoGroupId(videoGroupId);
+        bangumiVideoGroupVO.setId(String.valueOf(videoGroupId));
         bangumiVideoGroupVO.setCover(videoGroup.getCover());
         bangumiVideoGroupVO.setDescription(videoGroup.getDescription());
         bangumiVideoGroupVO.setTitle(videoGroup.getTitle());

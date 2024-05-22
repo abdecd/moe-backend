@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -87,6 +88,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         return bangumiVideoGroupVO;
     }
 
+    @Transactional
     @Override
     public Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
         LocalDateTime ldt = LocalDateTime.now();
@@ -131,6 +133,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         return videoGroup.getId();
     }
 
+    @Transactional
     @Override
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();

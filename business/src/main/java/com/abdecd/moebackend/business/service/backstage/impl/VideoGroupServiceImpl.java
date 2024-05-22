@@ -13,12 +13,15 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +60,12 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Resource
     private VideoGroupAndTagMapper videoGroupandTagMapper;
+
+    @Resource
+    private VideoService videoService;
+
+    @Resource
+    private ElasticSearchService elasticSearchService;
 
 
     @Transactional
@@ -242,5 +251,17 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                         .setDescription(videoGroup.getDescription())
                         .setTags(videoGroup.getTags())
         );
+    }
+
+    @Override
+    public void deleteVideoGroup(Long id) {
+        videoGroupMapper.deleteById(id);
+        // 删视频
+        for (var video : videoMapper.selectList(new LambdaQueryWrapper<Video>().eq(Video::getVideoGroupId, id)))
+            videoService.deleteVideo(video.getId());
+        // 删文件夹
+        fileService.deleteDirInSystem("/video-group/" + id);
+        // 删es
+        elasticSearchService.deleteSearchEntity(id);
     }
 }

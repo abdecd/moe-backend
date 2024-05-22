@@ -79,7 +79,7 @@ public class PlainVideoGroupController {
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
         videoGroupAndTagService.deleteByVideoGroupId(id);
-        plainVideoGroupServiceBase.deleteVideoGroup(id);
+        videoGroupService.deleteVideoGroup(id);
         return Result.success();
     }
 

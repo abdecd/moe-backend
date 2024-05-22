@@ -189,7 +189,7 @@ curl -X PUT "http://localhost:9200/moe-video-group" \
       "title": {
         "type": "text",
         "analyzer": "my_py",
-        "search_analyzer": "ik_smart"
+        "search_analyzer": "ik_max_word"
       },
       "uploaderName": {
         "type": "text",

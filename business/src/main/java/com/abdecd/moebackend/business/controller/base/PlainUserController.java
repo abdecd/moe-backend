@@ -32,3 +32,4 @@ public class PlainUserController {
         return Result.success();
     }
 }
+

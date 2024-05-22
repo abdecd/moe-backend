@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 
-@Tag(name = "通用视频组接口")
+@Tag(name = "后台通用视频组接口")
 @Slf4j
 @RestController
 @RequestMapping("/backstage/video-group")

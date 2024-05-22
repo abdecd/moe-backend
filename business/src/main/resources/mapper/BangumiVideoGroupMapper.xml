@@ -6,9 +6,6 @@
     <update id="update" parameterType="com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup">
         UPDATE bangumi_video_group
         <set>
-            <if test="video_group_id != null">
-                video_group_id = #{videoGroupId},
-            </if>
             <if test="releaseTime != null">
                 release_time = #{releaseTime},
             </if>

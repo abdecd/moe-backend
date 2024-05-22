@@ -54,13 +54,13 @@ public class PlainVideoGroupServiceBase {
         var uploader = plainUserService.getPlainUserDetail(base.getUserId());
         var uploaderVO = uploader == null
                 ? new UploaderVO()
-                    .setId(null)
-                    .setNickname(MessageConstant.ADMIN)
-                    .setAvatar(MessageConstant.ADMIN_AVATAR)
+                .setId(null)
+                .setNickname(MessageConstant.ADMIN)
+                .setAvatar(MessageConstant.ADMIN_AVATAR)
                 : new UploaderVO()
-                    .setId(uploader.getUserId())
-                    .setNickname(uploader.getNickname())
-                    .setAvatar(uploader.getAvatar());
+                .setId(uploader.getUserId())
+                .setNickname(uploader.getNickname())
+                .setAvatar(uploader.getAvatar());
 
         var vo = new PlainVideoGroupVO();
         BeanUtils.copyProperties(base, vo);

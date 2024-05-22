@@ -11,7 +11,7 @@ public class BangumiVideoGroupAddDTO {
     private String title;
     private String description;
     private MultipartFile cover;
-    private ArrayList<Integer> tagIds;
+    private String tags;
     private LocalDateTime releaseTime;
     private String updateAtAnnouncement;
     private String status;

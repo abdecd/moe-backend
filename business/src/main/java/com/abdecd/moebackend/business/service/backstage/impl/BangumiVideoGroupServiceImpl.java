@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -87,21 +88,14 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         return bangumiVideoGroupVO;
     }
 
+    @Transactional
     @Override
     public Long insert(BangumiVideoGroupAddDTO bangumiVideoGroupAddDTO) {
         LocalDateTime ldt = LocalDateTime.now();
 
         Long uid = UserContext.getUserId();
 
-        String coverPath;
-
-        try {
-            //TODO 文件没有存下来
-            String coverName = "/video-group/" + bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
-            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverName);
-        } catch (IOException e) {
-            throw new BaseException("文件存储失败");
-        }
+        String coverPath = "";
 
         VideoGroup videoGroup = new VideoGroup()
                 .setTitle(bangumiVideoGroupAddDTO.getTitle())
@@ -117,6 +111,17 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         videoGroupMapper.insertVideoGroup(videoGroup);
 
+        try {
+            //TODO 文件没有存下来
+            String coverPath_ = "/video-group/" + videoGroup.getId() + "/" + bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
+            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverPath_);
+        } catch (IOException e) {
+            throw new BaseException("文件存储失败");
+        }
+
+        videoGroup.setCover(coverPath);
+        videoGroupMapper.update(videoGroup);
+
         String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
         for (String tagid : tags) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
@@ -128,6 +133,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         return videoGroup.getId();
     }
 
+    @Transactional
     @Override
     public BangumiVideoGroupVO getByVideoId(Long videoGroupId) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
@@ -137,7 +143,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
             throw new BaseException("视频组缺失");
         }
 
-        bangumiVideoGroupVO.setVideoGroupId(videoGroupId);
+        bangumiVideoGroupVO.setId(String.valueOf(videoGroupId));
         bangumiVideoGroupVO.setCover(videoGroup.getCover());
         bangumiVideoGroupVO.setDescription(videoGroup.getDescription());
         bangumiVideoGroupVO.setTitle(videoGroup.getTitle());

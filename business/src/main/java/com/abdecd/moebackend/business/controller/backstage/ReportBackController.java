@@ -1,11 +1,13 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
 
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.report.AddReportDTO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportCommentTotalVO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportVideoTotalVO;
 import com.abdecd.moebackend.business.service.report.ReportService;
 import com.abdecd.moebackend.common.result.Result;
+import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ public class ReportBackController {
     @Autowired
     private ReportService reportService;
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "审核举报")
     @PostMapping("/audit")
     public Result<String> auditReport(@Valid @RequestParam("id") Long id){
@@ -25,6 +28,7 @@ public class ReportBackController {
         return Result.success();
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "查看视频举报")
     @GetMapping("/video")
     public Result<ReportVideoTotalVO> getVideoRepoet(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
@@ -32,6 +36,7 @@ public class ReportBackController {
         return Result.success(reportVideoTotalVO);
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "查看评论举报")
     @GetMapping("/comment")
     public Result<ReportCommentTotalVO> getCommentRepoet(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){

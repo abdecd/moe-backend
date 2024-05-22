@@ -13,12 +13,15 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -57,20 +61,19 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     @Resource
     private VideoGroupAndTagMapper videoGroupandTagMapper;
 
+    @Resource
+    private VideoService videoService;
 
+    @Resource
+    private ElasticSearchService elasticSearchService;
+
+
+    @Transactional
     @Override
     public Long insert(VideoGroup videoGroup, MultipartFile cover) {
         Long uid = UserContext.getUserId();
 
-        String coverPath;
-
-        try {
-            //TODO 文件没有存下来
-            String coverName =  "/video-group/" +cover.getName() + ".jpg";
-            coverPath =  fileService.uploadFile(cover,coverName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String coverPath = "";
 
         videoGroup.setCover(coverPath)
                 .setUserId(uid)
@@ -78,6 +81,17 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
 
         videoGroupMapper.insertVideoGroup(videoGroup);
+
+        try {
+            //TODO 文件没有存下来
+            String coverPath_ = "/video-group/" + videoGroup.getId()+ "/" + cover.getName() + ".jpg";
+            coverPath =   fileService.uploadFile(cover,coverPath_);
+        } catch (IOException e) {
+            throw new BaseException("文件存储失败");
+        }
+        videoGroup.setCover(coverPath);
+
+        videoGroupMapper.update(videoGroup);
 
         return  videoGroup.getId();
     }
@@ -97,8 +111,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         {
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroupDTO.getCover().getName() + ".jpg";
-                coverPath =   "/video-group/" + videoGroupDTO.getId()+ "/" +fileService.uploadFile(videoGroupDTO.getCover(),coverName);
+                String coverPath_ = "/video-group/" + videoGroupDTO.getId()+ "/" + videoGroupDTO.getCover().getName() + ".jpg";
+                coverPath =   fileService.uploadFile(videoGroupDTO.getCover(),coverPath_);
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }
@@ -125,7 +139,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupVO.setTitle(videoGroup.getTitle());
         videoGroupVO.setType(videoGroup.getType());
 
-        videoGroupVO.setTags(videoGroupVO.getTags());
+        videoGroupVO.setTags(videoGroup.getTags());
+        videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());
@@ -184,7 +199,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
             videoGroupVO.setType(videoGroup.getType());
             videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
-            videoGroupVO.setTags(videoGroupVO.getTags());
+            videoGroupVO.setTags(videoGroup.getTags());
 
             UploaderVO uploaderVO = new UploaderVO();
             uploaderVO.setId(videoGroup.getUserId());
@@ -236,5 +251,17 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                         .setDescription(videoGroup.getDescription())
                         .setTags(videoGroup.getTags())
         );
+    }
+
+    @Override
+    public void deleteVideoGroup(Long id) {
+        videoGroupMapper.deleteById(id);
+        // 删视频
+        for (var video : videoMapper.selectList(new LambdaQueryWrapper<Video>().eq(Video::getVideoGroupId, id)))
+            videoService.deleteVideo(video.getId());
+        // 删文件夹
+        fileService.deleteDirInSystem("/video-group/" + id);
+        // 删es
+        elasticSearchService.deleteSearchEntity(id);
     }
 }

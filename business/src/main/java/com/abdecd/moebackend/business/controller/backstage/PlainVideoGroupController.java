@@ -6,8 +6,11 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoG
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
+import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +19,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -33,6 +37,12 @@ public class PlainVideoGroupController {
 
     @Resource
     private VideoGroupAndTagService videoGroupAndTagService;
+
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
+
+    @Resource
+    private StatisticService statisticService;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
@@ -69,6 +79,7 @@ public class PlainVideoGroupController {
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
         videoGroupAndTagService.deleteByVideoGroupId(id);
+        videoGroupService.deleteVideoGroup(id);
         return Result.success();
     }
 
@@ -87,6 +98,16 @@ public class PlainVideoGroupController {
     @GetMapping("")
     public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id) {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
+
+        StatisticDataVO statisticDataVO = statisticService.getStatisticData(id);
+        videoGroupVO.setWatchCnt(Math.toIntExact(statisticDataVO.getWatchCnt()));
+        videoGroupVO.setFavoriteCnt(Math.toIntExact(statisticDataVO.getFavoriteCnt()));
+        videoGroupVO.setLikeCnt(Math.toIntExact(statisticDataVO.getLikeCnt()));
+        videoGroupVO.setUserLike(statisticDataVO.getUserLike());
+        videoGroupVO.setUserFavorite(statisticDataVO.getUserFavorite());
+        videoGroupVO.setCommentCnt(Math.toIntExact(statisticDataVO.getCommentCnt()));
+        videoGroupVO.setDanmakuCnt(Math.toIntExact(statisticDataVO.getDanmakuCnt()));
+
         return Result.success(videoGroupVO);
     }
 

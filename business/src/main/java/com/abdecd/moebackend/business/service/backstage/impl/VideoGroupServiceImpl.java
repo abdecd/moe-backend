@@ -131,6 +131,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupVO.setType(videoGroup.getType());
 
         videoGroupVO.setTags(videoGroup.getTags());
+        videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());
@@ -189,7 +190,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
             videoGroupVO.setType(videoGroup.getType());
             videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
-            videoGroupVO.setTags(videoGroupVO.getTags());
+            videoGroupVO.setTags(videoGroup.getTags());
 
             UploaderVO uploaderVO = new UploaderVO();
             uploaderVO.setId(videoGroup.getUserId());

@@ -8,6 +8,8 @@ import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,18 +22,27 @@ public class PlainUserHistoryController {
     @Autowired
     private LastWatchTimeStatistic lastWatchTimeStatistic;
 
+//    @Operation(summary = "获取用户观看历史")
+//    @GetMapping("")
+//    public Result<PageVO<HistoryVO>> getHistory(
+//            @RequestParam(defaultValue = "1") Integer page,
+//            @RequestParam(defaultValue = "10") Integer pageSize
+//    ) {
+//        return Result.success(plainUserHistoryService.getHistory(page, pageSize));
+//    }
+
     @Operation(summary = "获取用户观看历史")
     @GetMapping("")
     public Result<PageVO<HistoryVO>> getHistory(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize
+            @RequestParam(defaultValue = "0") @Min(0) Integer index,
+            @RequestParam(defaultValue = "10") @Min(1) Integer pageSize
     ) {
-        return Result.success(plainUserHistoryService.getHistory(page, pageSize));
+        return Result.success(plainUserHistoryService.getHistory2(index, pageSize));
     }
 
     @Operation(summary = "删除用户观看历史")
     @PostMapping("delete")
-    public Result<String> deleteHistory(DeleteHistoryDTO deleteHistoryDTO) {
+    public Result<String> deleteHistory(@RequestBody @Valid DeleteHistoryDTO deleteHistoryDTO) {
         plainUserHistoryService.deleteHistory(deleteHistoryDTO.getVideoGroupIds());
         return Result.success();
     }

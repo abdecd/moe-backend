@@ -6,7 +6,6 @@ import lombok.Data;
 @Data
 public class BangumiVideoGroupVO{
     private String id;
-    private Long videoGroupId;
     private String title;
     private UploaderVO uploader;
     private String cover;

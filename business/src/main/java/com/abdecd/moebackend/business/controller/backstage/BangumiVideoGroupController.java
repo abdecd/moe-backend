@@ -93,10 +93,10 @@ public class BangumiVideoGroupController {
     @GetMapping("")
     public Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
-        bangumiVideoGroupVO.setVideoGroupId(id);
+        bangumiVideoGroupVO.setId(String.valueOf(id));
 
-        bangumiVideoGroupVO = bangumiVideoGroupService.getByVideoId(bangumiVideoGroupVO.getVideoGroupId());
-        BangumiVideoGroupVO bangumiVideoGroupVO_ = bangumiVideoGroupService.getByVid(bangumiVideoGroupVO.getVideoGroupId());
+        bangumiVideoGroupVO = bangumiVideoGroupService.getByVideoId(Long.valueOf(bangumiVideoGroupVO.getId()));
+        BangumiVideoGroupVO bangumiVideoGroupVO_ = bangumiVideoGroupService.getByVid(Long.valueOf(bangumiVideoGroupVO.getId()));
 
         bangumiVideoGroupVO.setReleaseTime(bangumiVideoGroupVO_.getReleaseTime());
         bangumiVideoGroupVO.setUpdateAtAnnouncement(bangumiVideoGroupVO_.getUpdateAtAnnouncement());

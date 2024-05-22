@@ -17,5 +17,5 @@ public interface ReportMapper extends BaseMapper<Report> {
     ArrayList<Report> getVideoReportPage(Integer offset, Integer pageSize);
 
     @Select("SELECT * FROM report WHERE type = 1 ORDER BY type LIMIT #{pageSize} OFFSET #{offset}")
-    ArrayList<Report> getCommentReportPage(Integer page, Integer pageSize);
+    ArrayList<Report> getCommentReportPage(Integer offset, Integer pageSize);
 }

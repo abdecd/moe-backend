@@ -68,8 +68,9 @@ public class ReportServiceImpl implements ReportService {
     public ReportVideoTotalVO getReportVideoVO(Integer page, Integer pageSize) {
         ReportVideoTotalVO reportVideoTotalVO = new ReportVideoTotalVO();
 
-        ArrayList<Report> reports = reportMapper.getVideoReportPage(page,pageSize);
+        ArrayList<Report> reports = reportMapper.getVideoReportPage((page - 1)*pageSize,pageSize);
         reportVideoTotalVO.setTotal(reports.size());
+        reportVideoTotalVO.setRecords(new ArrayList<>());
 
         for (Report report : reports) {
             ReportVideoVO reportVideoVO = new ReportVideoVO()
@@ -108,8 +109,9 @@ public class ReportServiceImpl implements ReportService {
     public ReportCommentTotalVO getReportCommentVO(Integer page, Integer pageSize) {
         ReportCommentTotalVO reportCommentTotalVO = new ReportCommentTotalVO();
 
-        ArrayList<Report> comments = reportMapper.getCommentReportPage(page,pageSize);
+        ArrayList<Report> comments = reportMapper.getCommentReportPage((page - 1)*pageSize,pageSize);
         reportCommentTotalVO.setTotal(comments.size());
+        reportCommentTotalVO.setRecords(new ArrayList<>());
 
         for (Report report : comments) {
             ReportCommentVO reportCommentVO = new ReportCommentVO()

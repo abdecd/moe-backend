@@ -357,19 +357,6 @@ public class VideoServiceImpl implements VideoService {
         return videoMapper.selectByGid(videoGroupId);
     }
 
-    @Override
-    public Long addVideo(Video video) {
-        checkUserHaveTheGroup(video.getVideoGroupId());
-
-        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(video.getLink());
-        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
-
-        videoMapper.insert(video);
-
-        return video.getId();
-    }
-
     public void checkUserHaveTheGroup(Long videoGroupId) {
         var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
         videoGroupService.checkUserHaveTheGroup(videoGroupId);

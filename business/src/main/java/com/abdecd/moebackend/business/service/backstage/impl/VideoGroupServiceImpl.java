@@ -130,7 +130,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupVO.setTitle(videoGroup.getTitle());
         videoGroupVO.setType(videoGroup.getType());
 
-        videoGroupVO.setTags(videoGroupVO.getTags());
+        videoGroupVO.setTags(videoGroup.getTags());
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());

@@ -8,6 +8,7 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +34,9 @@ public class PlainVideoGroupController {
 
     @Resource
     private VideoGroupAndTagService videoGroupAndTagService;
+
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
@@ -69,6 +73,7 @@ public class PlainVideoGroupController {
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
         videoGroupAndTagService.deleteByVideoGroupId(id);
+        plainVideoGroupServiceBase.deleteVideoGroup(id);
         return Result.success();
     }
 

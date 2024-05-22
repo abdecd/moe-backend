@@ -84,8 +84,9 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String coverPath_ = "/video-group/" + videoGroup.getId()+ "/" + cover.getName() + ".jpg";
-            coverPath =   fileService.uploadFile(cover,coverPath_);
+            String coverName = cover.getOriginalFilename().substring(0,cover.getOriginalFilename().lastIndexOf("."));
+            String coverPath_ = "/video-group/" + videoGroup.getId();
+            coverPath = fileService.uploadFile(cover, coverPath_, coverName + ".jpg");
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }
@@ -111,8 +112,9 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         {
             try {
                 //TODO 文件没有存下来
-                String coverPath_ = "/video-group/" + videoGroupDTO.getId()+ "/" + videoGroupDTO.getCover().getName() + ".jpg";
-                coverPath =   fileService.uploadFile(videoGroupDTO.getCover(),coverPath_);
+                String coverName = videoGroupDTO.getCover().getOriginalFilename().substring(0,videoGroupDTO.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverPath_ = "/video-group/" + videoGroupDTO.getId();
+                coverPath = fileService.uploadFile(videoGroupDTO.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }

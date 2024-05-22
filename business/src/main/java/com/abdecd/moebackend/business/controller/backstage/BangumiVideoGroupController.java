@@ -58,7 +58,7 @@ public class BangumiVideoGroupController {
         bangumiVideoGroup.setVideoGroupId(vid);
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupAddDTO.getUpdateAtAnnouncement());
         bangumiVideoGroup.setReleaseTime(bangumiVideoGroupAddDTO.getReleaseTime());
-        bangumiVideoGroup.setStatus(bangumiVideoGroup.getStatus());
+        bangumiVideoGroup.setStatus(Integer.valueOf(bangumiVideoGroupAddDTO.getStatus()));
         bangumiVideoGroup.setUpdateTime(now);
 
         bangumiVideoGroupService.insert(bangumiVideoGroup);

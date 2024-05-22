@@ -113,8 +113,9 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String coverPath_ = "/video-group/" + videoGroup.getId() + "/" + bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
-            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverPath_);
+            String coverName = bangumiVideoGroupAddDTO.getCover().getOriginalFilename().substring(0,bangumiVideoGroupAddDTO.getCover().getOriginalFilename().lastIndexOf("."));
+            String coverPath_ = "/video-group/" + videoGroup.getId();
+            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverPath_, coverName + ".jpg");
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }

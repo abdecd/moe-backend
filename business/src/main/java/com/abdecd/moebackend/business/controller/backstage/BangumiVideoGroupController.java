@@ -2,7 +2,6 @@ package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
@@ -11,8 +10,8 @@ import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
-import com.abdecd.moebackend.business.service.backstage.impl.VideoGroupAndTagServiceImpl;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +40,8 @@ public class BangumiVideoGroupController {
     private VideoGroupAndTagService videoGroupAndTagService;
     @Resource
     private StatisticService statisticService;
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
@@ -72,6 +73,7 @@ public class BangumiVideoGroupController {
         videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
         videoGroupAndTagService.deleteByVideoGroupId(id);
+        plainVideoGroupServiceBase.deleteVideoGroup(id);
         return Result.success();
     }
 

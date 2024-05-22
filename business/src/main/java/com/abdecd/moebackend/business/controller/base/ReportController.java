@@ -26,25 +26,4 @@ public class ReportController {
         Long reportId = reportService.addReport(addReportDTO);
         return Result.success();
     }
-
-    @Operation(summary = "审核举报")
-    @PostMapping("/audit")
-    public Result<String> auditReport(@Valid @RequestParam("id") Long id){
-        reportService.auditReport(id);
-        return Result.success();
-    }
-
-    @Operation(summary = "查看视频举报")
-    @GetMapping("/video")
-    public Result<ReportVideoTotalVO> getVideoRepoet(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
-        ReportVideoTotalVO reportVideoTotalVO = reportService.getReportVideoVO(page,pageSize);
-        return Result.success(reportVideoTotalVO);
-    }
-
-    @Operation(summary = "查看评论举报")
-    @GetMapping("/video")
-    public Result<ReportCommentTotalVO> getCommentRepoet(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize){
-        ReportCommentTotalVO reportCommentTotalVO = reportService.getReportCommentVO(page,pageSize);
-        return Result.success(reportCommentTotalVO);
-    }
 }

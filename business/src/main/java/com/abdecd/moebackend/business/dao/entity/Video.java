@@ -23,7 +23,6 @@ public class Video {
     String cover;
     LocalDateTime uploadTime;
     Byte status;
-    String link;
 
     public static class Status {
         public static final Byte ENABLE = 1;

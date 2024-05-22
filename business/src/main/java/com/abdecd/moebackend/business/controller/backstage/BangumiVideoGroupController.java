@@ -40,8 +40,6 @@ public class BangumiVideoGroupController {
     private VideoGroupAndTagService videoGroupAndTagService;
     @Resource
     private StatisticService statisticService;
-    @Resource
-    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
@@ -73,7 +71,7 @@ public class BangumiVideoGroupController {
         videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
         videoGroupAndTagService.deleteByVideoGroupId(id);
-        plainVideoGroupServiceBase.deleteVideoGroup(id);
+        videoGroupService.deleteVideoGroup(id);
         return Result.success();
     }
 

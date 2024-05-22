@@ -93,15 +93,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
         Long uid = UserContext.getUserId();
 
-        String coverPath;
-
-        try {
-            //TODO 文件没有存下来
-            String coverName = "/video-group/" + bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
-            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverName);
-        } catch (IOException e) {
-            throw new BaseException("文件存储失败");
-        }
+        String coverPath = "";
 
         VideoGroup videoGroup = new VideoGroup()
                 .setTitle(bangumiVideoGroupAddDTO.getTitle())
@@ -116,6 +108,17 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
 
         videoGroupMapper.insertVideoGroup(videoGroup);
+
+        try {
+            //TODO 文件没有存下来
+            String coverPath_ = "/video-group/" + videoGroup.getId() + "/" + bangumiVideoGroupAddDTO.getCover().getName() + ".jpg";
+            coverPath = fileService.uploadFile(bangumiVideoGroupAddDTO.getCover(), coverPath_);
+        } catch (IOException e) {
+            throw new BaseException("文件存储失败");
+        }
+
+        videoGroup.setCover(coverPath);
+        videoGroupMapper.update(videoGroup);
 
         String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
         for (String tagid : tags) {

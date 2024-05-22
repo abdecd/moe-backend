@@ -62,15 +62,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public Long insert(VideoGroup videoGroup, MultipartFile cover) {
         Long uid = UserContext.getUserId();
 
-        String coverPath;
-
-        try {
-            //TODO 文件没有存下来
-            String coverName =  "/video-group/" +cover.getName() + ".jpg";
-            coverPath =  fileService.uploadFile(cover,coverName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String coverPath = "";
 
         videoGroup.setCover(coverPath)
                 .setUserId(uid)
@@ -78,6 +70,17 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP);
 
         videoGroupMapper.insertVideoGroup(videoGroup);
+
+        try {
+            //TODO 文件没有存下来
+            String coverPath_ = "/video-group/" + videoGroup.getId()+ "/" + cover.getName() + ".jpg";
+            coverPath =   fileService.uploadFile(cover,coverPath_);
+        } catch (IOException e) {
+            throw new BaseException("文件存储失败");
+        }
+        videoGroup.setCover(coverPath);
+
+        videoGroupMapper.update(videoGroup);
 
         return  videoGroup.getId();
     }
@@ -97,8 +100,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         {
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroupDTO.getCover().getName() + ".jpg";
-                coverPath =   "/video-group/" + videoGroupDTO.getId()+ "/" +fileService.uploadFile(videoGroupDTO.getCover(),coverName);
+                String coverPath_ = "/video-group/" + videoGroupDTO.getId()+ "/" + videoGroupDTO.getCover().getName() + ".jpg";
+                coverPath =   fileService.uploadFile(videoGroupDTO.getCover(),coverPath_);
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }

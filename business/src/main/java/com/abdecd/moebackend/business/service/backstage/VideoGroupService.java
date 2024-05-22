@@ -1,10 +1,12 @@
 package com.abdecd.moebackend.business.service.backstage;
 
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
+import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -44,4 +46,10 @@ public interface VideoGroupService {
      * 根据id获取视频组分页信息
      */
     VideoGroupListVO getVideoGroupList(Integer page, Integer pageSize);
+
+    /**
+     * *
+     * 更具id更新视频组信息
+     */
+    void update(@Valid BangumiVideoGroupUpdateDTO videoGroup);
 }

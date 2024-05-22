@@ -51,6 +51,4 @@ token-login:
     - /plain-video-group/check-pending
     - /statistic/video-group-data
     - /feedback/add
-    - /backstage/feedback
-    - /backstage/plain-user-manage
 

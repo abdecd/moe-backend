@@ -12,8 +12,8 @@ import lombok.experimental.Accessors;
 @Data
 public class ReportCommentVO {
     private Integer id;
-    private UploaderVO user;
-    private UserComment comment;
+    private UploaderVO userDetail;
+    private UserCommentVO comment;
     private String reason;
     private String createTime;
     private Integer status;

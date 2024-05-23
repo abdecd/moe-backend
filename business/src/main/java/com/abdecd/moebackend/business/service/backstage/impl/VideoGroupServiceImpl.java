@@ -4,7 +4,6 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
 import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
@@ -14,28 +13,27 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.ElasticSearchService;
-import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
+import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
 import com.abdecd.moebackend.business.service.video.VideoService;
-import com.abdecd.moebackend.common.constant.RedisConstant;
+import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -53,19 +51,22 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     private StatisticService statisticService;
 
     @Resource
-    private VideoGroupTagMapper videoGroupTagMapper;
-
-    @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
-
-    @Resource
-    private VideoGroupAndTagMapper videoGroupandTagMapper;
 
     @Resource
     private VideoService videoService;
 
     @Resource
     private ElasticSearchService elasticSearchService;
+
+    @Resource
+    private VideoGroupServiceBase videoGroupServiceBase;
+
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
+
+    @Resource
+    private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
 
 
     @Transactional
@@ -84,8 +85,9 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String coverPath_ = "/video-group/" + videoGroup.getId()+ "/" + cover.getName() + ".jpg";
-            coverPath =   fileService.uploadFile(cover,coverPath_);
+            String coverName = cover.getOriginalFilename().substring(0,cover.getOriginalFilename().lastIndexOf("."));
+            String coverPath_ = "/video-group/" + videoGroup.getId();
+            coverPath = fileService.uploadFile(cover, coverPath_, coverName + ".jpg");
         } catch (IOException e) {
             throw new BaseException("文件存储失败");
         }
@@ -93,7 +95,21 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupMapper.update(videoGroup);
 
+        var vo = getVOinfo(videoGroup.getId());
+        if(vo != null)
+            elasticSearchService.saveSearchEntity(vo);
+
         return  videoGroup.getId();
+    }
+
+    private com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO getVOinfo(Long id) {
+        var type = videoGroupServiceBase.getVideoGroupType(id);
+
+        if (Objects.equals(type, VideoGroup.Type.PLAIN_VIDEO_GROUP)) {
+            return plainVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else if (Objects.equals(type, VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            return bangumiVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else return null;
     }
 
     @Override
@@ -101,18 +117,20 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         VideoGroup videoGroup = new VideoGroup();
         videoGroup.setId(id);
         videoGroupMapper.deleteById(videoGroup);
+
+        elasticSearchService.deleteSearchEntity(id);
     }
 
     @Override
     public void update(VideoGroupDTO videoGroupDTO) {
         String coverPath = "";
 
-        if(videoGroupDTO.getCover() != null)
-        {
+        if(videoGroupDTO.getCover() != null){
             try {
                 //TODO 文件没有存下来
-                String coverPath_ = "/video-group/" + videoGroupDTO.getId()+ "/" + videoGroupDTO.getCover().getName() + ".jpg";
-                coverPath =   fileService.uploadFile(videoGroupDTO.getCover(),coverPath_);
+                String coverName = videoGroupDTO.getCover().getOriginalFilename().substring(0,videoGroupDTO.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverPath_ = "/video-group/" + videoGroupDTO.getId();
+                coverPath = fileService.uploadFile(videoGroupDTO.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }
@@ -123,6 +141,13 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroup.setCover(coverPath);
 
         videoGroupMapper.update(videoGroup);
+        var newOne = videoGroupServiceBase.getVideoGroupInfo(videoGroup.getId());
+
+        if (newOne != null) {
+            elasticSearchService.saveSearchEntity(newOne);
+        } else {
+            elasticSearchService.deleteSearchEntity(videoGroup.getId());
+        }
     }
 
     @Override
@@ -231,26 +256,32 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public void update(@Valid BangumiVideoGroupUpdateDTO videoGroup) {
         String coverPath = null;
 
-        if(videoGroup.getCover() != null)
-        {
+        if(videoGroup.getCover() != null){
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroup.getCover().getName() + ".jpg";
-                coverPath =  fileService.uploadFile(videoGroup.getCover(),coverName);
+                String coverName = videoGroup.getCover().getOriginalFilename().substring(0,videoGroup.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverPath_ = "/video-group/" + videoGroup.getId();
+                coverPath = fileService.uploadFile(videoGroup.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }
         }
 
-        videoGroupMapper.update(
-                new VideoGroup()
-                        .setId(videoGroup.getId())
-                        .setVideoGroupStatus(Byte.valueOf(videoGroup.getStatus()))
-                        .setTitle(videoGroup.getTitle())
-                        .setCover(coverPath)
-                        .setDescription(videoGroup.getDescription())
-                        .setTags(videoGroup.getTags())
-        );
+        var entity = new VideoGroup()
+                .setId(videoGroup.getId())
+                .setVideoGroupStatus(Byte.valueOf(videoGroup.getVideoGroupStatus()))
+                .setTitle(videoGroup.getTitle())
+                .setCover(coverPath)
+                .setDescription(videoGroup.getDescription())
+                .setTags(videoGroup.getTags());
+        videoGroupMapper.update(entity);
+
+        var newOne = videoGroupServiceBase.getVideoGroupInfo(entity.getId());
+        if (newOne != null) {
+            elasticSearchService.saveSearchEntity(newOne);
+        } else {
+            elasticSearchService.deleteSearchEntity(entity.getId());
+        }
     }
 
     @Override

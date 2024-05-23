@@ -15,4 +15,5 @@ public class BangumiVideoGroupAddDTO {
     private LocalDateTime releaseTime;
     private String updateAtAnnouncement;
     private String status;
+    private String videoGroupStatus;
 }

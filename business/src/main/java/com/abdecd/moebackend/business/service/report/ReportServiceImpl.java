@@ -17,6 +17,8 @@ import com.abdecd.moebackend.business.pojo.vo.report.ReportVideoVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.report.ReportService;
+import com.abdecd.moebackend.business.service.video.VideoService;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import jakarta.annotation.Resource;
@@ -46,6 +48,9 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     private UserCommentMapper userCommentMapper;
+
+    @Autowired
+    private VideoService videoService;
 
     @Override
     public Long addReport(AddReportDTO addReportDTO) {
@@ -88,17 +93,7 @@ public class ReportServiceImpl implements ReportService {
             );
 
             Video video = videoMapper.selectById(report.getTargetId());
-            reportVideoVO.setVideo(
-                    new VideoVO()
-                            .setId(video.getId())
-                            .setDescription(video.getDescription())
-                            .setTitle(video.getTitle())
-                            .setVideoGroupId(video.getVideoGroupId())
-                            .setIndex(video.getIndex())
-                            .setCover(video.getCover())
-                            .setUploadTime(video.getUploadTime())
-                            .setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))))
-            );
+            reportVideoVO.setVideo(videoService.getVideo(video.getId()));
 
             reportVideoTotalVO.getRecords().add(reportVideoVO);
         }
@@ -110,6 +105,7 @@ public class ReportServiceImpl implements ReportService {
         ReportCommentTotalVO reportCommentTotalVO = new ReportCommentTotalVO();
 
         ArrayList<Report> comments = reportMapper.getCommentReportPage((page - 1)*pageSize,pageSize);
+
         reportCommentTotalVO.setTotal(comments.size());
         reportCommentTotalVO.setRecords(new ArrayList<>());
 
@@ -122,7 +118,7 @@ public class ReportServiceImpl implements ReportService {
 
             PlainUserDetail plainUserDetail = plainUserDetailMapper.selectByUid(report.getUserId());
 
-            reportCommentVO.setUser(new UploaderVO()
+            reportCommentVO.setUserDetail(new UploaderVO()
                     .setId(plainUserDetail.getUserId())
                     .setAvatar(plainUserDetail.getAvatar())
                     .setNickname(plainUserDetail.getNickname())
@@ -152,7 +148,7 @@ public class ReportServiceImpl implements ReportService {
             userDetail2.setId(Math.toIntExact(touser.getUserId()));
             userCommentVO.setToUserDetail(userDetail2);
 
-            reportCommentVO.setComment(userComment);
+            reportCommentVO.setComment(userCommentVO);
 
             reportCommentTotalVO.getRecords().add(reportCommentVO);
         }

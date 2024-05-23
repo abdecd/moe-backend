@@ -21,6 +21,9 @@
             <if test="weight != null">
                 weight = #{weight},
             </if>
+            <if test="videoGroupStatus != null">
+                status = #{videoGroupStatus},
+            </if>
         </set>
         WHERE id = #{id}
     </update>

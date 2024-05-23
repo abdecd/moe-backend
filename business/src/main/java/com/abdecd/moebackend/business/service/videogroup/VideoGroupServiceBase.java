@@ -156,6 +156,7 @@ public class VideoGroupServiceBase {
      * @param videoGroupId :
      */
     public void checkUserHaveTheGroup(Long videoGroupId) {
+        if (List.of(UserContext.getPermission().split(",")).contains("99")) return;
         var old = videoGroupMapper.selectById(videoGroupId);
         if (old == null) throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
         if (!Optional.of(old)

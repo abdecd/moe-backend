@@ -138,8 +138,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public void update(VideoGroupDTO videoGroupDTO) {
         String coverPath = "";
 
-        if(videoGroupDTO.getCover() != null)
-        {
+        if(videoGroupDTO.getCover() != null){
             try {
                 //TODO 文件没有存下来
                 String coverName = videoGroupDTO.getCover().getOriginalFilename().substring(0,videoGroupDTO.getCover().getOriginalFilename().lastIndexOf("."));
@@ -265,12 +264,12 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public void update(@Valid BangumiVideoGroupUpdateDTO videoGroup) {
         String coverPath = null;
 
-        if(videoGroup.getCover() != null)
-        {
+        if(videoGroup.getCover() != null){
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroup.getCover().getName() + ".jpg";
-                coverPath =  fileService.uploadFile(videoGroup.getCover(),coverName);
+                String coverName = videoGroup.getCover().getOriginalFilename().substring(0,videoGroup.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverPath_ = "/video-group/" + videoGroup.getId();
+                coverPath = fileService.uploadFile(videoGroup.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
                 throw new BaseException("文件存储失败");
             }

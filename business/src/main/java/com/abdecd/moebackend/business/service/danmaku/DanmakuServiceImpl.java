@@ -2,6 +2,8 @@ package com.abdecd.moebackend.business.service.danmaku;
 
 import com.abdecd.moebackend.business.dao.entity.Danmaku;
 import com.abdecd.moebackend.business.dao.mapper.DanmakuMapper;
+import com.abdecd.moebackend.business.lib.CacheByFrequency;
+import com.abdecd.moebackend.business.lib.CacheByFrequencyFactory;
 import com.abdecd.moebackend.business.pojo.dto.danmaku.AddDanmakuDTO;
 import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -20,6 +22,11 @@ import java.util.List;
 public class DanmakuServiceImpl implements DanmakuService {
     @Autowired
     private DanmakuMapper danmakuMapper;
+    private CacheByFrequency<List<DanmakuVO>> danmakuCache;
+    @Autowired
+    public void setDanmakuCache(CacheByFrequencyFactory cacheByFrequencyFactory) {
+        danmakuCache = cacheByFrequencyFactory.create(RedisConstant.DANMAKU, 200, 15);
+    }
 
     @Override
     public Long addDanmaku(AddDanmakuDTO addDanmakuDTO) {
@@ -29,20 +36,23 @@ public class DanmakuServiceImpl implements DanmakuService {
         return entity.getId();
     }
 
-    @Cacheable(value = RedisConstant.DANMAKU, key = "#videoId + ':' + #segmentIndex")
     @Override
     public List<DanmakuVO> getDanmaku(Long videoId, Integer segmentIndex) {
-        var list = danmakuMapper.selectList(new LambdaQueryWrapper<Danmaku>()
-                .eq(Danmaku::getVideoId, videoId)
-                .ge(Danmaku::getBegin, (segmentIndex - 1) * 360)
-                .lt(Danmaku::getBegin, segmentIndex * 360)
-                .last("limit 10000")
-        );
-        return new ArrayList<>(list.stream().map(x -> {
-            var danmakuVO = new DanmakuVO();
-            BeanUtils.copyProperties(x, danmakuVO);
-            return danmakuVO;
-        }).toList());
+        danmakuCache.recordFrequency(videoId + ":" + segmentIndex);
+        return danmakuCache.get(videoId + ":" + segmentIndex, () -> {
+            var list = danmakuMapper.selectList(new LambdaQueryWrapper<Danmaku>()
+                    .eq(Danmaku::getVideoId, videoId)
+                    .ge(Danmaku::getBegin, (segmentIndex - 1) * 360000)
+                    .lt(Danmaku::getBegin, segmentIndex * 360000)
+                    .orderByDesc(Danmaku::getTime)
+                    .last("limit 5000")
+            );
+            return new ArrayList<>(list.stream().map(x -> {
+                var danmakuVO = new DanmakuVO();
+                BeanUtils.copyProperties(x, danmakuVO);
+                return danmakuVO;
+            }).toList());
+        }, null, null);
     }
 
     @Override

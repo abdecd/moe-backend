@@ -37,12 +37,14 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -327,11 +329,14 @@ public class VideoServiceImpl implements VideoService {
             for (var srcObj : vo.getSrc()) {
                 if (srcObj.getSrc().startsWith("BV")) {
                     taskList.add(CompletableFuture.supplyAsync(() -> {
+                        String url = "";
                         try {
-                            return biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), vo.getIndex()+"");
-                        } catch (IOException e) {
-                            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
-                        }
+                            url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), vo.getIndex()+"");
+                        } catch (Exception ignored) {}
+                        try {
+                            if (url.isEmpty()) url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), "1");
+                        } catch (Exception ignored) {}
+                        return url;
                     }, Executors.newVirtualThreadPerTaskExecutor()));
                 }
             }
@@ -351,6 +356,7 @@ public class VideoServiceImpl implements VideoService {
     public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
         return videoMapper.selectByGid(videoGroupId);
     }
+
 
     public void checkUserHaveTheGroup(Long videoGroupId) {
         var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);

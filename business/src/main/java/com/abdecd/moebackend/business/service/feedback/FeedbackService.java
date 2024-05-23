@@ -10,5 +10,3 @@ public interface FeedbackService {
     Page<FeedbackVO> getFeedbacks(int page, int pageSize, String email, String content);
     boolean handleFeedback(HandleFeedbackDTO handleFeedbackDTO);
 }
-
-

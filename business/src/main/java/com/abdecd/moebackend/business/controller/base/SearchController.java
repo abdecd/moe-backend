@@ -1,13 +1,9 @@
 package com.abdecd.moebackend.business.controller.base;
 
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
-import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
@@ -26,11 +22,8 @@ import java.util.List;
 @RequestMapping("search")
 public class SearchController {
     @Autowired
-    private VideoGroupMapper videoGroupMapper;
-    @Autowired
-    private VideoGroupServiceBase videoGroupServiceBase;
+    private ElasticSearchService elasticSearchService;
 
-    // todo
     @Operation(summary = "搜索")
     @GetMapping("")
     public Result<PageVO<VideoGroupWithDataVO>> search(
@@ -39,19 +32,20 @@ public class SearchController {
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize
     ) {
-        var pageObj = new Page<VideoGroup>(page, pageSize);
-        var ids = videoGroupMapper.selectPage(pageObj, new LambdaQueryWrapper<VideoGroup>()
-                .select(VideoGroup::getId, VideoGroup::getTitle)
-                .eq(type != null, VideoGroup::getType, type)
-                .like(VideoGroup::getTitle, q)
-        );
-        var pageVO = new PageVO<VideoGroupWithDataVO>()
-                .setTotal((int) ids.getTotal())
-                .setRecords(ids.getRecords().stream()
-                        .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
-                        .toList()
-                );
-        return Result.success(pageVO);
+//        var pageObj = new Page<VideoGroup>(page, pageSize);
+//        var ids = videoGroupMapper.selectPage(pageObj, new LambdaQueryWrapper<VideoGroup>()
+//                .select(VideoGroup::getId, VideoGroup::getTitle)
+//                .eq(type != null, VideoGroup::getType, type)
+//                .like(VideoGroup::getTitle, q)
+//        );
+//        var pageVO = new PageVO<VideoGroupWithDataVO>()
+//                .setTotal((int) ids.getTotal())
+//                .setRecords(ids.getRecords().stream()
+//                        .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
+//                        .toList()
+//                );
+//        return Result.success(pageVO);
+        return Result.success(elasticSearchService.search(q, type, page, pageSize));
     }
 
     @Operation(summary = "获得搜索建议")
@@ -60,11 +54,12 @@ public class SearchController {
             @RequestParam @NotBlank String q,
             @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(15) Integer num
     ) {
-        var titles = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
-                .select(VideoGroup::getTitle)
-                .like(VideoGroup::getTitle, q)
-                .last("limit "+num)
-        );
-        return Result.success(titles.stream().map(VideoGroup::getTitle).toList());
+//        var titles = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
+//                .select(VideoGroup::getTitle)
+//                .like(VideoGroup::getTitle, q)
+//                .last("limit "+num)
+//        );
+//        return Result.success(titles.stream().map(VideoGroup::getTitle).toList());
+        return Result.success(elasticSearchService.getSearchSuggestions(q, num));
     }
 }

@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.favorite.AddFavoritesDTO;
 import com.abdecd.moebackend.business.pojo.dto.favorite.DeleteFavoritesDTO;
 import com.abdecd.moebackend.business.pojo.vo.favorite.FavoriteVO;
+import com.abdecd.moebackend.business.service.BangumiIndexService;
 import com.abdecd.moebackend.business.service.FavoriteService;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
@@ -24,6 +25,8 @@ import java.util.Objects;
 public class FavoriteController {
     @Autowired
     private FavoriteService favoriteService;
+    @Autowired
+    private BangumiIndexService bangumiIndexService;
 
 //    @Operation(summary = "获取用户收藏列表")
 //    @GetMapping("")
@@ -52,13 +55,15 @@ public class FavoriteController {
     @Operation(summary = "获取用户是否收藏特定视频组")
     @GetMapping("contains")
     public Result<Boolean> getExists(@RequestParam Long videoGroupId) {
-        return Result.success(favoriteService.exists(UserContext.getUserId(), videoGroupId));
+        return Result.success(favoriteService.isUserFavorite(UserContext.getUserId(), videoGroupId));
     }
 
     @Operation(summary = "删除用户收藏")
     @PostMapping("delete")
     public Result<String> deleteFavorites(@RequestBody @Valid DeleteFavoritesDTO deleteFavoritesDTO) {
         favoriteService.delete(UserContext.getUserId(), deleteFavoritesDTO.getVideoGroupIds());
+        for (var id : deleteFavoritesDTO.getVideoGroupIds())
+            bangumiIndexService.decreaseFavorite(id);
         return Result.success();
     }
 
@@ -66,6 +71,7 @@ public class FavoriteController {
     @PostMapping("add")
     public Result<String> addFavorites(@RequestBody @Valid AddFavoritesDTO addFavoritesDTO) {
         favoriteService.add(UserContext.getUserId(), addFavoritesDTO.getVideoGroupId());
+        bangumiIndexService.recordFavorite(addFavoritesDTO.getVideoGroupId());
         return Result.success();
     }
 }

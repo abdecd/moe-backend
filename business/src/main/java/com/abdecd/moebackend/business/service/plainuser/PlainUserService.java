@@ -3,7 +3,9 @@ package com.abdecd.moebackend.business.service.plainuser;
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.controller.base.CommonController;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.UpdatePlainUserDTO;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
@@ -11,10 +13,12 @@ import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.abdecd.tokenlogin.mapper.UserMapper;
 import com.abdecd.tokenlogin.pojo.entity.User;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +35,10 @@ public class PlainUserService {
     private FileService fileService;
     @Autowired
     private CommonController commonController;
+    @Autowired
+    private VideoGroupMapper videoGroupMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Cacheable(value = RedisConstant.PLAIN_USER_DETAIL, key = "#uid", unless = "#result == null")
     public PlainUserDetail getPlainUserDetail(Long uid) {
@@ -65,6 +73,19 @@ public class PlainUserService {
         if (newFileUrl != null) entity.setAvatar(newFileUrl);
         plainUserDetailMapper.updateById(entity);
         if (oldFileUrl != null) fileService.deleteFile(oldFileUrl);
+        // 清理缓存
+        clearVideoGroupCache(UserContext.getUserId());
+    }
+
+    private void clearVideoGroupCache(Long userId) {
+        var list = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
+                .eq(VideoGroup::getUserId, userId)
+        );
+        if (list.isEmpty()) return;
+        for (var videoGroup : list) {
+            stringRedisTemplate.delete(RedisConstant.VIDEO_GROUP_CACHE.substring(0, RedisConstant.VIDEO_GROUP_CACHE.lastIndexOf("#")) + "::" + videoGroup.getId());
+            stringRedisTemplate.delete(RedisConstant.BANGUMI_VIDEO_GROUP_CACHE.substring(0, RedisConstant.BANGUMI_VIDEO_GROUP_CACHE.lastIndexOf("#")) + "::" + videoGroup.getId());
+        }
     }
 
     @SuppressWarnings("unused")

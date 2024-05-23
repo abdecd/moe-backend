@@ -22,7 +22,7 @@ public class RedisConstant {
     public static final String VIDEO_COMMENT = "moe:video_comment#300";
     public static final int VIDEO_COMMENT_CACHE_SIZE = 300;
     public static final String VIDEO_COMMENT_TIMESTAMP = "moe:timestamp:video_comment:";
-    public static final String DANMAKU = "moe:danmaku#20";
+    public static final String DANMAKU = "moe:danmaku";
     public static final String PLAIN_USER_DETAIL = "moe:plain_user:detail#300";
     public static final String PLAIN_USER_HISTORY = "moe:plain_user:history:";
     public static final String PLAIN_USER_HISTORY_LOCK = "moe:plain_user:history_lock:";
@@ -32,8 +32,7 @@ public class RedisConstant {
     public static final String PLAIN_USER_LAST_WATCH_TIME = "moe:plain_user:last_watch_time:";
     public static final String PLAIN_USER_TOTAL_WATCH_TIME = "moe:plain_user:total_watch_time:";
     public static final String STATISTIC_WATCH_CNT = "moe:statistic:watch_cnt:";
-    public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";
-    public static final String VIDEO_GROUP_CONTENT_CACHE = "moe:video_group_content_cache#300";
+    public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";// todo 随机过期时间
     public static final String VIDEO_GROUP_TYPE_CACHE = "moe:video_group_type_cache#300";
     public static final String VIDEO_LIST_CACHE = "moe:video_list_cache#300";
     public static final String BANGUMI_VIDEO_GROUP_CACHE = "moe:bangumi_video_group_cache#300";
@@ -41,10 +40,21 @@ public class RedisConstant {
     public static final String VIDEO_GROUP_CONTENTS_CACHE = "moe:video_group_contents_cache#300";
     public static final String RECOMMEND_CAROUSEL_CACHE = "moe:recommend_carousel_cache#d1";
     public static final String BANGUMI_TIME_SCHEDULE_CACHE = "moe:bangumi_time_schedule_cache#30000";
-    public static final String FAVORITES = "moe:plain_user:favorite:";
+    public static final String FAVORITE_PLAIN = "moe:plain_user:favorite:plain#300";
+    public static final String FAVORITE_BANGUMI = "moe:plain_user:favorite:bangumi#300";
+    public static final String IS_USER_FAVORITE = "moe:plain_user:favorite:is_user_favorite#300";
     public static final int FAVORITES_SIZE = 5000;
+    public static final String IS_USER_LIKE = "moe:plain_user:like:is_user_like#300";
+    public static final String VIDEO_GROUP_LIKE_CNT = "moe:video_group_like_cnt:";
     public static final String VIDEO_COMMENT_CNT = "moe:video_comment_cnt#300";
     public static final String VIDEO_DANMAKU_CNT = "moe:video_danmaku_cnt#300";
-    public static final String VIDEO_GROUP_FAVORITES_SET = "moe:video_group_favorite_set:";
-    public static final String VIDEO_GROUP_LIKE_SET = "moe:video_group_like_set:";
+    public static final String VIDEO_GROUP_FAVORITE_CNT = "moe:video_group_favorite_cnt:";
+    public static final String LIMIT_FEEDBACK_ADD = "moe:limit_feedback_add:";
+    public static final int LIMIT_FEEDBACK_ADD_CNT = 10;
+    public static final int LIMIT_FEEDBACK_ADD_RESET_TIME = 3; // seconds
+    public static final String BANGUMI_INDEX_HOT = "moe:bangumi_index:hot";
+    public static final String BANGUMI_INDEX_FAVORITE_CNT = "moe:bangumi_index:favorite_cnt";
+    public static final String BANGUMI_INDEX_FAVORITE_CNT_LOCK = "moe:bangumi_index:favorite_cnt_lock";
+    public static final String BANGUMI_INDEX_WATCH_CNT = "moe:bangumi_index:watch_cnt";
+    public static final String BANGUMI_INDEX_IDS = "moe:bangumi_index:ids#20";
 }

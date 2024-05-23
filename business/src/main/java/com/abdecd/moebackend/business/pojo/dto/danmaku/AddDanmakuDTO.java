@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.zip.CRC32;
 
 @Data
@@ -16,15 +17,15 @@ public class AddDanmakuDTO {
     @NotNull
     Long videoId;
     @NotNull
-    Double begin;
+    Integer begin;
     @NotNull
     Integer mode;
     @NotNull
     Integer size;
     @NotBlank
     String color;
-    @NotNull
-    Long time;
+//    @NotNull
+//    Long time;
     @NotNull
     Integer pool;
     @NotBlank
@@ -41,6 +42,7 @@ public class AddDanmakuDTO {
         danmaku.setUserId(userId)
                 .setTimestamp(LocalDateTime.now())
                 .setAuthor(crc32result)
+                .setTime(new Date().getTime()/1000)
                 .setText(SensitiveUtils.sensitiveFilter(text));
 
         return danmaku;

@@ -2,11 +2,15 @@ package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
+import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,13 +19,14 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-@Tag(name = "普通视频组接口")
+@Tag(name = "后台普通视频组接口")
 @Slf4j
 @RestController
 @RequestMapping("/backstage/plain-video-group")
@@ -33,23 +38,33 @@ public class PlainVideoGroupController {
     @Resource
     private VideoGroupAndTagService videoGroupAndTagService;
 
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
+
+    @Resource
+    private StatisticService statisticService;
+
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     @ResponseBody
-    public Result<Long> addVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
+    public Result<Long> addVideoGroup(@Valid VideoGroupAddDTO videoGroupAddDTO) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss");
         LocalDateTime ldt = LocalDateTime.now();
+        ldt.format(dtf);
 
         Long groupId = videoGroupService.insert(new VideoGroup()
                 .setCreateTime(ldt)
-                .setTitle(videoGroupDTO.getTitle())
-                .setDescription(videoGroupDTO.getDescription())
-                ,videoGroupDTO.getCover()
+                .setTitle(videoGroupAddDTO.getTitle())
+                .setDescription(videoGroupAddDTO.getDescription())
+                .setTags(String.join(",",videoGroupAddDTO.getTags()))
+                .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
+                ,videoGroupAddDTO.getCover()
             );
 
-        if (videoGroupDTO.getTagIds() != null) {
-            for (String i : videoGroupDTO.getTagIds()) {
+        if (videoGroupAddDTO.getTags() != null) {
+            String[] tags = videoGroupAddDTO.getTags().split(";");
+            for (String i : tags) {
                 Long tagId = Long.valueOf(i);
                 videoGroupAndTagService.insert(tagId, groupId);
             }
@@ -63,6 +78,8 @@ public class PlainVideoGroupController {
     @PostMapping(value = "/delete")
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
         videoGroupService.delete(id);
+        videoGroupAndTagService.deleteByVideoGroupId(id);
+        videoGroupService.deleteVideoGroup(id);
         return Result.success();
     }
 
@@ -81,6 +98,16 @@ public class PlainVideoGroupController {
     @GetMapping("")
     public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id) {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
+
+        StatisticDataVO statisticDataVO = statisticService.getStatisticData(id);
+        videoGroupVO.setWatchCnt(Math.toIntExact(statisticDataVO.getWatchCnt()));
+        videoGroupVO.setFavoriteCnt(Math.toIntExact(statisticDataVO.getFavoriteCnt()));
+        videoGroupVO.setLikeCnt(Math.toIntExact(statisticDataVO.getLikeCnt()));
+        videoGroupVO.setUserLike(statisticDataVO.getUserLike());
+        videoGroupVO.setUserFavorite(statisticDataVO.getUserFavorite());
+        videoGroupVO.setCommentCnt(Math.toIntExact(statisticDataVO.getCommentCnt()));
+        videoGroupVO.setDanmakuCnt(Math.toIntExact(statisticDataVO.getDanmakuCnt()));
+
         return Result.success(videoGroupVO);
     }
 

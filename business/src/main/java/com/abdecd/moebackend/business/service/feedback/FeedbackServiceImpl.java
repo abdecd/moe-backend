@@ -7,6 +7,7 @@ import com.abdecd.moebackend.business.pojo.dto.feedback.HandleFeedbackDTO;
 import com.abdecd.moebackend.business.pojo.vo.feedback.FeedbackVO;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,6 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setStatus(Integer.valueOf(StatusConstant.ENABLE));
         feedbackMapper.insert(feedback);
         return feedback.getId();
-
     }
 
     @Override

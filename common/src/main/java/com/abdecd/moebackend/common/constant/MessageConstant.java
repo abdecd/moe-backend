@@ -27,4 +27,5 @@ public class MessageConstant {
     public static final String ADMIN_AVATAR = "";
     public static final String LIKE_EXIST = "已经点赞过了";
     public static final String LIKE_NOT_EXIST = "还没有点赞过";
+    public static final String CAROUSEL_SIZE_LIMIT = "轮播图设置数量超过上限";
 }

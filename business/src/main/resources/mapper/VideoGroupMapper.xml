@@ -22,7 +22,7 @@
                 weight = #{weight},
             </if>
             <if test="videoGroupStatus != null">
-                video_group_status = #{videoGroupStatus},
+                status = #{videoGroupStatus},
             </if>
         </set>
         WHERE id = #{id}

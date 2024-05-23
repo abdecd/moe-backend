@@ -7,9 +7,11 @@ import java.time.LocalDateTime;
 @Data
 public class AllVO {
     private Long id;
+    private String permission;
+    private Integer status;
     private String nickname;
     private String email;
-    private Integer status;
-    private String permission;
     private LocalDateTime createTime;
+    private String avatar;
+    private String signature;
 }

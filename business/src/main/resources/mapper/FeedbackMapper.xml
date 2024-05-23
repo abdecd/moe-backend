@@ -1,17 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.abdecd.moebackend.business.dao.mapper.FeedbackMapper">
     <select id="selectFeedbacks" resultType="com.abdecd.moebackend.business.pojo.vo.feedback.FeedbackVO">
         SELECT
         id, content, email, timestamp, status
         FROM
         feedback
-        WHERE
-        1=1
-        <if test="email != null and email != ''">
-            AND email = #{email}
-        </if>
-        <if test="content != null and content != ''">
-            AND content LIKE CONCAT('%', #{content}, '%')
-        </if>
-        ORDER BY timestamp DESC
+        <where>
+            <if test="email != null and email != ''">
+                AND email = #{email}
+            </if>
+            <if test="content != null and content != ''">
+                AND content LIKE CONCAT('%', #{content}, '%')
+            </if>
+        </where>
+        ORDER BY status DESC, timestamp DESC
     </select>
 </mapper>

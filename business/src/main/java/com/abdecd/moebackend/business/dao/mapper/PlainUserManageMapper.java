@@ -10,12 +10,13 @@ import org.apache.ibatis.annotations.Select;
 public interface PlainUserManageMapper extends BaseMapper<UserManage> {
 
     @Select("<script>" +
-            "SELECT id, nickname, email, status, permission, create_time " +
-            "FROM user " +
-            "WHERE 1=1 " +
+            "SELECT id, user.nickname, email, status, permission, create_time, avatar, signature " +
+            "FROM user LEFT JOIN plain_user_detail ON user.id = plain_user_detail.user_id " +
+            "<where>" +
             "<if test='id != null'>AND id = #{id}</if> " +
-            "<if test='name != null'>AND nickname LIKE CONCAT('%', #{name}, '%')</if> " +
+            "<if test='name != null'>AND user.nickname LIKE CONCAT('%', #{name}, '%')</if> " +
             "<if test='status != null'>AND status = #{status}</if> " +
+            "</where> " +
             "</script>")
     Page<AllVO> selectUsers(Page<?> page, @Param("id") Long id, @Param("name") String name, @Param("status") Integer status);
 }

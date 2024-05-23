@@ -17,8 +17,7 @@ public class PlainUserManageServierImpl implements PlainUserManageService {
     @Override
     public Page<AllVO> listUsers(Long id, String name, Integer status, int page, int pageSize) {
         Page<UserManage> userPage = new Page<>(page, pageSize);
-        Page<AllVO> voPage = userMapper.selectUsers(userPage, id, name, status);
-        return voPage;
+        return userMapper.selectUsers(userPage, id, name, status);
     }
 
     @Override

@@ -42,7 +42,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (feedback == null) {
             return false;
         }
-        feedback.setStatus(Integer.valueOf(StatusConstant.ENABLE));
+        feedback.setStatus(Integer.valueOf(StatusConstant.DISABLE));
         return feedbackMapper.updateById(feedback) == 1;
     }
 }

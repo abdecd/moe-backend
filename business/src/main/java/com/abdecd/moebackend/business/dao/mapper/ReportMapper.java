@@ -14,9 +14,9 @@ public interface ReportMapper extends BaseMapper<Report> {
     @Update("UPDATE report SET status = 0 WHERE id = #{id}")
     void auditReport(Long id);
 
-    @Select("SELECT * FROM report WHERE type = 0  GROUP BY type ORDER BY status DESC, create_time DESC LIMIT #{pageSize} OFFSET #{offset}")
+    @Select("SELECT * FROM report WHERE type = 0  ORDER BY status DESC, create_time DESC LIMIT #{pageSize} OFFSET #{offset}")
     ArrayList<Report> getVideoReportPage(Integer offset, Integer pageSize);
 
-    @Select("SELECT * FROM report WHERE type = 1  GROUP BY type ORDER BY status DESC, create_time DESC LIMIT #{pageSize} OFFSET #{offset}")
+    @Select("SELECT * FROM report WHERE type = 1  ORDER BY status DESC, create_time DESC LIMIT #{pageSize} OFFSET #{offset}")
     ArrayList<Report> getCommentReportPage(Integer offset, Integer pageSize);
 }

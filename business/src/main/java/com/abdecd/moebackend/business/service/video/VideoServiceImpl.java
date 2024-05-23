@@ -71,8 +71,8 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoGroupMapper videoGroupMapper;
 
-    private static final int TRANSFORM_TASK_TTL = 600;
-    private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
+    private static final int TRANSFORM_TASK_TTL = 1200;
+    private static final int TRANSFORM_TASK_REDIS_TTL = 1800;
 
     @Caching(evict = {
             @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),

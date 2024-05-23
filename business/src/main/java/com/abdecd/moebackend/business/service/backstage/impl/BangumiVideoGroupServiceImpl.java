@@ -141,7 +141,9 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         videoGroup.setCover(coverPath);
         videoGroupMapper.update(videoGroup);
 
-        elasticSearchService.saveSearchEntity(getVOinfo(videoGroup.getId()));
+        var vo = getVOinfo(videoGroup.getId());
+        if(vo != null)
+            elasticSearchService.saveSearchEntity(vo);
 
         String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
         for (String tagid : tags) {

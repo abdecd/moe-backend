@@ -13,7 +13,6 @@ import com.abdecd.moebackend.business.lib.BiliParser;
 import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
-import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformCbArgs;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
@@ -26,7 +25,6 @@ import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -43,8 +41,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 @Slf4j
 @Service
@@ -64,9 +62,6 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private FileService fileService;
     @Autowired
-    private RedissonClient redissonClient;
-    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-    @Autowired
     private BiliParser biliParser;
     @Autowired
     private PlainUserService plainUserService;
@@ -74,6 +69,10 @@ public class VideoServiceImpl implements VideoService {
     private MoeProperties moeProperties;
     @Autowired
     private VideoGroupMapper videoGroupMapper;
+    private final Consumer<VideoTransformTask> transformTaskConsumer = task -> {
+        var self = SpringContextUtil.getBean(VideoServiceImpl.class);
+        self.videoTransformSave(task);
+    };
 
     private static final int TRANSFORM_TASK_TTL = 600;
     private static final int TRANSFORM_TASK_REDIS_TTL = 1300;
@@ -108,7 +107,7 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath);
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, transformTaskConsumer);
 
         return entity.getId();
     }
@@ -130,7 +129,7 @@ public class VideoServiceImpl implements VideoService {
         videoMapper.insert(entity);
 
         // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath);
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, transformTaskConsumer);
 
         return entity.getId();
     }
@@ -140,7 +139,7 @@ public class VideoServiceImpl implements VideoService {
      * @param videoId :
      * @param originPath 如 tmp/1/video.mp4
      */
-    private void createTransformTask(Long videoGroupId, Long videoId, String originPath) {
+    private void createTransformTask(Long videoGroupId, Long videoId, String originPath, Consumer<VideoTransformTask> cb) {
         // 视频转码
         var task = new VideoTransformTask()
                 .setId(UUID.randomUUID() + "")
@@ -150,57 +149,31 @@ public class VideoServiceImpl implements VideoService {
                         "video-group/" + videoGroupId + "/" + videoId + "/360p.mp4",
                         "video-group/" + videoGroupId + "/" + videoId + "/720p.mp4",
                         "video-group/" + videoGroupId + "/" + videoId + "/1080p.mp4"
-                })
-                .setStatus(new VideoTransformTask.Status[]{VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING})
-                .setCbBeanNameAndMethodName("videoServiceImpl.videoTransformCb");
+                });
         // 保存任务
         redisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId(), task, TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
         stringRedisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId(), task.getId(), TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
 
         var plainUser = plainUserService.getPlainUserDetail(UserContext.getUserId());
         var name = plainUser == null ? "" : plainUser.getNickname();
-        videoTransformer.transform(task, TRANSFORM_TASK_TTL + 10, name);
-        // todo 用消息队列 超时去删数据库
-        var taskId = task.getId();
-        scheduledExecutor.schedule(() -> {
-            var nowTask = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + taskId);
+
+        CompletableFuture.runAsync(() -> {
+            videoTransformer.transform(task, TRANSFORM_TASK_TTL + 10, name).join();
+            // 删除任务
+            if (Boolean.FALSE.equals(redisTemplate.hasKey(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId()))) return;
+            redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId());
+            stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId());
+            cb.accept(task);
+        }, Executors.newVirtualThreadPerTaskExecutor()).exceptionallyAsync(e -> {
+            // 超时去删数据库
+            var nowTask = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId());
             if (nowTask != null) {
                 redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + nowTask.getId());
                 stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + nowTask.getVideoId());
                 videoMapper.deleteById(nowTask.getVideoId());
             }
-        }, TRANSFORM_TASK_TTL, TimeUnit.SECONDS);
-    }
-
-    @SuppressWarnings("unused")
-    public void videoTransformCb(VideoTransformCbArgs cbArgs) {
-        var lock = redissonClient.getLock(RedisConstant.VIDEO_TRANSFORM_TASK_CB_LOCK + cbArgs.getTaskId());
-        lock.lock();
-        log.info("videoTransformCb:" + cbArgs);
-        try {
-            if (cbArgs.getStatus().equals(VideoTransformCbArgs.Status.SUCCESS)) {
-                var task = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + cbArgs.getTaskId());
-                if (task != null) {
-                    // 更改状态并保存
-                    task.getStatus()[cbArgs.getType().NUM] = VideoTransformTask.Status.SUCCESS;
-                    redisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + cbArgs.getTaskId(), task);
-                    // 检验状态并调用结束任务
-                    for (var status : task.getStatus()) {
-                        if (status == VideoTransformTask.Status.WAITING) return;
-                    }
-                    videoTransformCbWillFinish(task);
-                }
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    public void videoTransformCbWillFinish(VideoTransformTask task) {
-        redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId());
-        stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId());
-        var self = SpringContextUtil.getBean(VideoServiceImpl.class);
-        self.videoTransformSave(task);
+            return null;
+        }, Executors.newVirtualThreadPerTaskExecutor());
     }
 
     @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#task.videoId")
@@ -252,7 +225,7 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath);
+            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, transformTaskConsumer);
         }
 
         var coverUrl = updateVideoDTO.getCover();
@@ -300,7 +273,7 @@ public class VideoServiceImpl implements VideoService {
 
         var vo = new VideoVO();
         BeanUtils.copyProperties(video, vo);
-        // 在转码中的视频不需要返回
+        // 在转码中的视频返回默认视频
         if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
             vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
         } else {

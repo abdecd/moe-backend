@@ -10,13 +10,6 @@ public class VideoTransformTask {
     private Long videoId;
     private String originPath;
     private String[] targetPaths;
-    private Status[] status;
-
-    /**
-     * 回调函数名称 例如 videoServiceImpl.addVideo
-     * @回调函数需要有唯一参数VideoTransformCbArgs
-     */
-    private String cbBeanNameAndMethodName;
 
     public enum Status {
         WAITING,

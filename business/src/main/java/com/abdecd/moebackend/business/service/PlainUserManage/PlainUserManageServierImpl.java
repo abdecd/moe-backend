@@ -4,6 +4,8 @@ import com.abdecd.moebackend.business.dao.entity.UserManage;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserManageMapper;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.BanUserDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.AllVO;
+import com.abdecd.tokenlogin.pojo.entity.User;
+import com.abdecd.tokenlogin.service.UserBaseService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,8 @@ public class PlainUserManageServierImpl implements PlainUserManageService {
 
     @Autowired
     private PlainUserManageMapper userMapper;
+    @Autowired
+    private UserBaseService userBaseService;
 
     @Override
     public Page<AllVO> listUsers(Long id, String name, Integer status, int page, int pageSize) {
@@ -25,6 +29,9 @@ public class PlainUserManageServierImpl implements PlainUserManageService {
         UserManage user = userMapper.selectById(banUserDTO.getId());
         if (user == null) {
             return false;
+        }
+        if (banUserDTO.getStatus() == User.Status.LOCKED) {
+            userBaseService.forceLogout(user.getId());
         }
         user.setStatus(banUserDTO.getStatus());
         return userMapper.updateById(user) == 1;

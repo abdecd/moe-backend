@@ -90,6 +90,7 @@ public class PlainVideoGroupController {
     @CacheEvict(cacheNames = "videoGroup", key = "#videoGroupDTO.id")
     public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         videoGroupService.update(videoGroupDTO);
+        videoGroupAndTagService.update(videoGroupDTO);
         return Result.success();
     }
 

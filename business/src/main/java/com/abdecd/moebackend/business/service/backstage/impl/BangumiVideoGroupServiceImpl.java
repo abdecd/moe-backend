@@ -7,8 +7,13 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.Bangu
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
+import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
+import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -24,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -49,6 +55,18 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
+
+    @Resource
+    private ElasticSearchService elasticSearchService;
+
+    @Resource
+    private VideoGroupServiceBase videoGroupServiceBase;
+
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
+
+    @Resource
+    private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
 
     @Override
     public void deleteByVid(Long id) {
@@ -105,7 +123,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 .setUserId(uid)
                 .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
                 .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
-                .setVideoGroupStatus(Byte.valueOf(bangumiVideoGroupAddDTO.getStatus()))
+                .setVideoGroupStatus(Byte.valueOf(bangumiVideoGroupAddDTO.getVideoGroupStatus()))
                 .setTags(bangumiVideoGroupAddDTO.getTags());
 
 
@@ -123,6 +141,8 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         videoGroup.setCover(coverPath);
         videoGroupMapper.update(videoGroup);
 
+        elasticSearchService.saveSearchEntity(getVOinfo(videoGroup.getId()));
+
         String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
         for (String tagid : tags) {
             VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
@@ -132,6 +152,16 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         }
 
         return videoGroup.getId();
+    }
+
+    private VideoGroupVO getVOinfo(Long id) {
+        var type = videoGroupServiceBase.getVideoGroupType(id);
+
+        if (Objects.equals(type, VideoGroup.Type.PLAIN_VIDEO_GROUP)) {
+            return plainVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else if (Objects.equals(type, VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            return bangumiVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else return null;
     }
 
     @Transactional

@@ -1,10 +1,8 @@
 package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
-import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.entity.VideoGroupTag;
+import com.abdecd.moebackend.business.common.util.SpringContextUtil;
+import com.abdecd.moebackend.business.dao.entity.*;
 import com.abdecd.moebackend.business.dao.mapper.*;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
@@ -13,11 +11,17 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGr
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
 import com.abdecd.moebackend.business.service.ElasticSearchService;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
 import com.abdecd.moebackend.business.service.video.VideoService;
+import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
+import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
@@ -35,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -67,6 +72,15 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     @Resource
     private ElasticSearchService elasticSearchService;
 
+    @Resource
+    private VideoGroupServiceBase videoGroupServiceBase;
+
+    @Resource
+    private PlainVideoGroupServiceBase plainVideoGroupServiceBase;
+
+    @Resource
+    private BangumiVideoGroupServiceBase bangumiVideoGroupServiceBase;
+
 
     @Transactional
     @Override
@@ -94,7 +108,19 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupMapper.update(videoGroup);
 
+        elasticSearchService.saveSearchEntity(getVOinfo(videoGroup.getId()));
+
         return  videoGroup.getId();
+    }
+
+    private com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO getVOinfo(Long id) {
+        var type = videoGroupServiceBase.getVideoGroupType(id);
+
+        if (Objects.equals(type, VideoGroup.Type.PLAIN_VIDEO_GROUP)) {
+            return plainVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else if (Objects.equals(type, VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            return bangumiVideoGroupServiceBase.getVideoGroupInfo(id);
+        } else return null;
     }
 
     @Override
@@ -102,6 +128,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         VideoGroup videoGroup = new VideoGroup();
         videoGroup.setId(id);
         videoGroupMapper.deleteById(videoGroup);
+
+        elasticSearchService.deleteSearchEntity(id);
     }
 
     @Override
@@ -125,6 +153,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroup.setCover(coverPath);
 
         videoGroupMapper.update(videoGroup);
+
+        elasticSearchService.deleteSearchEntity(videoGroup.getId());
     }
 
     @Override
@@ -247,12 +277,14 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupMapper.update(
                 new VideoGroup()
                         .setId(videoGroup.getId())
-                        .setVideoGroupStatus(Byte.valueOf(videoGroup.getStatus()))
+                        .setVideoGroupStatus(Byte.valueOf(videoGroup.getVideoGroupStatus()))
                         .setTitle(videoGroup.getTitle())
                         .setCover(coverPath)
                         .setDescription(videoGroup.getDescription())
                         .setTags(videoGroup.getTags())
         );
+
+        elasticSearchService.deleteSearchEntity(videoGroup.getId());
     }
 
     @Override

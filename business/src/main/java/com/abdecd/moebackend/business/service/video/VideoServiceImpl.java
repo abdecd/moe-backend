@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +40,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -54,14 +51,11 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoTransformer videoTransformer;
     @Autowired
-    private RedisTemplate<String, VideoTransformTask> redisTemplate;
-    @Autowired
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private ResourceLinkHandler resourceLinkHandler;
     @Autowired
     private FileService fileService;
-    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
     @Autowired
     private BiliParser biliParser;
     @Autowired
@@ -72,7 +66,6 @@ public class VideoServiceImpl implements VideoService {
     private VideoGroupMapper videoGroupMapper;
 
     private static final int TRANSFORM_TASK_TTL = 1200;
-    private static final int TRANSFORM_TASK_REDIS_TTL = 1800;
 
     @Caching(evict = {
             @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
@@ -104,7 +97,7 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish");
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
 
         return entity.getId();
     }
@@ -126,7 +119,7 @@ public class VideoServiceImpl implements VideoService {
         videoMapper.insert(entity);
 
         // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish");
+        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
 
         return entity.getId();
     }
@@ -136,7 +129,7 @@ public class VideoServiceImpl implements VideoService {
      * @param videoId :
      * @param originPath 如 tmp/1/video.mp4
      */
-    private void createTransformTask(Long videoGroupId, Long videoId, String originPath, String cbStr) {
+    private void createTransformTask(Long videoGroupId, Long videoId, String originPath, String cbStr, String failCbStr) {
         // 视频转码
         var task = new VideoTransformTask()
                 .setId(UUID.randomUUID() + "")
@@ -148,30 +141,21 @@ public class VideoServiceImpl implements VideoService {
                         "video-group/" + videoGroupId + "/" + videoId + "/1080p.mp4"
                 })
                 .setStatus(new VideoTransformTask.Status[]{VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING, VideoTransformTask.Status.WAITING})
-                .setCbBeanNameAndMethodName(cbStr);
-        // 保存任务
-        redisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId(), task, TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
-        stringRedisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId(), task.getId(), TRANSFORM_TASK_REDIS_TTL, TimeUnit.SECONDS);
+                .setCbBeanNameAndMethodName(cbStr)
+                .setFailCb(failCbStr);
 
         var plainUser = plainUserService.getPlainUserDetail(UserContext.getUserId());
         var name = plainUser == null ? "" : plainUser.getNickname();
-        videoTransformer.transform(task, TRANSFORM_TASK_TTL + 10, name);
-        // todo 用消息队列 超时去删数据库
-        var taskId = task.getId();
-        scheduledExecutor.schedule(() -> {
-            var nowTask = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + taskId);
-            if (nowTask != null) {
-                redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + nowTask.getId());
-                stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + nowTask.getVideoId());
-                videoMapper.deleteById(nowTask.getVideoId());
-            }
-        }, TRANSFORM_TASK_TTL, TimeUnit.SECONDS);
+        videoTransformer.transform(task, TRANSFORM_TASK_TTL, name);
+    }
+
+    @SuppressWarnings("unused")
+    public void videoTransformFailCb(VideoTransformTask task) {
+        videoMapper.deleteById(task.getVideoId());
     }
 
     @SuppressWarnings("unused")
     public void videoTransformCbWillFinish(VideoTransformTask task) {
-        redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId());
-        stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId());
         var self = SpringContextUtil.getBean(VideoServiceImpl.class);
         self.videoTransformSave(task, Video.Status.ENABLE);
     }
@@ -227,7 +211,7 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish");
+            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
         }
 
         var coverUrl = updateVideoDTO.getCover();

@@ -17,6 +17,11 @@ public class VideoTransformTask {
      * @回调函数需要有唯一参数VideoTransformTask
      */
     private String cbBeanNameAndMethodName;
+    /**
+     * 回调函数名称 例如 videoServiceImpl.addVideo
+     * @回调函数需要有唯一参数VideoTransformTask
+     */
+    private String failCb;
 
     public enum Status {
         WAITING,

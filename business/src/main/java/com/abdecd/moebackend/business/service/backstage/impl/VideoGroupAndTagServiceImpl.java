@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.VideoGroupAndTag;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupAndTagMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,27 @@ public class VideoGroupAndTagServiceImpl implements VideoGroupAndTagService {
                         new VideoGroupAndTag()
                                 .setTagId(Long.valueOf(tagid))
                                 .setVideoGroupId(bangumiVideoGroupUpdateDTO.getId())
+                );
+            }
+        }
+    }
+
+    @Override
+    public void update(VideoGroupDTO videoGroupDTO) {
+        Integer updateID = videoGroupMapper.updateTagsByID(
+                new VideoGroup()
+                        .setId(videoGroupDTO.getId())
+                        .setTags(videoGroupDTO.getTags())
+        );
+
+        if(updateID == 1){
+            videoGroupAndTagMapper.deleteByVideoGroupId(videoGroupDTO.getId());
+            String[] tags = videoGroupDTO.getTags().split(";");
+            for(String tagid : tags) {
+                videoGroupAndTagMapper.insert(
+                        new VideoGroupAndTag()
+                                .setTagId(Long.valueOf(tagid))
+                                .setVideoGroupId(videoGroupDTO.getId())
                 );
             }
         }

@@ -23,4 +23,6 @@ public class BangumiVideoGroupUpdateDTO {
     private String updateAtAnnouncement;
     @Nullable
     private String status;
+    @Nullable
+    private String videoGroupStatus;
 }

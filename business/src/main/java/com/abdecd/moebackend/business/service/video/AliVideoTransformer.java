@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
@@ -25,14 +26,38 @@ public class AliVideoTransformer implements VideoTransformer {
     private AliImmManager aliImmManager;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
 
+    @Override
     public void transform(VideoTransformTask task, int ttlSeconds, String username) {
+        // 保存任务
+        redisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId(), task, ttlSeconds + 600, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId(), task.getId(), ttlSeconds + 600, TimeUnit.SECONDS);
+
         // 访问视频转码服务
         transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_360P.NUM], "640x360", ttlSeconds);
         transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_720P.NUM], "1280x720", ttlSeconds);
         transform(username, task.getId(), VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P, task.getOriginPath(), task.getTargetPaths()[VideoTransformTask.TaskType.VIDEO_TRANSFORM_1080P.NUM], "1920x1080", ttlSeconds);
+
+        // 超时去删数据库
+        var taskId = task.getId();
+        scheduledExecutor.schedule(() -> {
+            var lock = redissonClient.getLock(RedisConstant.VIDEO_TRANSFORM_TASK_CB_LOCK + taskId);
+            lock.lock();
+            try {
+                var nowTask = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + taskId);
+                if (nowTask != null) {
+                    redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + nowTask.getId());
+                    stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + nowTask.getVideoId());
+                    failCb(nowTask);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }, ttlSeconds - 10, TimeUnit.SECONDS);
     }
     public void transform(
             String username,
@@ -74,7 +99,6 @@ public class AliVideoTransformer implements VideoTransformer {
     public void videoTransformCb(VideoTransformCbArgs cbArgs) {
         var lock = redissonClient.getLock(RedisConstant.VIDEO_TRANSFORM_TASK_CB_LOCK + cbArgs.getTaskId());
         lock.lock();
-        log.info("videoTransformCb:" + cbArgs);
         try {
             if (cbArgs.getStatus().equals(VideoTransformCbArgs.Status.SUCCESS)) {
                 var task = redisTemplate.opsForValue().get(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + cbArgs.getTaskId());
@@ -86,6 +110,8 @@ public class AliVideoTransformer implements VideoTransformer {
                     for (var status : task.getStatus()) {
                         if (status == VideoTransformTask.Status.WAITING) return;
                     }
+                    redisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_PREFIX + task.getId());
+                    stringRedisTemplate.delete(RedisConstant.VIDEO_TRANSFORM_TASK_VIDEO_ID + task.getVideoId());
                     videoTransformCbWillFinish(task);
                 }
             }
@@ -104,5 +130,16 @@ public class AliVideoTransformer implements VideoTransformer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-   }
+    }
+    public void failCb(VideoTransformTask task) {
+        // 使用反射触发回调
+        var strs = task.getFailCb().split("\\.");
+        var bean = SpringContextUtil.getBean(strs[0]);
+        try {
+            Method method = bean.getClass().getDeclaredMethod(strs[1], VideoTransformTask.class);
+            method.invoke(bean, task);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

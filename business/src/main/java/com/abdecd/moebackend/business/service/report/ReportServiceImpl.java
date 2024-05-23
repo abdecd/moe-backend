@@ -122,7 +122,7 @@ public class ReportServiceImpl implements ReportService {
 
             PlainUserDetail plainUserDetail = plainUserDetailMapper.selectByUid(report.getUserId());
 
-            reportCommentVO.setUser(new UploaderVO()
+            reportCommentVO.setUserDetail(new UploaderVO()
                     .setId(plainUserDetail.getUserId())
                     .setAvatar(plainUserDetail.getAvatar())
                     .setNickname(plainUserDetail.getNickname())
@@ -152,7 +152,7 @@ public class ReportServiceImpl implements ReportService {
             userDetail2.setId(Math.toIntExact(touser.getUserId()));
             userCommentVO.setToUserDetail(userDetail2);
 
-            reportCommentVO.setComment(userComment);
+            reportCommentVO.setComment(userCommentVO);
 
             reportCommentTotalVO.getRecords().add(reportCommentVO);
         }

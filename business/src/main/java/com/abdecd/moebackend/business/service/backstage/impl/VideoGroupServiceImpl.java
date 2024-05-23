@@ -108,7 +108,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupMapper.update(videoGroup);
 
-        elasticSearchService.saveSearchEntity(getVOinfo(videoGroup.getId()));
+        //elasticSearchService.saveSearchEntity(getVOinfo(videoGroup.getId()));
 
         return  videoGroup.getId();
     }

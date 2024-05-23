@@ -57,7 +57,7 @@ public class PlainVideoGroupController {
                 .setCreateTime(ldt)
                 .setTitle(videoGroupAddDTO.getTitle())
                 .setDescription(videoGroupAddDTO.getDescription())
-                .setTags(String.join(",",videoGroupAddDTO.getTags()))
+                .setTags(videoGroupAddDTO.getTags())
                 .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
                 ,videoGroupAddDTO.getCover()
             );

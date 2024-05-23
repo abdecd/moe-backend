@@ -8,10 +8,8 @@ import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.Bangum
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
-import com.abdecd.moebackend.business.service.backstage.VideoGroupAndTagService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
-import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -36,8 +33,6 @@ public class BangumiVideoGroupController {
 
     @Resource
     private BangumiVideoGroupService bangumiVideoGroupService;
-    @Autowired
-    private VideoGroupAndTagService videoGroupAndTagService;
     @Resource
     private StatisticService statisticService;
 
@@ -68,9 +63,9 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
     public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
-        videoGroupService.delete(id);
+//        videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
-        videoGroupAndTagService.deleteByVideoGroupId(id);
+//        videoGroupAndTagService.deleteByVideoGroupId(id);
         videoGroupService.deleteVideoGroup(id);
         return Result.success();
     }
@@ -82,7 +77,7 @@ public class BangumiVideoGroupController {
     public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         videoGroupService.update(bangumiVideoGroupUpdateDTO);
-        videoGroupAndTagService.update(bangumiVideoGroupUpdateDTO);
+//        videoGroupAndTagService.update(bangumiVideoGroupUpdateDTO);
         return Result.success();
     }
 

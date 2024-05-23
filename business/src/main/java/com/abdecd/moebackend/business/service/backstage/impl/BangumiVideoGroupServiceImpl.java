@@ -1,8 +1,12 @@
 package com.abdecd.moebackend.business.service.backstage.impl;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.dao.entity.*;
-import com.abdecd.moebackend.business.dao.mapper.*;
+import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
+import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
+import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
@@ -14,23 +18,16 @@ import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
-import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -43,15 +40,6 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
 
     @Resource
     private FileService fileService;
-
-    @Resource
-    private VideoGroupAndTagMapper videoGroupAndTagMapper;
-
-    @Resource
-    private PlainUserHistoryMapper plainUserHistoryMapper;
-
-    @Resource
-    private VideoGroupTagMapper videoGroupTagMapper;
 
     @Resource
     private PlainUserDetailMapper plainUserDetailMapper;
@@ -145,13 +133,13 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         if(vo != null)
             elasticSearchService.saveSearchEntity(vo);
 
-        String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
-        for (String tagid : tags) {
-            VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
-            videoGroupAndTag.setVideoGroupId(videoGroup.getId());
-            videoGroupAndTag.setTagId(Long.valueOf(tagid));
-            videoGroupAndTagMapper.insert(videoGroupAndTag);
-        }
+//        String[] tags = bangumiVideoGroupAddDTO.getTags().split(";");
+//        for (String tagid : tags) {
+//            VideoGroupAndTag videoGroupAndTag = new VideoGroupAndTag();
+//            videoGroupAndTag.setVideoGroupId(videoGroup.getId());
+//            videoGroupAndTag.setTagId(Long.valueOf(tagid));
+//            videoGroupAndTagMapper.insert(videoGroupAndTag);
+//        }
 
         return videoGroup.getId();
     }
@@ -183,7 +171,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         bangumiVideoGroupVO.setType(Integer.valueOf(videoGroup.getType()));
         bangumiVideoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
 
-        ArrayList<Long> tagIds = videoGroupAndTagMapper.selectByVid(videoGroupId);
+//        ArrayList<Long> tagIds = videoGroupAndTagMapper.selectByVid(videoGroupId);
         //ArrayList<VideoGroupTag> videoGroupTagList = new ArrayList<>();
 
        /* for (Long id_ : tagIds) {

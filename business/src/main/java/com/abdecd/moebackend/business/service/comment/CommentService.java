@@ -10,9 +10,8 @@ import java.util.List;
 @Service
 public interface CommentService {
     PageVO<List<UserCommentVO>> getComment(Long videoId, Integer page, Integer pageSize);
-
     Long addComment(AddCommentDTO addCommentDTO);
-
     void deleteComment(Long id);
+    void forceDeleteComment(Long id);
     Long getCommentCount(Long videoId);
 }

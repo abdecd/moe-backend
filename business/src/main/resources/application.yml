@@ -43,6 +43,8 @@ token-login:
     - /video-group/related
     - /video-group/recommend
     - /video-group/carousel
+    - /video-group/hot-tags
+    - /video-group/bangumi-index
     - /bangumi-video-group
     - /bangumi-video-group/contents
     - /bangumi-video-group/time-schedule

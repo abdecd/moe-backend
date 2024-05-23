@@ -145,6 +145,25 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @CacheEvict(value = RedisConstant.VIDEO_COMMENT, key = "#root.target.getSthIdByCommentId(#id)")
+    @Override
+    public void forceDeleteComment(Long id) {
+        var effectedRows = userCommentMapper.update(new LambdaUpdateWrapper<UserComment>()
+                .eq(UserComment::getId, id)
+                .set(UserComment::getStatus, UserComment.Status.DELETED)
+                .set(UserComment::getTimestamp, LocalDateTime.now())
+        );
+        if (effectedRows != 0) {
+            // 更新评论时间戳
+            redisTemplate.opsForValue().set(
+                    RedisConstant.VIDEO_COMMENT_TIMESTAMP + getSthIdByCommentId(id),
+                    LocalDateTime.now(),
+                    10,
+                    TimeUnit.DAYS
+            );
+        }
+    }
+
     @Cacheable(value = RedisConstant.VIDEO_COMMENT_CNT, key = "#videoId")
     @Override
     public Long getCommentCount(Long videoId) {

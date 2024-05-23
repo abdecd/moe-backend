@@ -23,7 +23,7 @@ public class RecommendController {
     private RecommendService recommendService;
 
     @Operation(summary = "获取轮播列表")
-    @RequestMapping("carousel")
+    @GetMapping("carousel")
     public Result<List<VideoGroupWithDataVO>> getCarousel() {
         return Result.success(recommendService.getCarousel());
     }

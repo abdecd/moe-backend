@@ -62,27 +62,28 @@ public class VideoControllerBack {
     @PostMapping("update")
     public Result<String> update(@RequestBody @Valid UpdateVideoFullDTO dto) {
         videoService.updateVideo(dto, dto.getVideoStatusWillBe());
+        var video = videoService.getVideoForce(dto.getId());
         if (Objects.equals(videoGroupServiceBase.getVideoGroupType(dto.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)) {
             if (
                     Objects.equals(dto.getVideoStatusWillBe(), Video.Status.PRELOAD)
                     && dto.getVideoPublishTime() != null
             ) {
                 if (bangumiTimeTableMapper.update(new LambdaUpdateWrapper<BangumiTimeTable>()
-                        .eq(BangumiTimeTable::getVideoId, dto.getId())
-                        .set(BangumiTimeTable::getVideoGroupId, dto.getVideoGroupId())
+                        .eq(BangumiTimeTable::getVideoId, video.getId())
+                        .set(BangumiTimeTable::getVideoGroupId, video.getVideoGroupId())
                         .set(BangumiTimeTable::getUpdateTime, dto.getVideoPublishTime())
                         .set(BangumiTimeTable::getStatus, StatusConstant.ENABLE)
                 ) == 0) {
                     bangumiTimeTableMapper.insert(new BangumiTimeTable()
-                            .setVideoId(dto.getId())
-                            .setVideoGroupId(dto.getVideoGroupId())
+                            .setVideoId(video.getId())
+                            .setVideoGroupId(video.getVideoGroupId())
                             .setUpdateTime(dto.getVideoPublishTime())
                             .setStatus(StatusConstant.ENABLE)
                     );
                 }
             } else if (Objects.equals(dto.getVideoStatusWillBe(), Video.Status.ENABLE)) {
                 bangumiTimeTableMapper.delete(new LambdaQueryWrapper<BangumiTimeTable>()
-                        .eq(BangumiTimeTable::getVideoId, dto.getId())
+                        .eq(BangumiTimeTable::getVideoId, video.getId())
                 );
             }
         }

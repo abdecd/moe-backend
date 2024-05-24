@@ -6,9 +6,12 @@ import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoFullDTO;
+import com.abdecd.moebackend.business.pojo.dto.video.DeleteVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoFullDTO;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
@@ -17,13 +20,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/backstage/video")
-public class VideoBackController {
+public class VideoControllerBack {
     @Resource
     private VideoService videoService;
     @Autowired
@@ -33,7 +38,7 @@ public class VideoBackController {
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "添加视频")
-    @PostMapping("/add")
+    @PostMapping("add")
     public Result<Long> add(@RequestBody @Valid AddVideoFullDTO addVideoDTO){
         Long id = videoService.addVideo(addVideoDTO, addVideoDTO.getVideoStatusWillBe());
         if (
@@ -76,5 +81,23 @@ public class VideoBackController {
             }
         }
         return Result.success();
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "删除视频")
+    @PostMapping("delete")
+    public Result<String> delete(@RequestBody @Valid DeleteVideoDTO dto) {
+        videoService.deleteVideo(dto.getId());
+        return Result.success();
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Async
+    @Operation(summary = "获取视频")
+    @GetMapping("")
+    public CompletableFuture<Result<VideoForceVO>> getVideo(@RequestParam Long id) {
+        var video = videoService.getVideoForce(id);
+        if (video == null) throw new BaseException(MessageConstant.VIDEO_NOT_FOUND);
+        return CompletableFuture.completedFuture(Result.success(video));
     }
 }

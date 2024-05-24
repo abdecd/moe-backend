@@ -29,4 +29,11 @@ public class BangumiTimeTableRefresher {
             videoService.videoStatusUpdate(bangumiTimeTable.getVideoId(), Video.Status.ENABLE);
         }
     }
+
+    @Scheduled(cron = "0 0 4 * * ?")
+    public void clearOld() {
+        bangumiTimeTableMapper.delete(new LambdaQueryWrapper<BangumiTimeTable>()
+                .lt(BangumiTimeTable::getUpdateTime, LocalDateTime.now().minusDays(1))
+        );
+    }
 }

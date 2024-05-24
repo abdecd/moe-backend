@@ -1,9 +1,11 @@
 package com.abdecd.moebackend.business.service.videogroup;
 
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
+import com.abdecd.moebackend.business.dao.entity.BangumiTimeTable;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
+import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
@@ -12,6 +14,7 @@ import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupTimeSc
 import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.videogroup.ContentsItemVO;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
+import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -21,7 +24,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +38,10 @@ public class BangumiVideoGroupServiceBase {
     private PlainUserService plainUserService;
     @Autowired
     private VideoMapper videoMapper;
+    @Autowired
+    private VideoService videoService;
+    @Autowired
+    private BangumiTimeTableMapper bangumiTimeTableMapper;
 
     @Cacheable(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId", unless = "#result == null")
     public BangumiVideoGroupVO getVideoGroupInfo(Long videoGroupId) {
@@ -106,24 +112,28 @@ public class BangumiVideoGroupServiceBase {
         );
     }
 
-    // todo
     @Cacheable(cacheNames = RedisConstant.BANGUMI_TIME_SCHEDULE_CACHE, key = "#date", unless = "#result == null")
     public List<BangumiVideoGroupTimeScheduleVO> getTimeSchedule(LocalDate date) {
         if (date.isBefore(LocalDate.now().minusDays(1))) return null;
         if (date.isAfter(LocalDate.now().plusDays(6))) return null;
-        var ids = bangumiVideoGroupMapper.selectList(new LambdaQueryWrapper<BangumiVideoGroup>()
-                .select(BangumiVideoGroup::getVideoGroupId)
-                .last("order by RAND() limit " + ((int) (Math.random() * 5) + 1))
+
+        var objs = bangumiTimeTableMapper.selectList(new LambdaQueryWrapper<BangumiTimeTable>()
+                .gt(BangumiTimeTable::getUpdateTime, date.atStartOfDay())
+                .lt(BangumiTimeTable::getUpdateTime, date.plusDays(1).atStartOfDay())
+                .last("ORDER BY update_time ASC limit 15")
         );
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (objs.isEmpty()) return new ArrayList<>();
         var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
-        return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getVideoGroupId()))
-                .map(videoGroupWithDataVO -> new BangumiVideoGroupTimeScheduleVO()
-                        .setVideoGroupWithDataVO(videoGroupWithDataVO)
-                        .setWillUpdateTime(LocalTime.of(((int) (Math.random() * 3) + 3), 0, 0))
-                        .setWillUpdateTitle("更新至第"+((int) (Math.random() * 5) + 2)+"话")
-                )
+        return new ArrayList<>(objs.stream()
+                .map(obj -> {
+                    var videoGroup = videoGroupServiceBase.getVideoGroupWithData(obj.getVideoGroupId());
+                    var video = videoService.getVideo(obj.getVideoId());
+                    return new BangumiVideoGroupTimeScheduleVO()
+                            .setVideoGroupWithDataVO(videoGroup)
+                            .setWillUpdateTime(obj.getUpdateTime())
+                            .setWillUpdateIndex(video.getIndex())
+                            .setWillUpdateTitle(video.getTitle());
+                })
                 .toList()
         );
     }

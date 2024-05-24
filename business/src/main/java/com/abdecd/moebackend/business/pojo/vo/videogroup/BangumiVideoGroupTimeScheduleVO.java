@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Accessors(chain = true)
 @Data
 public class BangumiVideoGroupTimeScheduleVO {
     @JsonUnwrapped
     VideoGroupWithDataVO videoGroupWithDataVO;
-    LocalTime willUpdateTime;
+    LocalDateTime willUpdateTime;
+    Integer willUpdateIndex;
     String willUpdateTitle;
 }

@@ -4,7 +4,7 @@
 <mapper namespace="com.abdecd.moebackend.business.dao.mapper.PlainVideoGroupMapper">
 
     <resultMap id="plainVideoGroupResultMap"
-               type="com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO">
+               type="com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.PlainVideoGroupVO">
         <id column="id" property="id"/>
         <result column="title" property="title"/>
         <result column="cover" property="cover"/>

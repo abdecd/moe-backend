@@ -12,17 +12,18 @@ import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiTimeTableBackVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -69,6 +70,7 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#id")
     public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
 //        videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
@@ -81,6 +83,7 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#bangumiVideoGroupUpdateDTO.id")
     public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         videoGroupService.update(bangumiVideoGroupUpdateDTO);
@@ -125,18 +128,16 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "获取所有符合条件的番剧视频组", description = "data字段返回番剧视频组信息")
     @GetMapping("/all")
-    public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
-            @Valid @Nullable @RequestParam("pageIndex") Integer pageIndex,
-            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
-            @Valid @Nullable @RequestParam("id") String id,
-            @Valid @Nullable @RequestParam("title") String title,
-            @Valid @Nullable @RequestParam("status") Byte status) {
-        pageIndex = pageIndex == null ? 1 : pageIndex;
-        pageSize = pageSize == null ? 10 : pageSize;
+    public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
+            @RequestParam(name="page", defaultValue = "1", required = false) @Valid Integer pageIndex,
+            @Valid @RequestParam(defaultValue = "10", required = false) Integer pageSize,
+            @Valid @RequestParam(required = false) String id,
+            @Valid @RequestParam(required = false) String title,
+            @Valid @RequestParam(required = false) Byte status) {
 
         var list = bangumiVideoGroupService.getBangumiVideoGroupList((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = bangumiVideoGroupService.getBangumiVideoGroupListCount(id, title, status);
-        return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
+        return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
     }
 
     @RequirePermission(value = "99", exception = BaseException.class)

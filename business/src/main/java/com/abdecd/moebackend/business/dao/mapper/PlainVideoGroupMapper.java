@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.dao.mapper;
 
-import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.PlainVideoGroupVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.ArrayList;

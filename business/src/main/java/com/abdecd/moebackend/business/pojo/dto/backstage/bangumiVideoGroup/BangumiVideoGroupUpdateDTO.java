@@ -4,8 +4,6 @@ import jakarta.annotation.Nullable;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-
 @Data
 public class BangumiVideoGroupUpdateDTO {
     private Long id;
@@ -25,4 +23,6 @@ public class BangumiVideoGroupUpdateDTO {
     private String status;
     @Nullable
     private String videoGroupStatus;
+    @Nullable
+    private Double weight;
 }

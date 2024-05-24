@@ -6,17 +6,17 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoG
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
+import com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.PlainVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
-import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
 import com.abdecd.moebackend.business.service.backstage.PlainVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -51,14 +51,7 @@ public class PlainVideoGroupController {
         LocalDateTime ldt = LocalDateTime.now();
         ldt.format(dtf);
 
-        Long groupId = videoGroupService.insert(new VideoGroup()
-                        .setCreateTime(ldt)
-                        .setTitle(videoGroupAddDTO.getTitle())
-                        .setDescription(videoGroupAddDTO.getDescription())
-                        .setTags(videoGroupAddDTO.getTags())
-                        .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
-                , videoGroupAddDTO.getCover()
-        );
+        Long groupId = videoGroupService.insert(new VideoGroup().setCreateTime(ldt).setTitle(videoGroupAddDTO.getTitle()).setDescription(videoGroupAddDTO.getDescription()).setTags(videoGroupAddDTO.getTags()).setVideoGroupStatus(VideoGroup.Status.TRANSFORMING), videoGroupAddDTO.getCover());
 
 //        if (videoGroupAddDTO.getTags() != null) {
 //            String[] tags = videoGroupAddDTO.getTags().split(";");
@@ -74,6 +67,7 @@ public class PlainVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#id")
     public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
 //        videoGroupService.delete(id);
 //        videoGroupAndTagService.deleteByVideoGroupId(id);
@@ -85,7 +79,7 @@ public class PlainVideoGroupController {
     @Operation(summary = "普通视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    @CacheEvict(cacheNames = "videoGroup", key = "#videoGroupDTO.id")
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#videoGroupDTO.id")
     public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         videoGroupService.update(videoGroupDTO);
 //        videoGroupAndTagService.update(videoGroupDTO);
@@ -122,15 +116,7 @@ public class PlainVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "获取所有符合条件的普通视频组", description = "data字段返回普通视频组信息")
     @GetMapping("/all")
-    public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(
-            @Valid @Nullable @RequestParam("page") Integer pageIndex,
-            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
-            @Valid @Nullable @RequestParam("id") String id,
-            @Valid @Nullable @RequestParam("title") String title,
-            @Valid @Nullable @RequestParam("status") Byte status) {
-
-        pageIndex = pageIndex == null ? 1 : pageIndex;
-        pageSize = pageSize == null ? 10 : pageSize;
+    public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(@RequestParam(name = "page", defaultValue = "1", required = false) @Valid Integer pageIndex, @RequestParam(defaultValue = "10", required = false) @Valid Integer pageSize, @RequestParam(required = false) @Valid String id, @RequestParam(required = false) @Valid String title, @RequestParam(required = false) @Valid Byte status) {
 
         var videoGroupVOList = plainVideoGroupService.getAllVideoGroup((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = plainVideoGroupService.countPlainVideoGroup(id, title, status);

@@ -29,7 +29,7 @@ public interface BangumiVideoGroupMapper extends BaseMapper<BangumiVideoGroup> {
             """)
     List<Long> listIdsByUpdateTimeDesc(int num, Byte status);
 
-    ArrayList<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO> selectBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status);
+    ArrayList<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO> selectBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status);
 
     Integer selectBangumiVideoGroupListCount(String id, String title, Byte status);
 }

@@ -139,6 +139,7 @@ public class BangumiVideoGroupController {
         return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
     }
 
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "获取新番时间表")
     @GetMapping("time-schedule")
     public Result<PageVO<BangumiTimeTableBackVO>> getBangumiVideoGroupList(

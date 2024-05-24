@@ -125,7 +125,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Override
     public void update(VideoGroupDTO videoGroupDTO) {
-        String coverPath = "";
+        String coverPath = null;
 
         if (videoGroupDTO.getCover() != null) {
             try {
@@ -140,7 +140,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         VideoGroup videoGroup = new VideoGroup();
         BeanUtils.copyProperties(videoGroupDTO, videoGroup);
-        videoGroup.setCover(coverPath);
+        if (coverPath != null)
+            videoGroup.setCover(coverPath);
 
         videoGroupMapper.update(videoGroup);
         var newOne = videoGroupServiceBase.getVideoGroupInfo(videoGroup.getId());

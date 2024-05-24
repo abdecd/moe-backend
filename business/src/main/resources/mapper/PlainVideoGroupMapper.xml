@@ -47,7 +47,7 @@
             <if test="title != null and title != ''">
                 AND title LIKE CONCAT('%', #{title}, '%')
             </if>
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 AND status = #{status}
             </if>
         </where>
@@ -60,13 +60,13 @@
         FROM video_group
         <where>
             type = 0
-            <if test="id != null and id != ''">
+            <if test="id != null">
                 AND id = #{id}
             </if>
             <if test="title != null and title != ''">
                 AND title LIKE CONCAT('%', #{title}, '%')
             </if>
-            <if test="status != null and status != ''">
+            <if test="status != null">
                 AND status = #{status}
             </if>
         </where>

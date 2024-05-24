@@ -273,6 +273,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
                 .setTitle(videoGroup.getTitle())
                 .setCover(coverPath)
                 .setDescription(videoGroup.getDescription())
+                .setWeight(videoGroup.getWeight())
                 .setTags(videoGroup.getTags());
         videoGroupMapper.update(entity);
 

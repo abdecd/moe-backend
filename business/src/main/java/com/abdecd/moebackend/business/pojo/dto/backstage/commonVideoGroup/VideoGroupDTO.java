@@ -4,8 +4,6 @@ import io.micrometer.common.lang.Nullable;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-
 @Data
 public class VideoGroupDTO {
     private Long id;
@@ -17,4 +15,6 @@ public class VideoGroupDTO {
     private MultipartFile cover;
     @Nullable
     private String tags;
+    @Nullable
+    private Double weight;
 }

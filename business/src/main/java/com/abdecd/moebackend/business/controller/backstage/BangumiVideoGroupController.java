@@ -12,6 +12,7 @@ import com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiTimeTableBackVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
@@ -23,6 +24,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -69,6 +71,7 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#id")
     public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
 //        videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
@@ -81,6 +84,7 @@ public class BangumiVideoGroupController {
     @Operation(summary = "番剧视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
+    @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#bangumiVideoGroupUpdateDTO.id")
     public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         videoGroupService.update(bangumiVideoGroupUpdateDTO);

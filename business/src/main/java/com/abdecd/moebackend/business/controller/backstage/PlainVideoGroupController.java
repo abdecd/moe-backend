@@ -12,6 +12,7 @@ import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.PlainVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
@@ -67,6 +68,7 @@ public class PlainVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#videoDeleteDTO.id")
     public Result<String> delVideoGroup(@RequestBody @Valid VideoGroupDeleteDTO videoDeleteDTO) {
 //        videoGroupService.delete(id);
 //        videoGroupAndTagService.deleteByVideoGroupId(id);
@@ -78,7 +80,7 @@ public class PlainVideoGroupController {
     @Operation(summary = "普通视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
     @ResponseBody
-    @CacheEvict(cacheNames = "videoGroup", key = "#videoGroupDTO.id")
+    @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#videoGroupDTO.id")
     public Result<String> updateVideoGroup(@Valid VideoGroupDTO videoGroupDTO) {
         videoGroupService.update(videoGroupDTO);
 //        videoGroupAndTagService.update(videoGroupDTO);

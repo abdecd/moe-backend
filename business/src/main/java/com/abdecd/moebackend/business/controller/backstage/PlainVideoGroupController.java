@@ -7,12 +7,16 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoG
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
+import com.abdecd.moebackend.business.service.backstage.PlainVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +39,9 @@ public class PlainVideoGroupController {
     @Resource
     private StatisticService statisticService;
 
+    @Resource
+    private PlainVideoGroupService plainVideoGroupService;
+
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组添加", description = "data字段返回新增普通视频组id")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
@@ -45,13 +52,13 @@ public class PlainVideoGroupController {
         ldt.format(dtf);
 
         Long groupId = videoGroupService.insert(new VideoGroup()
-                .setCreateTime(ldt)
-                .setTitle(videoGroupAddDTO.getTitle())
-                .setDescription(videoGroupAddDTO.getDescription())
-                .setTags(videoGroupAddDTO.getTags())
-                .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
-                ,videoGroupAddDTO.getCover()
-            );
+                        .setCreateTime(ldt)
+                        .setTitle(videoGroupAddDTO.getTitle())
+                        .setDescription(videoGroupAddDTO.getDescription())
+                        .setTags(videoGroupAddDTO.getTags())
+                        .setVideoGroupStatus(VideoGroup.Status.TRANSFORMING)
+                , videoGroupAddDTO.getCover()
+        );
 
 //        if (videoGroupAddDTO.getTags() != null) {
 //            String[] tags = videoGroupAddDTO.getTags().split(";");
@@ -109,5 +116,24 @@ public class PlainVideoGroupController {
     public Result<ArrayList<VideoVo>> getVideoGroupContent(@Valid @RequestParam("id") Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
+    }
+
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "获取所有符合条件的普通视频组", description = "data字段返回普通视频组信息")
+    @GetMapping("/all")
+    public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(
+            @Valid @Nullable @RequestParam("page") Integer pageIndex,
+            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
+            @Valid @Nullable @RequestParam("id") String id,
+            @Valid @Nullable @RequestParam("title") String title,
+            @Valid @Nullable @RequestParam("status") Byte status) {
+
+        pageIndex = pageIndex == null ? 1 : pageIndex;
+        pageSize = pageSize == null ? 10 : pageSize;
+
+        var videoGroupVOList = plainVideoGroupService.getAllVideoGroup((pageIndex - 1) * pageSize, pageSize, id, title, status);
+        var total = plainVideoGroupService.countPlainVideoGroup(id, title, status);
+        return Result.success(new PageVO<>(total, videoGroupVOList));
     }
 }

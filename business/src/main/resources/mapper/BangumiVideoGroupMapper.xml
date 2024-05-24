@@ -3,6 +3,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper">
 
+    <resultMap id="BangumiResultMap" type="com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="cover" property="cover"/>
+        <result column="description" property="description"/>
+        <result column="type" property="type"/>
+        <result column="tags" property="tags"/>
+        <result column="create_time" property="createTime"/>
+        <result column="status" property="videoGroupStatus"/>
+        <result column="weight" property="weight"/>
+        <result column="release_time" property="releaseTime"/>
+        <result column="update_at_announcement" property="updateAtAnnouncement"/>
+        <result column="bangumi_status" property="status"/>
+    </resultMap>
+
     <update id="update" parameterType="com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup">
         UPDATE bangumi_video_group
         <set>
@@ -19,5 +34,54 @@
         WHERE video_group_id = #{videoGroupId}
     </update>
 
+
+    <select id="selectBangumiVideoGroupList"
+            resultMap="BangumiResultMap">
+        SELECT id,
+        title,
+        cover,
+        description,
+        type,
+        tags,
+        create_time,
+        vg.status as status,
+        weight,
+        release_time,
+        update_at_announcement,
+        bvg.status as bangumi_status
+        FROM video_group vg
+        LEFT JOIN bangumi_video_group bvg on vg.id = bvg.video_group_id
+        <where>
+            type = 1
+            <if test="title != null and title != ''">
+                AND title like CONCAT('%', #{title}, '%')
+            </if>
+            <if test="status != null">
+                AND vg.status = #{status}
+            </if>
+            <if test="id != null">
+                AND vg.id = #{id}
+            </if>
+        </where>
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="selectBangumiVideoGroupListCount" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM video_group vg
+        LEFT JOIN bangumi_video_group bvg on vg.id = bvg.video_group_id
+        <where>
+            type = 1
+            <if test="title != null and title != ''">
+                AND title like CONCAT('%', #{title}, '%')
+            </if>
+            <if test="status != null">
+                AND vg.status = #{status}
+            </if>
+            <if test="id != null">
+                AND vg.id = #{id}
+            </if>
+        </where>
+    </select>
 
 </mapper>

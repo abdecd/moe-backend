@@ -19,4 +19,7 @@ public interface VideoGroupMapper extends BaseMapper<VideoGroup> {
 
     @Update("UPDATE video_group  SET tags = #{tags} WHERE id = #{id} AND tags != #{tags}")
     Integer updateTagsByID(VideoGroup videoGroup);
+
+    @Update("UPDATE video_group SET status = #{status} WHERE id = #{id}")
+    Integer updateStatus(@Param("id") Long id, @Param("status") Integer status);
 }

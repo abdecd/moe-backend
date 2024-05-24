@@ -298,4 +298,9 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         // 删es
         elasticSearchService.deleteSearchEntity(id);
     }
+
+    @Override
+    public Integer changeStatus(Long videoGroupId, Integer status) {
+        return videoGroupMapper.updateStatus(videoGroupId, status);
+    }
 }

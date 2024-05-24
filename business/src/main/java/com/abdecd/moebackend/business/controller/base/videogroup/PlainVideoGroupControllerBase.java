@@ -66,7 +66,7 @@ public class PlainVideoGroupControllerBase {
                 .setCover(addDTO.getCover())
                 .setDescription(addDTO.getDescription())
                 .setLink(addDTO.getLink());
-        videoService.addVideo(videoAddDTO);
+        videoService.addVideo(videoAddDTO, Video.Status.ENABLE);
         return Result.success(videoGroupId);
     }
 

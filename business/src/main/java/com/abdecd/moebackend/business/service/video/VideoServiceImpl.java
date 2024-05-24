@@ -14,6 +14,7 @@ import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
@@ -73,7 +74,7 @@ public class VideoServiceImpl implements VideoService {
     })
     @Transactional
     @Override
-    public long addVideo(AddVideoDTO addVideoDTO) {
+    public long addVideo(AddVideoDTO addVideoDTO, Byte becomeVideoStatus) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
@@ -97,32 +98,36 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
+        if (Objects.equals(becomeVideoStatus, Video.Status.ENABLE)) {
+            createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
+        } else if (Objects.equals(becomeVideoStatus, Video.Status.PRELOAD)) {
+            createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
+        } else throw new BaseException(MessageConstant.ARG_ERROR);
 
         return entity.getId();
     }
 
-    @Caching(evict = {
-            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
-            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
-    })
-    @Transactional
-    @Override
-    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
-        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
-
-        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
-        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
-
-        var entity = addVideoDTO.toEntity();
-        videoMapper.insert(entity);
-
-        // 链接处理
-        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
-
-        return entity.getId();
-    }
+//    @Caching(evict = {
+//            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+//            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+//    })
+//    @Transactional
+//    @Override
+//    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
+//        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
+//
+//        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
+//        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+//            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+//
+//        var entity = addVideoDTO.toEntity();
+//        videoMapper.insert(entity);
+//
+//        // 链接处理
+//        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
+//
+//        return entity.getId();
+//    }
 
     /**
      * 创建转码任务，并在超时后删除
@@ -155,12 +160,22 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @SuppressWarnings("unused")
-    public void videoTransformCbWillFinish(VideoTransformTask task) {
+    public void videoTransformEnableCb(VideoTransformTask task) {
         var self = SpringContextUtil.getBean(VideoServiceImpl.class);
         self.videoTransformSave(task, Video.Status.ENABLE);
     }
 
-    @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#task.videoId")
+    @SuppressWarnings("unused")
+    public void videoTransformPreloadCb(VideoTransformTask task) {
+        var self = SpringContextUtil.getBean(VideoServiceImpl.class);
+        self.videoTransformSave(task, Video.Status.PRELOAD);
+    }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#task.videoId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#task.videoId)"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#task.videoId)")
+    })
     @Transactional
     public void videoTransformSave(VideoTransformTask task, Byte videoStatus) {
         for (var taskType : task.getTaskTypes()) {
@@ -182,8 +197,7 @@ public class VideoServiceImpl implements VideoService {
         );
         // 如果视频组显示正在转码(转码没设缓存)，那放出来
         if (Objects.equals(videoStatus, Video.Status.ENABLE)) {
-            var self = SpringContextUtil.getBean(VideoServiceImpl.class);
-            var videoGroup = videoGroupMapper.selectById(self.getVideo(task.getVideoId()).getVideoGroupId());
+            var videoGroup = videoGroupMapper.selectById(getVideoGroupIdFromVideoId(task.getVideoId()));
             if (Objects.equals(videoGroup.getVideoGroupStatus(), VideoGroup.Status.TRANSFORMING)) {
                 var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
                 videoGroupServiceBase.changeStatus(videoGroup.getId(), VideoGroup.Status.ENABLE);
@@ -211,7 +225,7 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformCbWillFinish", "videoServiceImpl.videoTransformFailCb");
+            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
         }
 
         var coverUrl = updateVideoDTO.getCover();
@@ -256,8 +270,32 @@ public class VideoServiceImpl implements VideoService {
     public VideoVO getVideo(Long videoId) {
         var video = videoMapper.selectById(videoId);
         if (video == null) return null;
+        if (!video.getStatus().equals(Video.Status.ENABLE)) return null;
 
         var vo = new VideoVO();
+        BeanUtils.copyProperties(video, vo);
+        // 在转码中的视频不需要返回
+        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
+            vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
+        } else {
+            vo.setSrc(new ArrayList<>(
+                    videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
+                                    .eq(VideoSrc::getVideoId, videoId)
+                                    .select(VideoSrc::getSrcName, VideoSrc::getSrc))
+                            .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
+            ));
+            parseBV(vo);
+        }
+
+        return vo;
+    }
+
+    @Override
+    public VideoForceVO getVideoForce(Long videoId) {
+        var video = videoMapper.selectById(videoId);
+        if (video == null) return null;
+
+        var vo = new VideoForceVO();
         BeanUtils.copyProperties(video, vo);
         // 在转码中的视频不需要返回
         if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
@@ -310,8 +348,14 @@ public class VideoServiceImpl implements VideoService {
         }
     }
 
+    @SuppressWarnings("unused")
+    public Long getVideoGroupIdFromVideoId(Long id) {
+        var video = videoMapper.selectById(id);
+        if (video == null) return -1L;
+        return video.getVideoGroupId();
+    }
+
     @Override
-    @Cacheable(cacheNames = RedisConstant.VIDEO_LIST_CACHE,key = "#videoGroupId") // todo
     public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
         return videoMapper.selectByGid(videoGroupId);
     }

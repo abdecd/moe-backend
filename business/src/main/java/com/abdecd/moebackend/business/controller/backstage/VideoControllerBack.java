@@ -15,6 +15,7 @@ import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
@@ -61,22 +62,27 @@ public class VideoControllerBack {
     @PostMapping("update")
     public Result<String> update(@RequestBody @Valid UpdateVideoFullDTO dto) {
         videoService.updateVideo(dto, dto.getVideoStatusWillBe());
-        if (
-                Objects.equals(dto.getVideoStatusWillBe(), Video.Status.PRELOAD)
-                && dto.getVideoPublishTime() != null
-                && Objects.equals(videoGroupServiceBase.getVideoGroupType(dto.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)
-        ) {
-            if (bangumiTimeTableMapper.update(new LambdaUpdateWrapper<BangumiTimeTable>()
-                    .eq(BangumiTimeTable::getVideoId, dto.getId())
-                    .set(BangumiTimeTable::getVideoGroupId, dto.getVideoGroupId())
-                    .set(BangumiTimeTable::getUpdateTime, dto.getVideoPublishTime())
-                    .set(BangumiTimeTable::getStatus, StatusConstant.ENABLE)
-            ) == 0) {
-                bangumiTimeTableMapper.insert(new BangumiTimeTable()
-                        .setVideoId(dto.getId())
-                        .setVideoGroupId(dto.getVideoGroupId())
-                        .setUpdateTime(dto.getVideoPublishTime())
-                        .setStatus(StatusConstant.ENABLE)
+        if (Objects.equals(videoGroupServiceBase.getVideoGroupType(dto.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            if (
+                    Objects.equals(dto.getVideoStatusWillBe(), Video.Status.PRELOAD)
+                    && dto.getVideoPublishTime() != null
+            ) {
+                if (bangumiTimeTableMapper.update(new LambdaUpdateWrapper<BangumiTimeTable>()
+                        .eq(BangumiTimeTable::getVideoId, dto.getId())
+                        .set(BangumiTimeTable::getVideoGroupId, dto.getVideoGroupId())
+                        .set(BangumiTimeTable::getUpdateTime, dto.getVideoPublishTime())
+                        .set(BangumiTimeTable::getStatus, StatusConstant.ENABLE)
+                ) == 0) {
+                    bangumiTimeTableMapper.insert(new BangumiTimeTable()
+                            .setVideoId(dto.getId())
+                            .setVideoGroupId(dto.getVideoGroupId())
+                            .setUpdateTime(dto.getVideoPublishTime())
+                            .setStatus(StatusConstant.ENABLE)
+                    );
+                }
+            } else if (Objects.equals(dto.getVideoStatusWillBe(), Video.Status.ENABLE)) {
+                bangumiTimeTableMapper.delete(new LambdaQueryWrapper<BangumiTimeTable>()
+                        .eq(BangumiTimeTable::getVideoId, dto.getId())
                 );
             }
         }

@@ -1,7 +1,9 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.dao.entity.BangumiTimeTable;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
+import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
@@ -10,13 +12,17 @@ import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -30,11 +36,12 @@ import java.util.ArrayList;
 public class BangumiVideoGroupController {
     @Resource
     private VideoGroupService videoGroupService;
-
     @Resource
     private BangumiVideoGroupService bangumiVideoGroupService;
     @Resource
     private StatisticService statisticService;
+    @Autowired
+    private BangumiTimeTableMapper bangumiTimeTableMapper;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组添加", description = "data字段返回新增视频组id")
@@ -113,5 +120,20 @@ public class BangumiVideoGroupController {
     public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "获取新番时间表")
+    @GetMapping("time-schedule")
+    public Result<PageVO<BangumiTimeTable>> getBangumiVideoGroupList(
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize
+    ) {
+        var pageObj = new Page<BangumiTimeTable>(page, pageSize);
+        var result = bangumiTimeTableMapper.selectPage(pageObj, new LambdaQueryWrapper<BangumiTimeTable>()
+                .orderByDesc(BangumiTimeTable::getUpdateTime)
+        );
+        var vo = new PageVO<>((int) result.getTotal(), result.getRecords());
+        return Result.success(vo);
     }
 }

@@ -127,7 +127,7 @@ public class BangumiVideoGroupServiceBase {
         return new ArrayList<>(objs.stream()
                 .map(obj -> {
                     var videoGroup = videoGroupServiceBase.getVideoGroupWithData(obj.getVideoGroupId());
-                    var video = videoService.getVideo(obj.getVideoId());
+                    var video = videoService.getVideoForce(obj.getVideoId());
                     return new BangumiVideoGroupTimeScheduleVO()
                             .setVideoGroupWithDataVO(videoGroup)
                             .setWillUpdateTime(obj.getUpdateTime())

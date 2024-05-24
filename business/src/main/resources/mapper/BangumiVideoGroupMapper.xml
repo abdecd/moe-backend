@@ -18,7 +18,7 @@
         <result column="bangumi_status" property="status"/>
     </resultMap>
 
-    <update id="update" parameterType="com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup">
+    <update id="update_" parameterType="com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup">
         UPDATE bangumi_video_group
         <set>
             <if test="releaseTime != null">

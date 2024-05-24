@@ -3,7 +3,7 @@ package com.abdecd.moebackend.business.controller.backstage;
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
-import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.result.Result;
@@ -50,12 +50,12 @@ public class VideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
-        ArrayList<VideoVO> videoCompleteVOArrayList = new ArrayList<>();
+    public Result<ArrayList<VideoForceVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
+        ArrayList<VideoForceVO> videoCompleteVOArrayList = new ArrayList<>();
         ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);
 
         for (Video video : videoList) {
-            VideoVO videoVO = videoService.getVideo(video.getId());
+            VideoForceVO videoVO = videoService.getVideoForce(video.getId());
 
             videoCompleteVOArrayList.add(videoVO);
         }

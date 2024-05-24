@@ -1,11 +1,13 @@
 package com.abdecd.moebackend.business.service.report;
 
-import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.Report;
 import com.abdecd.moebackend.business.dao.entity.UserComment;
 import com.abdecd.moebackend.business.dao.entity.Video;
-import com.abdecd.moebackend.business.dao.mapper.*;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
+import com.abdecd.moebackend.business.dao.mapper.ReportMapper;
+import com.abdecd.moebackend.business.dao.mapper.UserCommentMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.pojo.dto.report.AddReportDTO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVOBasic;
@@ -14,11 +16,7 @@ import com.abdecd.moebackend.business.pojo.vo.report.ReportCommentTotalVO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportCommentVO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportVideoTotalVO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportVideoVO;
-import com.abdecd.moebackend.business.pojo.vo.video.VideoSrcVO;
-import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
-import com.abdecd.moebackend.business.service.report.ReportService;
 import com.abdecd.moebackend.business.service.video.VideoService;
-import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.StatusConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import jakarta.annotation.Resource;
@@ -26,10 +24,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -42,9 +38,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Resource
     private VideoMapper videoMapper;
-
-    @Autowired
-    private MoeProperties moeProperties;
 
     @Autowired
     private UserCommentMapper userCommentMapper;
@@ -93,7 +86,7 @@ public class ReportServiceImpl implements ReportService {
             );
 
             Video video = videoMapper.selectById(report.getTargetId());
-            reportVideoVO.setVideo(videoService.getVideo(video.getId()));
+            reportVideoVO.setVideo(videoService.getVideoForce(video.getId()));
 
             reportVideoTotalVO.getRecords().add(reportVideoVO);
         }

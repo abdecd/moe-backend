@@ -93,6 +93,7 @@ public class BangumiVideoGroupServiceBase {
     public List<ContentsItemVO> getContents(Long videoGroupId) {
         var videoList = videoMapper.selectList(new LambdaQueryWrapper<Video>()
                 .eq(Video::getVideoGroupId, videoGroupId)
+                .eq(Video::getStatus, Video.Status.ENABLE)
         );
         return new ArrayList<>(
                 videoList.stream().map(video -> new ContentsItemVO()

@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.service.backstage;
 
-import com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO;
+import com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.PlainVideoGroupVO;
 
 import java.util.ArrayList;
 

@@ -197,7 +197,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
     }
 
     @Override
-    public ArrayList<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO> getBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status) {
+    public ArrayList<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO> getBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status) {
         return bangumiVideoGroupMapper.selectBangumiVideoGroupList(pageIndex, pageSize, id, title, status);
     }
 

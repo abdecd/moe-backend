@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper">
 
-    <resultMap id="BangumiResultMap" type="com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO">
+    <resultMap id="BangumiResultMap" type="com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO">
         <id column="id" property="id"/>
         <result column="title" property="title"/>
         <result column="cover" property="cover"/>

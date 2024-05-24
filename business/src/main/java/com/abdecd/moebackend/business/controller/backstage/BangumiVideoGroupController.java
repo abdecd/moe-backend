@@ -124,7 +124,7 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "获取所有符合条件的番剧视频组", description = "data字段返回番剧视频组信息")
     @GetMapping("/all")
-    public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
+    public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
             @RequestParam(name="page", defaultValue = "1", required = false) @Valid Integer pageIndex,
             @Valid @RequestParam(defaultValue = "10", required = false) Integer pageSize,
             @Valid @RequestParam(required = false) String id,
@@ -133,7 +133,7 @@ public class BangumiVideoGroupController {
 
         var list = bangumiVideoGroupService.getBangumiVideoGroupList((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = bangumiVideoGroupService.getBangumiVideoGroupListCount(id, title, status);
-        return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
+        return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
     }
 
     @RequirePermission(value = "99", exception = BaseException.class)

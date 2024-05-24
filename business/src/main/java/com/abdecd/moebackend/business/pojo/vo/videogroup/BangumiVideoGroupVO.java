@@ -11,4 +11,5 @@ public class BangumiVideoGroupVO extends VideoGroupVO {
     private LocalDateTime releaseTime;
     private String updateAtAnnouncement;
     private Integer status;
+    private LocalDateTime updateTime;
 }

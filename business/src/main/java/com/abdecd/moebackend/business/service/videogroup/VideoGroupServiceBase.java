@@ -106,10 +106,11 @@ public class VideoGroupServiceBase {
         if (videoGroupInfo == null) return null;
         var contents = getContents(videoGroupId);
         var cnts = statisticService.getStatisticData(videoGroupId);
-        var videoId = Optional.ofNullable((List<ContentsItemVO>) contents)
-                .map(List::getFirst)
-                .map(ContentsItemVO::getVideoId)
-                .orElse(-1L);
+        Long videoId = null;
+        try {
+            videoId = ((List<ContentsItemVO>) contents).getFirst().getVideoId();
+        } catch (Exception ignored) {}
+        if (videoId == null) videoId = -1L;
         var aVideo = videoService.getVideo(videoId);
         return new VideoGroupBigVO()
                 .setVideoGroupVO(videoGroupInfo)

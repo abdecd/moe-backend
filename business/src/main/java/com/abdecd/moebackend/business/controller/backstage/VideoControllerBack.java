@@ -103,6 +103,12 @@ public class VideoControllerBack {
                         .set(BangumiVideoGroup::getUpdateTime, LocalDateTime.now())
                 );
             }
+            if (dto.getVideoStatusWillBe() == null) {
+                bangumiVideoGroupMapper.update(new LambdaUpdateWrapper<BangumiVideoGroup>()
+                        .eq(BangumiVideoGroup::getVideoGroupId, video.getVideoGroupId())
+                        .set(BangumiVideoGroup::getUpdateTime, LocalDateTime.now())
+                );
+            }
         }
         return Result.success();
     }

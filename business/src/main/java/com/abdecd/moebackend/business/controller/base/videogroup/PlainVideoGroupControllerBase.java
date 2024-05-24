@@ -106,7 +106,7 @@ public class PlainVideoGroupControllerBase {
                 .setCover(updateDTO.getCover())
                 .setDescription(updateDTO.getDescription())
                 .setLink(updateDTO.getLink());
-        videoService.updateVideo(updateVideoDTO);
+        videoService.updateVideo(updateVideoDTO, Video.Status.ENABLE);
         return Result.success();
     }
 

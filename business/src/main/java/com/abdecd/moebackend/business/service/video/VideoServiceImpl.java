@@ -107,28 +107,6 @@ public class VideoServiceImpl implements VideoService {
         return entity.getId();
     }
 
-//    @Caching(evict = {
-//            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
-//            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
-//    })
-//    @Transactional
-//    @Override
-//    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO) {
-//        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
-//
-//        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
-//        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-//            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
-//
-//        var entity = addVideoDTO.toEntity();
-//        videoMapper.insert(entity);
-//
-//        // 链接处理
-//        createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
-//
-//        return entity.getId();
-//    }
-
     /**
      * 创建转码任务，并在超时后删除
      * @param videoId :
@@ -226,7 +204,8 @@ public class VideoServiceImpl implements VideoService {
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
     })
     @Override
-    public void updateVideo(UpdateVideoDTO updateVideoDTO) {
+    public void updateVideo(UpdateVideoDTO updateVideoDTO, Byte videoStatusWillBe) {
+        checkUserHaveTheGroup(getVideoGroupIdFromVideoId(updateVideoDTO.getId()));
         checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
 
         if (updateVideoDTO.getLink() != null) {
@@ -235,7 +214,13 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
-            createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
+
+            // 链接处理
+            if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
+                createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
+            } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
+                createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
+            } else throw new BaseException(MessageConstant.ARG_ERROR);
         }
 
         var coverUrl = updateVideoDTO.getCover();

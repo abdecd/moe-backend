@@ -10,9 +10,8 @@ import java.util.ArrayList;
 
 public interface VideoService {
     long addVideo(AddVideoDTO addVideoDTO, Byte videoStatusWillBe);
-//    long addVideoWithCoverResolved(AddVideoDTO addVideoDTO);
     boolean checkVideoPending(Long videoId);
-    void updateVideo(UpdateVideoDTO updateVideoDTO);
+    void updateVideo(UpdateVideoDTO updateVideoDTO, Byte videoStatusWillBe);
     void deleteVideo(Long videoId);
     VideoVO getVideo(Long videoId);
     VideoForceVO getVideoForce(Long videoId);

@@ -49,9 +49,11 @@ public interface VideoGroupService {
 
     /**
      * *
-     * 更具id更新视频组信息
+     * 根据id更新视频组信息
      */
     void update(@Valid BangumiVideoGroupUpdateDTO videoGroup);
 
     void deleteVideoGroup(Long id);
+
+    Integer changeStatus(Long videoGroupId, Integer status);
 }

@@ -2,6 +2,7 @@ package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.pojo.dto.backstage.videogroup.VideoGroupStatusDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
@@ -13,10 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -60,5 +58,16 @@ public class VideoGroupController {
             videoCompleteVOArrayList.add(videoVO);
         }
         return Result.success(videoCompleteVOArrayList);
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "视频组状态更改", description = "data字段返回是否成功")
+    @PostMapping("/status")
+    public Result<String> changeVideoGroupStatus(@RequestBody @Valid VideoGroupStatusDTO videoGroupStatusDTO) {
+        var affected = videoGroupService.changeStatus(videoGroupStatusDTO.getId(), videoGroupStatusDTO.getStatus());
+        if (affected == 0) {
+            return Result.error(404, "视频组不存在或状态未改变");
+        }
+        return Result.success();
     }
 }

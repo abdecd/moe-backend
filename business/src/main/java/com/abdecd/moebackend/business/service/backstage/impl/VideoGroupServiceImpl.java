@@ -4,7 +4,9 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
-import com.abdecd.moebackend.business.dao.mapper.*;
+import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
@@ -85,7 +87,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         try {
             //TODO 文件没有存下来
-            String coverName = cover.getOriginalFilename().substring(0,cover.getOriginalFilename().lastIndexOf("."));
+            String coverName = cover.getOriginalFilename().substring(0, cover.getOriginalFilename().lastIndexOf("."));
             String coverPath_ = "/video-group/" + videoGroup.getId();
             coverPath = fileService.uploadFile(cover, coverPath_, coverName + ".jpg");
         } catch (IOException e) {
@@ -96,10 +98,10 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupMapper.update(videoGroup);
 
         var vo = getVOinfo(videoGroup.getId());
-        if(vo != null)
+        if (vo != null)
             elasticSearchService.saveSearchEntity(vo);
 
-        return  videoGroup.getId();
+        return videoGroup.getId();
     }
 
     private com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO getVOinfo(Long id) {
@@ -125,10 +127,10 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public void update(VideoGroupDTO videoGroupDTO) {
         String coverPath = "";
 
-        if(videoGroupDTO.getCover() != null){
+        if (videoGroupDTO.getCover() != null) {
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroupDTO.getCover().getOriginalFilename().substring(0,videoGroupDTO.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverName = videoGroupDTO.getCover().getOriginalFilename().substring(0, videoGroupDTO.getCover().getOriginalFilename().lastIndexOf("."));
                 String coverPath_ = "/video-group/" + videoGroupDTO.getId();
                 coverPath = fileService.uploadFile(videoGroupDTO.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
@@ -137,7 +139,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         }
 
         VideoGroup videoGroup = new VideoGroup();
-        BeanUtils.copyProperties(videoGroupDTO,videoGroup);
+        BeanUtils.copyProperties(videoGroupDTO, videoGroup);
         videoGroup.setCover(coverPath);
 
         videoGroupMapper.update(videoGroup);
@@ -154,7 +156,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public VideoGroupVO getById(Long id) {
         VideoGroupVO videoGroupVO = new VideoGroupVO();
         VideoGroup videoGroup = videoGroupMapper.selectById(id);
-        if(videoGroup == null) {
+        if (videoGroup == null) {
             throw new BaseException("视频组缺失");
         }
 
@@ -169,15 +171,15 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());
-        PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
-        if(plainUserDetail != null){
+        PlainUserDetail plainUserDetail = plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+        if (plainUserDetail != null) {
             uploaderVO.setAvatar(plainUserDetail.getAvatar());
             uploaderVO.setNickname(plainUserDetail.getNickname());
         }
 
         videoGroupVO.setUploader(uploaderVO);
 
-        return  videoGroupVO;
+        return videoGroupVO;
     }
 
     @Override
@@ -185,7 +187,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         ArrayList<VideoVo> videoVOList = new ArrayList<>();
         ArrayList<Video> videoList = videoMapper.getByGroupid(id);
 
-        for(Video video : videoList){
+        for (Video video : videoList) {
             VideoVo videoVo = new VideoVo();
 
             videoVo.setVideoId(String.valueOf(video.getId()));
@@ -212,9 +214,9 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         videoGroupListVO.setRecords(new ArrayList<>());
 
         Integer offset = (page - 1) * pageSize;
-        ArrayList<VideoGroup> videoGroups = videoGroupMapper.selectbyPage(offset,pageSize);
+        ArrayList<VideoGroup> videoGroups = videoGroupMapper.selectbyPage(offset, pageSize);
 
-        for(VideoGroup videoGroup : videoGroups){
+        for (VideoGroup videoGroup : videoGroups) {
             VideoGroupVO videoGroupVO = new VideoGroupVO();
 
             videoGroupVO.setId(videoGroup.getId());
@@ -228,8 +230,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
             UploaderVO uploaderVO = new UploaderVO();
             uploaderVO.setId(videoGroup.getUserId());
-            PlainUserDetail plainUserDetail =  plainUserDetailMapper.selectByUid(videoGroup.getUserId());
-            if(plainUserDetail != null){
+            PlainUserDetail plainUserDetail = plainUserDetailMapper.selectByUid(videoGroup.getUserId());
+            if (plainUserDetail != null) {
                 uploaderVO.setAvatar(plainUserDetail.getAvatar());
                 uploaderVO.setNickname(plainUserDetail.getNickname());
             }
@@ -256,10 +258,10 @@ public class VideoGroupServiceImpl implements VideoGroupService {
     public void update(@Valid BangumiVideoGroupUpdateDTO videoGroup) {
         String coverPath = null;
 
-        if(videoGroup.getCover() != null){
+        if (videoGroup.getCover() != null) {
             try {
                 //TODO 文件没有存下来
-                String coverName = videoGroup.getCover().getOriginalFilename().substring(0,videoGroup.getCover().getOriginalFilename().lastIndexOf("."));
+                String coverName = videoGroup.getCover().getOriginalFilename().substring(0, videoGroup.getCover().getOriginalFilename().lastIndexOf("."));
                 String coverPath_ = "/video-group/" + videoGroup.getId();
                 coverPath = fileService.uploadFile(videoGroup.getCover(), coverPath_, coverName + ".jpg");
             } catch (IOException e) {
@@ -269,7 +271,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         var entity = new VideoGroup()
                 .setId(videoGroup.getId())
-                .setVideoGroupStatus(Byte.valueOf(videoGroup.getVideoGroupStatus()))
+                .setVideoGroupStatus(videoGroup.getVideoGroupStatus() != null ? Byte.valueOf(videoGroup.getVideoGroupStatus()) : null)
                 .setTitle(videoGroup.getTitle())
                 .setCover(coverPath)
                 .setDescription(videoGroup.getDescription())

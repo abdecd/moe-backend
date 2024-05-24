@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
+import com.abdecd.moebackend.business.pojo.dto.backstage.videogroup.VideoGroupDeleteDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
@@ -68,7 +69,8 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
-    public Result<String> deleteBangumiVideoGroup(@Valid Long id) {
+    public Result<String> deleteBangumiVideoGroup(@RequestBody @Valid VideoGroupDeleteDTO videoDeleteDTO) {
+        Long id = videoDeleteDTO.getId();
 //        videoGroupService.delete(id);
         bangumiVideoGroupService.deleteByVid(id);
 //        videoGroupAndTagService.deleteByVideoGroupId(id);
@@ -79,7 +81,6 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组更新")
     @PostMapping(value = "/update", consumes = "multipart/form-data")
-    @ResponseBody
     public Result<String> updateBangumiVideoGroup(@Valid BangumiVideoGroupUpdateDTO bangumiVideoGroupUpdateDTO) {
         bangumiVideoGroupService.update(bangumiVideoGroupUpdateDTO);
         videoGroupService.update(bangumiVideoGroupUpdateDTO);

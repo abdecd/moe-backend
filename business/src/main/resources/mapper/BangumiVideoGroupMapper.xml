@@ -30,6 +30,7 @@
             <if test="status != null">
                 status = #{status},
             </if>
+            video_group_id = #{videoGroupId}
         </set>
         WHERE video_group_id = #{videoGroupId}
     </update>

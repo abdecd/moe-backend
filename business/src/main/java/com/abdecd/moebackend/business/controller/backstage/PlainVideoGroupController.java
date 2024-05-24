@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup.VideoGroupDTO;
+import com.abdecd.moebackend.business.pojo.dto.backstage.videogroup.VideoGroupDeleteDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupVO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoVo;
 import com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.PlainVideoGroupVO;
@@ -66,10 +67,10 @@ public class PlainVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "普通视频组删除")
     @PostMapping(value = "/delete")
-    public Result<String> delVideoGroup(@Valid @RequestParam("id") Long id) {
+    public Result<String> delVideoGroup(@RequestBody @Valid VideoGroupDeleteDTO videoDeleteDTO) {
 //        videoGroupService.delete(id);
 //        videoGroupAndTagService.deleteByVideoGroupId(id);
-        videoGroupService.deleteVideoGroup(id);
+        videoGroupService.deleteVideoGroup(videoDeleteDTO.getId());
         return Result.success();
     }
 

@@ -169,6 +169,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupVO.setTags(videoGroup.getTags());
         videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
+        videoGroupVO.setWeight(videoGroup.getWeight());
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());

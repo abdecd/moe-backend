@@ -16,5 +16,7 @@ public class VideoGroupDTO {
     @Nullable
     private String tags;
     @Nullable
+    private Byte videoGroupStatus;
+    @Nullable
     private Double weight;
 }

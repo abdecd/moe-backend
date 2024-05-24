@@ -74,7 +74,7 @@ public class VideoServiceImpl implements VideoService {
     })
     @Transactional
     @Override
-    public long addVideo(AddVideoDTO addVideoDTO, Byte becomeVideoStatus) {
+    public long addVideo(AddVideoDTO addVideoDTO, Byte videoStatusWillBe) {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
@@ -98,9 +98,9 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        if (Objects.equals(becomeVideoStatus, Video.Status.ENABLE)) {
+        if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
-        } else if (Objects.equals(becomeVideoStatus, Video.Status.PRELOAD)) {
+        } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
         } else throw new BaseException(MessageConstant.ARG_ERROR);
 
@@ -191,13 +191,23 @@ public class VideoServiceImpl implements VideoService {
                 );
             }
         }
+        videoStatusUpdate(task.getVideoId(), videoStatus);
+    }
+
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#videoId)"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#videoId)")
+    })
+    @Transactional
+    public void videoStatusUpdate(Long videoId, Byte videoStatus) {
         videoMapper.updateById(new Video()
-                .setId(task.getVideoId())
+                .setId(videoId)
                 .setStatus(videoStatus)
         );
         // 如果视频组显示正在转码(转码没设缓存)，那放出来
         if (Objects.equals(videoStatus, Video.Status.ENABLE)) {
-            var videoGroup = videoGroupMapper.selectById(getVideoGroupIdFromVideoId(task.getVideoId()));
+            var videoGroup = videoGroupMapper.selectById(getVideoGroupIdFromVideoId(videoId));
             if (Objects.equals(videoGroup.getVideoGroupStatus(), VideoGroup.Status.TRANSFORMING)) {
                 var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
                 videoGroupServiceBase.changeStatus(videoGroup.getId(), VideoGroup.Status.ENABLE);

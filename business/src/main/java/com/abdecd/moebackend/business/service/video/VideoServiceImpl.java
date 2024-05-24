@@ -249,8 +249,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideo(#videoId).getVideoGroupId()"),
-            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideo(#videoId).getVideoGroupId()"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideoForce(#videoId).getVideoGroupId()"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, beforeInvocation = true, key = "#root.target.getVideoForce(#videoId).getVideoGroupId()"),
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId")
     })
     @Override

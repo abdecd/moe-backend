@@ -5,6 +5,8 @@ import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.Bangu
 import com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup.BangumiVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.bangumiVideoGroup.BangumiVideoGroupVO;
 
+import java.util.ArrayList;
+
 public interface BangumiVideoGroupService {
     /**
      * 根据id删除视频组
@@ -35,4 +37,9 @@ public interface BangumiVideoGroupService {
      * 根据id获取视频组
      */
     BangumiVideoGroupVO getByVideoId(Long videoGroupId);
+
+
+    ArrayList<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO> getBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status);
+
+    Integer getBangumiVideoGroupListCount(String id, String title, Byte status);
 }

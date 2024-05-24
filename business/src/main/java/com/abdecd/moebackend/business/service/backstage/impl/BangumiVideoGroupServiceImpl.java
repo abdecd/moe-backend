@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
@@ -193,5 +194,15 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         bangumiVideoGroupVO.setUploader(uploaderVO);
 
         return bangumiVideoGroupVO;
+    }
+
+    @Override
+    public ArrayList<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO> getBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status) {
+        return bangumiVideoGroupMapper.selectBangumiVideoGroupList(pageIndex, pageSize, id, title, status);
+    }
+
+    @Override
+    public Integer getBangumiVideoGroupListCount(String id, String title, Byte status) {
+        return bangumiVideoGroupMapper.selectBangumiVideoGroupListCount(id, title, status);
     }
 }

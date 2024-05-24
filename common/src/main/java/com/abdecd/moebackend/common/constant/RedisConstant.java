@@ -34,12 +34,11 @@ public class RedisConstant {
     public static final String STATISTIC_WATCH_CNT = "moe:statistic:watch_cnt:";
     public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";// todo 随机过期时间
     public static final String VIDEO_GROUP_TYPE_CACHE = "moe:video_group_type_cache#300";
-    public static final String VIDEO_LIST_CACHE = "moe:video_list_cache#300";
     public static final String BANGUMI_VIDEO_GROUP_CACHE = "moe:bangumi_video_group_cache#300";
     public static final String BANGUMI_VIDEO_GROUP_CONTENTS_CACHE = "moe:bangumi_video_group_contents_cache#300";
     public static final String VIDEO_GROUP_CONTENTS_CACHE = "moe:video_group_contents_cache#300";
     public static final String RECOMMEND_CAROUSEL = "moe:recommend_carousel";
-    public static final String BANGUMI_TIME_SCHEDULE_CACHE = "moe:bangumi_time_schedule_cache#30000";
+    public static final String BANGUMI_TIME_SCHEDULE_CACHE = "moe:bangumi_time_schedule_cache#300";
     public static final String FAVORITE_PLAIN = "moe:plain_user:favorite:plain#300";
     public static final String FAVORITE_BANGUMI = "moe:plain_user:favorite:bangumi#300";
     public static final String IS_USER_FAVORITE = "moe:plain_user:favorite:is_user_favorite#300";

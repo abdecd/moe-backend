@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -19,12 +20,16 @@ public interface BangumiVideoGroupMapper extends BaseMapper<BangumiVideoGroup> {
     BangumiVideoGroup selectByVid(Long videoGroupId);
 
     @Select("""
-        select bg.video_group_id
-        from bangumi_video_group bg
-            join video_group vg on bg.video_group_id = vg.id
-        where vg.status = #{status}
-        order by bg.update_time desc
-        limit #{num}
-    """)
+                select bg.video_group_id
+                from bangumi_video_group bg
+                    join video_group vg on bg.video_group_id = vg.id
+                where vg.status = #{status}
+                order by bg.update_time desc
+                limit #{num}
+            """)
     List<Long> listIdsByUpdateTimeDesc(int num, Byte status);
+
+    ArrayList<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO> selectBangumiVideoGroupList(Integer pageIndex, Integer pageSize, String id, String title, Byte status);
+
+    Integer selectBangumiVideoGroupListCount(String id, String title, Byte status);
 }

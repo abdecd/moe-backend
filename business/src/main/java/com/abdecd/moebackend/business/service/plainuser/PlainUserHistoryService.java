@@ -3,6 +3,9 @@ package com.abdecd.moebackend.business.service.plainuser;
 import com.abdecd.moebackend.business.dao.entity.PlainUserHistory;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.AddHistoryDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.HistoryVO;
+import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -60,8 +63,11 @@ public class PlainUserHistoryService {
 
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
         var video = videoService.getVideo(plainUserHistory.getVideoId());
+        if (video == null) video = new VideoVO();
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());
+        if (videoGroup == null) videoGroup = new VideoGroupVO();
         var uploaderVO = videoGroup.getUploader();
+        if (uploaderVO == null) uploaderVO = new UploaderVO();
 
         return new HistoryVO()
                 .setUploader(uploaderVO)

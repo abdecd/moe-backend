@@ -27,5 +27,6 @@ public class Video {
     public static class Status {
         public static final Byte ENABLE = 1;
         public static final Byte TRANSFORMING = 2;
+        public static final Byte PRELOAD = 3;
     }
 }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper">
+    <select id="pageBangumiTimeTable"
+            resultType="com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiTimeTableBackVO">
+        select btt.id, btt.video_group_id, video_id, update_time, btt.status, vg.title as video_group_title, v.index as video_index, v.title as video_title
+        from bangumi_time_table btt
+        left join video_group vg on vg.id = btt.video_group_id
+        left join video v on v.id = btt.video_id
+    </select>
+</mapper>

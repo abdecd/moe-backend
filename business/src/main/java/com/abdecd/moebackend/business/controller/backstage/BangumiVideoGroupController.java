@@ -125,13 +125,11 @@ public class BangumiVideoGroupController {
     @Operation(summary = "获取所有符合条件的番剧视频组", description = "data字段返回番剧视频组信息")
     @GetMapping("/all")
     public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
-            @Valid @Nullable @RequestParam("pageIndex") Integer pageIndex,
-            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
-            @Valid @Nullable @RequestParam("id") String id,
-            @Valid @Nullable @RequestParam("title") String title,
-            @Valid @Nullable @RequestParam("status") Byte status) {
-        pageIndex = pageIndex == null ? 1 : pageIndex;
-        pageSize = pageSize == null ? 10 : pageSize;
+            @RequestParam(name="page", defaultValue = "1", required = false) @Valid Integer pageIndex,
+            @Valid @RequestParam(defaultValue = "10", required = false) Integer pageSize,
+            @Valid @RequestParam(required = false) String id,
+            @Valid @RequestParam(required = false) String title,
+            @Valid @RequestParam(required = false) Byte status) {
 
         var list = bangumiVideoGroupService.getBangumiVideoGroupList((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = bangumiVideoGroupService.getBangumiVideoGroupListCount(id, title, status);

@@ -16,7 +16,6 @@ import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -123,14 +122,11 @@ public class PlainVideoGroupController {
     @Operation(summary = "获取所有符合条件的普通视频组", description = "data字段返回普通视频组信息")
     @GetMapping("/all")
     public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(
-            @Valid @Nullable @RequestParam("page") Integer pageIndex,
-            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
-            @Valid @Nullable @RequestParam("id") String id,
-            @Valid @Nullable @RequestParam("title") String title,
-            @Valid @Nullable @RequestParam("status") Byte status) {
-
-        pageIndex = pageIndex == null ? 1 : pageIndex;
-        pageSize = pageSize == null ? 10 : pageSize;
+            @Valid @RequestParam(name="page", defaultValue = "1", required = false) Integer pageIndex,
+            @Valid @RequestParam(defaultValue = "10", required = false) Integer pageSize,
+            @Valid @RequestParam(required = false) String id,
+            @Valid @RequestParam(required = false) String title,
+            @Valid @RequestParam(required = false) Byte status) {
 
         var videoGroupVOList = plainVideoGroupService.getAllVideoGroup((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = plainVideoGroupService.countPlainVideoGroup(id, title, status);

@@ -26,7 +26,7 @@
         SELECT
         id,
         title,
-        vg.user_id as user_id,
+        pud.user_id as user_id,
         nickname,
         avatar,
         cover,

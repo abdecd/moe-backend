@@ -199,14 +199,20 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId"),
-            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId == null ? -1 : #updateVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#updateVideoDTO.videoGroupId == null ? -1 : #updateVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#updateVideoDTO.id)"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#updateVideoDTO.id)"),
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
     })
     @Override
     public void updateVideo(UpdateVideoDTO updateVideoDTO, Byte videoStatusWillBe) {
         checkUserHaveTheGroup(getVideoGroupIdFromVideoId(updateVideoDTO.getId()));
-        checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
+        if (updateVideoDTO.getVideoGroupId() != null) {
+            checkUserHaveTheGroup(updateVideoDTO.getVideoGroupId());
+        } else {
+            updateVideoDTO.setVideoGroupId(getVideoGroupIdFromVideoId(updateVideoDTO.getId()));
+        }
 
         if (updateVideoDTO.getLink() != null) {
             var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(updateVideoDTO.getLink());

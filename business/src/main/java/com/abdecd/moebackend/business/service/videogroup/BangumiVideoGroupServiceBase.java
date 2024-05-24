@@ -120,14 +120,14 @@ public class BangumiVideoGroupServiceBase {
         var objs = bangumiTimeTableMapper.selectList(new LambdaQueryWrapper<BangumiTimeTable>()
                 .gt(BangumiTimeTable::getUpdateTime, date.atStartOfDay())
                 .lt(BangumiTimeTable::getUpdateTime, date.plusDays(1).atStartOfDay())
-                .last("ORDER BY update_time ASC limit 15")
+                .last("ORDER BY update_time ASC limit 20")
         );
         if (objs.isEmpty()) return new ArrayList<>();
         var videoGroupServiceBase = SpringContextUtil.getBean(VideoGroupServiceBase.class);
         return new ArrayList<>(objs.stream()
                 .map(obj -> {
                     var videoGroup = videoGroupServiceBase.getVideoGroupWithData(obj.getVideoGroupId());
-                    var video = videoService.getVideo(obj.getVideoId());
+                    var video = videoService.getVideoForce(obj.getVideoId());
                     return new BangumiVideoGroupTimeScheduleVO()
                             .setVideoGroupWithDataVO(videoGroup)
                             .setWillUpdateTime(obj.getUpdateTime())

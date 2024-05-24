@@ -5,7 +5,6 @@ import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +15,5 @@ public class UpdateVideoFullDTO extends UpdateVideoDTO {
     @Nullable
     Byte videoStatusWillBe = Video.Status.ENABLE;
     @Nullable
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime videoPublishTime;
 }

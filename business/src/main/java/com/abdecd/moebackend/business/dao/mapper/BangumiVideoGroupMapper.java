@@ -14,7 +14,7 @@ public interface BangumiVideoGroupMapper extends BaseMapper<BangumiVideoGroup> {
     @Delete("DELETE FROM bangumi_video_group WHERE video_group_id = #{vid}")
     void deleteByVid(Long vid);
 
-    void update(BangumiVideoGroup bangumiVideoGroup);
+    void update_(BangumiVideoGroup bangumiVideoGroup);
 
     @Select("SELECT * FROM bangumi_video_group WHERE video_group_id = #{videoGroupId}")
     BangumiVideoGroup selectByVid(Long videoGroupId);

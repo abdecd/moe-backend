@@ -79,7 +79,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
         }
         bangumiVideoGroup.setUpdateAtAnnouncement(bangumiVideoGroupUpdateDTO.getUpdateAtAnnouncement());
 
-        bangumiVideoGroupMapper.update(bangumiVideoGroup);
+        bangumiVideoGroupMapper.update_(bangumiVideoGroup);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class BangumiVideoGroupServiceImpl implements BangumiVideoGroupService {
                 .setCreateTime(ldt)
                 .setUserId(uid)
                 .setWeight(VideoGroupConstant.DEFAULT_WEIGHT)
-                .setType(VideoGroupConstant.COMMON_VIDEO_GROUP)
+                .setType(VideoGroup.Type.ANIME_VIDEO_GROUP)
                 .setVideoGroupStatus(Byte.valueOf(bangumiVideoGroupAddDTO.getVideoGroupStatus()))
                 .setTags(bangumiVideoGroupAddDTO.getTags());
 

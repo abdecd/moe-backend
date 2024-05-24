@@ -2,9 +2,11 @@ package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.BangumiTimeTable;
+import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
+import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoFullDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.DeleteVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoFullDTO;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,23 +39,32 @@ public class VideoControllerBack {
     private VideoGroupServiceBase videoGroupServiceBase;
     @Autowired
     private BangumiTimeTableMapper bangumiTimeTableMapper;
+    @Autowired
+    private BangumiVideoGroupMapper bangumiVideoGroupMapper;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "添加视频")
     @PostMapping("add")
     public Result<Long> add(@RequestBody @Valid AddVideoFullDTO addVideoDTO){
         Long id = videoService.addVideo(addVideoDTO, addVideoDTO.getVideoStatusWillBe());
-        if (
-                Objects.equals(addVideoDTO.getVideoStatusWillBe(), Video.Status.PRELOAD)
-                && addVideoDTO.getVideoPublishTime() != null
-                && Objects.equals(videoGroupServiceBase.getVideoGroupType(addVideoDTO.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)
-        ) {
-            bangumiTimeTableMapper.insert(new BangumiTimeTable()
-                    .setVideoId(id)
-                    .setVideoGroupId(addVideoDTO.getVideoGroupId())
-                    .setUpdateTime(addVideoDTO.getVideoPublishTime())
-                    .setStatus(StatusConstant.ENABLE)
-            );
+        if (Objects.equals(videoGroupServiceBase.getVideoGroupType(addVideoDTO.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)) {
+            if (addVideoDTO.getVideoStatusWillBe().equals(Video.Status.ENABLE)) {
+                bangumiVideoGroupMapper.update(new LambdaUpdateWrapper<BangumiVideoGroup>()
+                        .eq(BangumiVideoGroup::getVideoGroupId, addVideoDTO.getVideoGroupId())
+                        .set(BangumiVideoGroup::getUpdateTime, LocalDateTime.now())
+                );
+            }
+            if (
+                    Objects.equals(addVideoDTO.getVideoStatusWillBe(), Video.Status.PRELOAD)
+                            && addVideoDTO.getVideoPublishTime() != null
+            ) {
+                bangumiTimeTableMapper.insert(new BangumiTimeTable()
+                        .setVideoId(id)
+                        .setVideoGroupId(addVideoDTO.getVideoGroupId())
+                        .setUpdateTime(addVideoDTO.getVideoPublishTime())
+                        .setStatus(StatusConstant.ENABLE)
+                );
+            }
         }
         return Result.success(id);
     }
@@ -81,9 +93,14 @@ public class VideoControllerBack {
                             .setStatus(StatusConstant.ENABLE)
                     );
                 }
-            } else if (Objects.equals(dto.getVideoStatusWillBe(), Video.Status.ENABLE)) {
+            }
+            if (Objects.equals(dto.getVideoStatusWillBe(), Video.Status.ENABLE)) {
                 bangumiTimeTableMapper.delete(new LambdaQueryWrapper<BangumiTimeTable>()
                         .eq(BangumiTimeTable::getVideoId, video.getId())
+                );
+                bangumiVideoGroupMapper.update(new LambdaUpdateWrapper<BangumiVideoGroup>()
+                        .eq(BangumiVideoGroup::getVideoGroupId, video.getVideoGroupId())
+                        .set(BangumiVideoGroup::getUpdateTime, LocalDateTime.now())
                 );
             }
         }
@@ -95,6 +112,9 @@ public class VideoControllerBack {
     @PostMapping("delete")
     public Result<String> delete(@RequestBody @Valid DeleteVideoDTO dto) {
         videoService.deleteVideo(dto.getId());
+        bangumiTimeTableMapper.delete(new LambdaQueryWrapper<BangumiTimeTable>()
+                .eq(BangumiTimeTable::getVideoId, dto.getId())
+        );
         return Result.success();
     }
 

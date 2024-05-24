@@ -10,10 +10,12 @@ import com.abdecd.moebackend.business.pojo.vo.statistic.StatisticDataVO;
 import com.abdecd.moebackend.business.service.backstage.BangumiVideoGroupService;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.statistic.StatisticService;
+import com.abdecd.moebackend.common.result.PageVO;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -114,4 +116,22 @@ public class BangumiVideoGroupController {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "获取所有符合条件的番剧视频组", description = "data字段返回番剧视频组信息")
+    @GetMapping("/all")
+    public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
+            @Valid @Nullable @RequestParam("pageIndex") Integer pageIndex,
+            @Valid @Nullable @RequestParam("pageSize") Integer pageSize,
+            @Valid @Nullable @RequestParam("id") String id,
+            @Valid @Nullable @RequestParam("title") String title,
+            @Valid @Nullable @RequestParam("status") Byte status) {
+        pageIndex = pageIndex == null ? 1 : pageIndex;
+        pageSize = pageSize == null ? 10 : pageSize;
+
+        var list = bangumiVideoGroupService.getBangumiVideoGroupList((pageIndex - 1) * pageSize, pageSize, id, title, status);
+        var total = bangumiVideoGroupService.getBangumiVideoGroupListCount(id, title, status);
+        return Result.success(new PageVO<com.abdecd.moebackend.business.pojo.vo.videogroup.BangumiVideoGroupVO>().setRecords(list).setTotal(total));
+    }
+
 }

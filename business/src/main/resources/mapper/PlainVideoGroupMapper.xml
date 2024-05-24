@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.abdecd.moebackend.business.dao.mapper.PlainVideoGroupMapper">
+
+    <resultMap id="plainVideoGroupResultMap"
+               type="com.abdecd.moebackend.business.pojo.vo.videogroup.PlainVideoGroupVO">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="cover" property="cover"/>
+        <result column="description" property="description"/>
+        <result column="type" property="type"/>
+        <result column="tags" property="tags"/>
+        <result column="create_time" property="createTime"/>
+        <result column="status" property="videoGroupStatus"/>
+        <result column="weight" property="weight"/>
+        <association property="uploader"
+                     javaType="com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO">
+            <id column="user_id" property="id"/>
+            <result column="nickname" property="nickname"/>
+            <result column="avatar" property="avatar"/>
+        </association>
+    </resultMap>
+    <select id="selectVideoGroupList"
+            resultMap="plainVideoGroupResultMap">
+        SELECT
+        id,
+        title,
+        vg.user_id as user_id,
+        nickname,
+        avatar,
+        cover,
+        description,
+        type,
+        tags,
+        create_time,
+        status,
+        weight
+        FROM video_group vg
+        LEFT JOIN plain_user_detail pud
+        ON vg.user_id = pud.user_id
+        <where>
+            type = 0
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{pageIndex}, #{pageSize}
+    </select>
+
+    <select id="selectVideoGroupListCount" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM video_group
+        <where>
+            type = 0
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+</mapper>

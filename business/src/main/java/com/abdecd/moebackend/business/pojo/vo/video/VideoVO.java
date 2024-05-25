@@ -19,6 +19,8 @@ public class VideoVO {
     ArrayList<VideoSrcVO> src;
     LocalDateTime uploadTime;
     @JsonIgnore
+    Byte status;
+    @JsonIgnore
     String bvid;
     @JsonIgnore
     String epid;

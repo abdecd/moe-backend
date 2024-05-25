@@ -56,4 +56,5 @@ public class RedisConstant {
     public static final String BANGUMI_INDEX_FAVORITE_CNT_LOCK = "moe:bangumi_index:favorite_cnt_lock";
     public static final String BANGUMI_INDEX_WATCH_CNT = "moe:bangumi_index:watch_cnt";
     public static final String BANGUMI_INDEX_IDS = "moe:bangumi_index:ids#20";
+    public static final String BILI_PARSER_BV = "moe:bili_parser:bv#820";
 }

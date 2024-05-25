@@ -2,12 +2,14 @@ package com.abdecd.moebackend.business.lib;
 
 import cn.hutool.core.util.URLUtil;
 import com.abdecd.moebackend.business.common.property.MoeProperties;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ public class BiliParser {
 
     private final Map<String, String> bvQualityMap = Map.of("360p","16", "480p","32", "720p","64", "1080p","80");
 
+    @Cacheable(cacheNames = RedisConstant.BILI_PARSER_BV, key = "#bvid + ':' + #quality + ':' + #p")
     public String parseBV(String bvid, String quality, String p) throws IOException {
         log.info("parseBV: bvid={}, quality={}, p={}", bvid, quality, p);
         try (var resp = okHttpClient.newCall(new Request.Builder()
@@ -50,5 +53,4 @@ public class BiliParser {
         }
         return null;
     }
-
 }

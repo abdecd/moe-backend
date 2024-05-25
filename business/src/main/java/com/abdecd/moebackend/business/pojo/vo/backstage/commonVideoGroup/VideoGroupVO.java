@@ -25,5 +25,6 @@ public class VideoGroupVO {
     private Boolean userFavorite;
     private Integer commentCnt;
     private Integer danmakuCnt;
+    private Double weight;
 }
 

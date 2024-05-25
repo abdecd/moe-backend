@@ -19,4 +19,8 @@ public interface ReportMapper extends BaseMapper<Report> {
 
     @Select("SELECT * FROM report WHERE type = 1  ORDER BY status DESC, create_time DESC LIMIT #{pageSize} OFFSET #{offset}")
     ArrayList<Report> getCommentReportPage(Integer offset, Integer pageSize);
+
+    @Select("SELECT COUNT(1) FROM report WHERE type = #{type}")
+    Integer countByType(Integer type);
 }
+

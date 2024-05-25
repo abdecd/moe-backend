@@ -68,6 +68,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<String> nullPointerExceptionHandler(NullPointerException ex) {
         log.error("异常信息：{}", ex.getMessage());
-        return Result.error("信息不全");
+        return Result.error(500, "信息不全");
     }
 }

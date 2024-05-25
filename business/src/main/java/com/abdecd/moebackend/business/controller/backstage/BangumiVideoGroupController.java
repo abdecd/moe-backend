@@ -71,7 +71,6 @@ public class BangumiVideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "番剧视频组删除")
     @PostMapping(value = "/delete")
-
     @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, beforeInvocation = true, key = "#videoDeleteDTO.id")
     public Result<String> deleteBangumiVideoGroup(@RequestBody @Valid VideoGroupDeleteDTO videoDeleteDTO) {
         Long id = videoDeleteDTO.getId();

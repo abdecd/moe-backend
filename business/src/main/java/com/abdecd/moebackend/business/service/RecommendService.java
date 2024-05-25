@@ -49,6 +49,20 @@ public class RecommendService {
         stringRedisTemplate.opsForValue().set(RedisConstant.RECOMMEND_CAROUSEL, String.join(";", Arrays.stream(ids).mapToObj(String::valueOf).toArray(String[]::new)));
     }
 
+    public void addCarouselIds(int index, long[] ids) {
+        var old = getCarouselIds();
+        if (old.size() + ids.length > 20) throw new BaseException(MessageConstant.CAROUSEL_SIZE_LIMIT);
+        for (long id : ids) if (old.contains(id)) throw new BaseException(MessageConstant.CAROUSEL_EXIST_LIMIT);
+        old.addAll(index, Arrays.stream(ids).boxed().toList());
+        stringRedisTemplate.opsForValue().set(RedisConstant.RECOMMEND_CAROUSEL, String.join(";", old.stream().map(String::valueOf).toArray(String[]::new)));
+    }
+
+    public void deleteCarouselIds(long[] ids) {
+        var old = getCarouselIds();
+        old.removeAll(Arrays.stream(ids).boxed().toList());
+        stringRedisTemplate.opsForValue().set(RedisConstant.RECOMMEND_CAROUSEL, String.join(";", old.stream().map(String::valueOf).toArray(String[]::new)));
+    }
+
     public List<VideoGroupWithDataVO> getRecommend(int num) {
         var ids = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
                 .select(VideoGroup::getId)

@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -67,53 +68,58 @@ public class ElasticSearchService {
         );
     }
 
-    @SneakyThrows
     public PageVO<VideoGroupWithDataVO> search(String keyword, Byte type, Integer page, Integer pageSize) {
         var strlen = keyword.replaceAll("\\s", "").length();
         String minimumShouldMatch;
         if (strlen > 5) minimumShouldMatch = "80%";
         else minimumShouldMatch = "100%";
-        var response = esClient.search(s -> s
-            .index(ElasticSearchConstant.INDEX_NAME)
-            .query(q -> q
-                .functionScore(f -> f
-                    .functions(f1->f1.fieldValueFactor(bb->bb
-                        .field("weight")
-                        .missing(1.)
-                    ))
-                    .query(q1 -> q1.bool(b -> {
-                        var query = b
+        try {
+            var response = esClient.search(s -> s
+                .index(ElasticSearchConstant.INDEX_NAME)
+                .query(q -> q
+                    .functionScore(f -> f
+                        .functions(f1 -> f1.fieldValueFactor(bb -> bb
+                            .field("weight")
+                            .missing(1.)
+                        ))
+                        .query(q1 -> q1.bool(b -> {
+                            var query = b
                                 .should(b1 -> b1.matchPhrase(b2 -> b2.field("title").query(keyword).slop(10).boost(2F)))
                                 .should(b1 -> b1.matchPhrasePrefix(b2 -> b2.field("title").query(keyword).boost(1.5F)))
                                 .should(b1 -> b1.matchPhrase(b2 -> b2.field("uploaderName").query(keyword).slop(1)))
                                 .should(b1 -> b1.term(b2 -> b2.field("tags").value(keyword)))
                                 .should(b1 -> b1.match(b2 -> b2.field("tags_text").query(keyword).minimumShouldMatch(minimumShouldMatch)))
                                 .should(b1 -> b1.term(b2 -> b2.field("year").value(keyword).boost(10F)));
-                        if (strlen > 5) {
-                            query.should(b1 -> b1.matchPhrase(b2 -> b2.field("description").query(keyword).slop(1).boost(0.5F)));
-                        }
-                        if (type != null) {
-                            query.filter(b1 -> b1.term(b2 -> b2.field("type").value(type)));
-                        }
-                        return query;
-                    }))
+                            if (strlen > 5) {
+                                query.should(b1 -> b1.matchPhrase(b2 -> b2.field("description").query(keyword).slop(1).boost(0.5F)));
+                            }
+                            if (type != null) {
+                                query.filter(b1 -> b1.term(b2 -> b2.field("type").value(type)));
+                            }
+                            return query;
+                        }))
+                    )
                 )
-            )
-            .fields(f -> f.field("id"))
-            .minScore(0.0001)
-            .from(Math.max(0, (page - 1) * pageSize))
-            .size(pageSize),
-            SearchVideoGroupEntity.class
-        );
-        if (response.hits().total() == null || response.hits().total().value() == 0)
-            return new PageVO<>(0, new ArrayList<>());
-        List<SearchVideoGroupEntity> list = response.hits().hits().stream().map(Hit::source).toList();
-        var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
-        return new PageVO<>(
-                Math.toIntExact(response.hits().total().value()),
-                list.stream().parallel()
-                        .map(item -> videoGroupService.getVideoGroupWithData(item.getId())).toList()
-        );
+                .fields(f -> f.field("id"))
+                .minScore(0.0001)
+                .from(Math.max(0, (page - 1) * pageSize))
+                .size(pageSize),
+                SearchVideoGroupEntity.class
+            );
+            if (response.hits().total() == null || response.hits().total().value() == 0)
+                return new PageVO<>(0, new ArrayList<>());
+            List<SearchVideoGroupEntity> list = response.hits().hits().stream().map(Hit::source).toList();
+            var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+            return new PageVO<>(
+                    Math.toIntExact(response.hits().total().value()),
+                    list.stream().parallel()
+                            .map(item -> videoGroupService.getVideoGroupWithData(item.getId())).toList()
+            );
+        } catch (ElasticsearchException e) {
+            throw new RuntimeException(e.response().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SneakyThrows

@@ -17,7 +17,7 @@ public class Danmaku {
     Long videoId;
     Long userId;
     LocalDateTime timestamp;
-    Integer begin;
+    Double begin;
     Integer mode;
     Integer size;
     String color;

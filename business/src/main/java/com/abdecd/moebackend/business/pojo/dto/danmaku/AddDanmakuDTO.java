@@ -17,7 +17,7 @@ public class AddDanmakuDTO {
     @NotNull
     Long videoId;
     @NotNull
-    Integer begin;
+    Double begin;
     @NotNull
     Integer mode;
     @NotNull

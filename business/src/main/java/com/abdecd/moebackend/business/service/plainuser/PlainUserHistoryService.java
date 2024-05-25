@@ -62,7 +62,7 @@ public class PlainUserHistoryService {
     }
 
     public HistoryVO formHistoryVO(PlainUserHistory plainUserHistory) {
-        var video = videoService.getVideo(plainUserHistory.getVideoId());
+        var video = videoService.getVideoBase(plainUserHistory.getVideoId());
         if (video == null) video = new VideoVO();
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(plainUserHistory.getVideoGroupId());
         if (videoGroup == null) videoGroup = new VideoGroupVO();
@@ -94,7 +94,7 @@ public class PlainUserHistoryService {
     }
 
     public void addHistory(AddHistoryDTO addHistoryDTO) {
-        var video = videoService.getVideo(addHistoryDTO.getVideoId());
+        var video = videoService.getVideoBase(addHistoryDTO.getVideoId());
         if (video == null) return;
         var videoGroup = videoGroupServiceBase.getVideoGroupInfo(video.getVideoGroupId());
         var entity = addHistoryDTO.toEntity(videoGroup.getId());

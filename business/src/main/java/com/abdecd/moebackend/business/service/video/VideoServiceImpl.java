@@ -266,28 +266,12 @@ public class VideoServiceImpl implements VideoService {
         fileService.deleteDirInSystem("/video-group/" + obj.getVideoGroupId() + "/" + videoId);
     }
 
-    @Cacheable(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId", unless = "#result == null")
     @Override
     public VideoVO getVideo(Long videoId) {
-        var video = videoMapper.selectById(videoId);
-        if (video == null) return null;
-        if (!video.getStatus().equals(Video.Status.ENABLE)) return null;
-
-        var vo = new VideoVO();
-        BeanUtils.copyProperties(video, vo);
-        // 在转码中的视频不需要返回
-        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
-            vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
-        } else {
-            vo.setSrc(new ArrayList<>(
-                    videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
-                                    .eq(VideoSrc::getVideoId, videoId)
-                                    .select(VideoSrc::getSrcName, VideoSrc::getSrc))
-                            .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
-            ));
-            parseBV(vo);
-        }
-
+        var self = SpringContextUtil.getBean(getClass());
+        var vo = self.getVideoBase(videoId);
+        if (vo == null) return null;
+        self.setVideoSrcTo(vo);
         return vo;
     }
 
@@ -298,20 +282,35 @@ public class VideoServiceImpl implements VideoService {
 
         var vo = new VideoForceVO();
         BeanUtils.copyProperties(video, vo);
-        // 在转码中的视频不需要返回
-        if (Objects.equals(video.getStatus(), Video.Status.TRANSFORMING)) {
+
+        var self = SpringContextUtil.getBean(getClass());
+        self.setVideoSrcTo(vo);
+        return vo;
+    }
+
+    @Cacheable(cacheNames = RedisConstant.VIDEO_VO, key = "#videoId", unless = "#result == null")
+    public VideoVO getVideoBase(Long videoId) {
+        var video = videoMapper.selectById(videoId);
+        if (video == null) return null;
+        if (!video.getStatus().equals(Video.Status.ENABLE)) return null;
+
+        var vo = new VideoVO();
+        BeanUtils.copyProperties(video, vo);
+        return vo;
+    }
+
+    private void setVideoSrcTo(VideoVO vo) {
+        if (Objects.equals(vo.getStatus(), Video.Status.TRANSFORMING)) {
             vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
         } else {
             vo.setSrc(new ArrayList<>(
                     videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
-                                    .eq(VideoSrc::getVideoId, videoId)
+                                    .eq(VideoSrc::getVideoId, vo.getId())
                                     .select(VideoSrc::getSrcName, VideoSrc::getSrc))
                             .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
             ));
             parseBV(vo);
         }
-
-        return vo;
     }
 
     /**

@@ -66,8 +66,9 @@ public class ReportServiceImpl implements ReportService {
     public ReportVideoTotalVO getReportVideoVO(Integer page, Integer pageSize) {
         ReportVideoTotalVO reportVideoTotalVO = new ReportVideoTotalVO();
 
-        ArrayList<Report> reports = reportMapper.getVideoReportPage((page - 1)*pageSize,pageSize);
-        reportVideoTotalVO.setTotal(reports.size());
+        ArrayList<Report> reports = reportMapper.getVideoReportPage((page - 1) * pageSize, pageSize);
+        var count = reportMapper.countByType(0);
+        reportVideoTotalVO.setTotal(count);
         reportVideoTotalVO.setRecords(new ArrayList<>());
 
         for (Report report : reports) {
@@ -97,9 +98,10 @@ public class ReportServiceImpl implements ReportService {
     public ReportCommentTotalVO getReportCommentVO(Integer page, Integer pageSize) {
         ReportCommentTotalVO reportCommentTotalVO = new ReportCommentTotalVO();
 
-        ArrayList<Report> comments = reportMapper.getCommentReportPage((page - 1)*pageSize,pageSize);
+        ArrayList<Report> comments = reportMapper.getCommentReportPage((page - 1) * pageSize, pageSize);
+        var count = reportMapper.countByType(1);
 
-        reportCommentTotalVO.setTotal(comments.size());
+        reportCommentTotalVO.setTotal(count);
         reportCommentTotalVO.setRecords(new ArrayList<>());
 
         for (Report report : comments) {
@@ -121,13 +123,11 @@ public class ReportServiceImpl implements ReportService {
 
             UserCommentVO userCommentVO = new UserCommentVO();
 
-            PlainUserDetail user = plainUserDetailMapper.selectByUid(Long.valueOf(userComment.getUserId()));
-            PlainUserDetail touser = plainUserDetailMapper.selectByUid(userComment.getToId());
+            PlainUserDetail user = plainUserDetailMapper.selectByUid(userComment.getUserId());
 
             userCommentVO.setTimestamp(userComment.getTimestamp());
             userCommentVO.setId(userComment.getId());
             userCommentVO.setContent(userComment.getContent());
-            userCommentVO.setToId(userComment.getToId());
 
             UserCommentVOBasic.UserDetail userDetail1 = new UserCommentVOBasic.UserDetail();
             userDetail1.setAvatar(user.getAvatar());
@@ -135,14 +135,20 @@ public class ReportServiceImpl implements ReportService {
             userDetail1.setId(Math.toIntExact(user.getUserId()));
             userCommentVO.setUserDetail(userDetail1);
 
-            UserCommentVOBasic.UserDetail userDetail2 = new UserCommentVOBasic.UserDetail();
-            userDetail2.setAvatar(touser.getAvatar());
-            userDetail2.setNickname(touser.getNickname());
-            userDetail2.setId(Math.toIntExact(touser.getUserId()));
-            userCommentVO.setToUserDetail(userDetail2);
+            if (userComment.getToId() == -1L) {
+                userCommentVO.setToId(-1L);
+            } else {
+                PlainUserDetail touser = plainUserDetailMapper.selectByUid(userComment.getToId());
+                userCommentVO.setToId(userComment.getToId());
+
+                UserCommentVOBasic.UserDetail userDetail2 = new UserCommentVOBasic.UserDetail();
+                userDetail2.setAvatar(touser.getAvatar());
+                userDetail2.setNickname(touser.getNickname());
+                userDetail2.setId(Math.toIntExact(touser.getUserId()));
+                userCommentVO.setToUserDetail(userDetail2);
+            }
 
             reportCommentVO.setComment(userCommentVO);
-
             reportCommentTotalVO.getRecords().add(reportCommentVO);
         }
 

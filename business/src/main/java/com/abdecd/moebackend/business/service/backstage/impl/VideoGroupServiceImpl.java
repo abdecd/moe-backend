@@ -22,6 +22,7 @@ import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.business.service.videogroup.BangumiVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.PlainVideoGroupServiceBase;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
+import com.abdecd.moebackend.common.constant.RedisConstant;
 import com.abdecd.moebackend.common.constant.VideoGroupConstant;
 import com.abdecd.tokenlogin.common.context.UserContext;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -29,6 +30,8 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -125,7 +128,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
     @Override
     public void update(VideoGroupDTO videoGroupDTO) {
-        String coverPath = "";
+        String coverPath = null;
 
         if (videoGroupDTO.getCover() != null) {
             try {
@@ -140,7 +143,8 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         VideoGroup videoGroup = new VideoGroup();
         BeanUtils.copyProperties(videoGroupDTO, videoGroup);
-        videoGroup.setCover(coverPath);
+        if (coverPath != null)
+            videoGroup.setCover(coverPath);
 
         videoGroupMapper.update(videoGroup);
         var newOne = videoGroupServiceBase.getVideoGroupInfo(videoGroup.getId());
@@ -168,6 +172,7 @@ public class VideoGroupServiceImpl implements VideoGroupService {
 
         videoGroupVO.setTags(videoGroup.getTags());
         videoGroupVO.setCreateTime(String.valueOf(videoGroup.getCreateTime()));
+        videoGroupVO.setWeight(videoGroup.getWeight());
 
         UploaderVO uploaderVO = new UploaderVO();
         uploaderVO.setId(videoGroup.getUserId());
@@ -297,5 +302,21 @@ public class VideoGroupServiceImpl implements VideoGroupService {
         fileService.deleteDirInSystem("/video-group/" + id);
         // 删es
         elasticSearchService.deleteSearchEntity(id);
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = RedisConstant.VIDEO_GROUP_CACHE, key = "#videoGroupId"),
+            @CacheEvict(value = RedisConstant.BANGUMI_VIDEO_GROUP_CACHE, key = "#videoGroupId")
+    })
+    @Override
+    public Integer changeStatus(Long videoGroupId, Integer status) {
+        var result = videoGroupMapper.updateStatus(videoGroupId, status);
+        var newOne = videoGroupServiceBase.getVideoGroupInfoForce(videoGroupId);
+        if (newOne == null || !Objects.equals(newOne.getVideoGroupStatus(), VideoGroup.Status.ENABLE)) {
+            elasticSearchService.deleteSearchEntity(videoGroupId);
+        } else {
+            elasticSearchService.saveSearchEntity(newOne);
+        }
+        return result;
     }
 }

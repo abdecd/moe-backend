@@ -28,6 +28,7 @@ public class MessageConstant {
     public static final String LIKE_EXIST = "已经点赞过了";
     public static final String LIKE_NOT_EXIST = "还没有点赞过";
     public static final String CAROUSEL_SIZE_LIMIT = "轮播图设置数量超过上限";
+    public static final String CAROUSEL_EXIST_LIMIT = "存在重复项";
     public static final String VIDEO_NOT_FOUND = "视频不存在";
     public static final String ARG_ERROR = "参数错误";
 }

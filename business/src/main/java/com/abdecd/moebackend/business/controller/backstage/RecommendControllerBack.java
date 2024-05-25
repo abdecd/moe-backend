@@ -1,7 +1,10 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.pojo.dto.recommend.AddCarouselDTO;
+import com.abdecd.moebackend.business.pojo.dto.recommend.DeleteCarouselDTO;
 import com.abdecd.moebackend.business.pojo.dto.recommend.SetCarouselDTO;
+import com.abdecd.moebackend.business.pojo.vo.videogroup.VideoGroupWithDataVO;
 import com.abdecd.moebackend.business.service.RecommendService;
 import com.abdecd.moebackend.common.result.Result;
 import com.abdecd.tokenlogin.aspect.RequirePermission;
@@ -9,10 +12,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "推荐接口")
 @RestController
@@ -22,10 +24,33 @@ public class RecommendControllerBack {
     private RecommendService recommendService;
 
     @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "获取轮播列表")
+    @GetMapping("carousel")
+    public Result<List<VideoGroupWithDataVO>> getCarousel() {
+        return Result.success(recommendService.getCarousel());
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "设置轮播列表")
     @PostMapping("carousel")
     public Result<String> setCarousel(@RequestBody @Valid SetCarouselDTO setCarouselDTO) {
         recommendService.setCarouselIds(setCarouselDTO.getIds());
+        return Result.success();
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "添加轮播列表")
+    @PostMapping("carousel/add")
+    public Result<String> addCarousel(@RequestBody @Valid AddCarouselDTO dto) {
+        recommendService.addCarouselIds(dto.getIndex(), dto.getIds());
+        return Result.success();
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "删除轮播列表")
+    @PostMapping("carousel/delete")
+    public Result<String> deleteCarousel(@RequestBody @Valid DeleteCarouselDTO dto) {
+        recommendService.deleteCarouselIds(dto.getIds());
         return Result.success();
     }
 }

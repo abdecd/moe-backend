@@ -112,7 +112,7 @@ public class VideoServiceImpl implements VideoService {
      * @param videoId :
      * @param originPath 如 tmp/1/video.mp4
      */
-    private void createTransformTask(Long videoGroupId, Long videoId, String originPath, String cbStr, String failCbStr) {
+    public void createTransformTask(Long videoGroupId, Long videoId, String originPath, String cbStr, String failCbStr) {
         // 视频转码
         var task = new VideoTransformTask()
                 .setId(UUID.randomUUID() + "")
@@ -299,15 +299,15 @@ public class VideoServiceImpl implements VideoService {
         return vo;
     }
 
-    private void setVideoSrcTo(VideoVO vo) {
+    protected void setVideoSrcTo(VideoVO vo) {
         if (Objects.equals(vo.getStatus(), Video.Status.TRANSFORMING)) {
             vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
         } else {
             vo.setSrc(new ArrayList<>(
                     videoSrcMapper.selectList(new LambdaQueryWrapper<VideoSrc>()
-                                    .eq(VideoSrc::getVideoId, vo.getId())
-                                    .select(VideoSrc::getSrcName, VideoSrc::getSrc))
-                            .stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
+                            .select(VideoSrc::getSrcName, VideoSrc::getSrc)
+                            .eq(VideoSrc::getVideoId, vo.getId())
+                    ).stream().map(videoSrc -> new VideoSrcVO(videoSrc.getSrcName(), videoSrc.getSrc())).toList()
             ));
             parseBV(vo);
         }
@@ -316,7 +316,7 @@ public class VideoServiceImpl implements VideoService {
     /**
      * 解析bv号 设置到src对象里面
      */
-    private void parseBV(VideoVO vo) {
+    protected void parseBV(VideoVO vo) {
         if (!vo.getSrc().isEmpty() && vo.getSrc().getFirst().getSrc().startsWith("BV")) {
             // 设置bvid
             var first = vo.getSrc().getFirst();

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class DanmakuVO {
 //    Long id;
-    Integer begin;
+    Double begin;
     Integer mode;
     Integer size;
     String color;

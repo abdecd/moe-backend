@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.pojo.dto.backstage.bangumiVideoGroup;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,5 +25,6 @@ public class BangumiVideoGroupUpdateDTO {
     @Nullable
     private String videoGroupStatus;
     @Nullable
+    @Min(0)
     private Double weight;
 }

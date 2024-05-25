@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.pojo.dto.backstage.commonVideoGroup;
 
 import io.micrometer.common.lang.Nullable;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,5 +19,6 @@ public class VideoGroupDTO {
     @Nullable
     private Byte videoGroupStatus;
     @Nullable
+    @Min(0)
     private Double weight;
 }

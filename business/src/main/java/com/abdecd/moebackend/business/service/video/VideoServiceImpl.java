@@ -42,6 +42,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -67,6 +68,8 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoGroupMapper videoGroupMapper;
 
+    private static final Pattern bvPattern = Pattern.compile("BV[a-zA-Z0-9]+");
+
     private static final int TRANSFORM_TASK_TTL = 1200;
 
     @Caching(evict = {
@@ -79,8 +82,11 @@ public class VideoServiceImpl implements VideoService {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
-        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+        // 链接合法性检查 不是bv就正常检查
+        if (!bvPattern.matcher(addVideoDTO.getLink()).find()) {
+            if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+        }
 
         var entity = addVideoDTO.toEntity();
         videoMapper.insert(entity);
@@ -99,7 +105,10 @@ public class VideoServiceImpl implements VideoService {
             throw new BaseException(MessageConstant.INVALID_FILE_PATH);
         }
         // 链接处理
-        if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
+        if (bvPattern.matcher(addVideoDTO.getLink()).find()) {
+            videoMapper.updateById(entity.setStatus(videoStatusWillBe));
+            videoSrcMapper.insert(new VideoSrc().setVideoId(entity.getId()).setSrcName("720p").setSrc(addVideoDTO.getLink()));
+        } else if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
         } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
@@ -118,14 +127,20 @@ public class VideoServiceImpl implements VideoService {
         checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
 
         var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
-        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+        // 链接合法性检查 不是bv就正常检查
+        if (!bvPattern.matcher(addVideoDTO.getLink()).find()) {
+            if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+        }
 
         var entity = addVideoDTO.toEntity();
         videoMapper.insert(entity);
 
         // 链接处理
-        if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
+        if (bvPattern.matcher(addVideoDTO.getLink()).find()) {
+            videoMapper.updateById(entity.setStatus(videoStatusWillBe));
+            videoSrcMapper.insert(new VideoSrc().setVideoId(entity.getId()).setSrcName("720p").setSrc(addVideoDTO.getLink()));
+        } else if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
         } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
             createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
@@ -232,6 +247,7 @@ public class VideoServiceImpl implements VideoService {
             @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#root.target.getVideoGroupIdFromVideoId(#updateVideoDTO.id)"),
             @CacheEvict(cacheNames = RedisConstant.VIDEO_VO, key = "#updateVideoDTO.id")
     })
+    @Transactional
     @Override
     public void updateVideo(UpdateVideoDTO updateVideoDTO, Byte videoStatusWillBe) {
         checkUserHaveTheGroup(getVideoGroupIdFromVideoId(updateVideoDTO.getId()));
@@ -241,15 +257,24 @@ public class VideoServiceImpl implements VideoService {
             updateVideoDTO.setVideoGroupId(getVideoGroupIdFromVideoId(updateVideoDTO.getId()));
         }
 
+        var entity = updateVideoDTO.toEntity();
+        videoMapper.updateById(entity);
+
         if (updateVideoDTO.getLink() != null) {
             var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(updateVideoDTO.getLink());
-            if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
-                throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            // 链接合法性检查 不是bv就正常检查
+            if (!bvPattern.matcher(updateVideoDTO.getLink()).find()) {
+                if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+                    throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+            }
             if (Objects.equals(videoMapper.selectById(updateVideoDTO.getId()).getStatus(), Video.Status.TRANSFORMING))
                 throw new BaseException(MessageConstant.VIDEO_TRANSFORMING);
 
             // 链接处理
-            if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
+            if (bvPattern.matcher(updateVideoDTO.getLink()).find()) {
+                videoMapper.updateById(entity.setStatus(videoStatusWillBe));
+                videoSrcMapper.insert(new VideoSrc().setVideoId(entity.getId()).setSrcName("720p").setSrc(updateVideoDTO.getLink()));
+            } else if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
                 createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
             } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
                 createTransformTask(updateVideoDTO.getVideoGroupId(), updateVideoDTO.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
@@ -270,9 +295,6 @@ public class VideoServiceImpl implements VideoService {
                 throw new BaseException(MessageConstant.INVALID_FILE_PATH);
             }
         }
-
-        var entity = updateVideoDTO.toEntity();
-        videoMapper.updateById(entity);
     }
 
     @Caching(evict = {

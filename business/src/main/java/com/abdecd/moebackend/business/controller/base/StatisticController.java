@@ -50,9 +50,9 @@ public class StatisticController {
     @PostMapping("video-play-start")
     public Result<String> startVideoPlay(@RequestBody @Valid StartVideoPlayDTO dto, HttpServletRequest request) {
         if (rateLimiter.isRateLimited(
-                RedisConstant.STATISTIC_VIDEO_PLAY_LOCK + request.getHeader("X-Real-IP") + ":" + dto.getVideoId(),
+                RedisConstant.STATISTIC_VIDEO_PLAY_START_LOCK + request.getHeader("X-Real-IP") + ":" + dto.getVideoId(),
                 1,
-                RedisConstant.STATISTIC_VIDEO_PLAY_RESET_TIME,
+                RedisConstant.STATISTIC_VIDEO_PLAY_START_RESET_TIME,
                 TimeUnit.SECONDS
         )) return Result.error(MessageConstant.RATE_LIMIT);
         var video = videoService.getVideoBase(dto.getVideoId());

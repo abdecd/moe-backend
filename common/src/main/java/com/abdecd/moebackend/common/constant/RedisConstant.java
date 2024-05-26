@@ -31,7 +31,9 @@ public class RedisConstant {
     public static final int STATISTIC_VIDEO_PLAY_RESET_TIME = 5;
     public static final String PLAIN_USER_LAST_WATCH_TIME = "moe:plain_user:last_watch_time:";
     public static final String PLAIN_USER_TOTAL_WATCH_TIME = "moe:plain_user:total_watch_time:";
-    public static final String STATISTIC_WATCH_CNT = "moe:statistic:watch_cnt:";
+    public static final String VIDEO_GROUP_WATCH_CNT = "moe:video_group:watch_cnt:";
+    public static final String VIDEO_GROUP_LIKE_CNT = "moe:video_group:like_cnt:";
+    public static final String VIDEO_GROUP_FAVORITE_CNT = "moe:video_group:favorite_cnt:";
     public static final String VIDEO_GROUP_CACHE = "moe:video_group_cache#300";// todo 随机过期时间
     public static final String VIDEO_GROUP_TYPE_CACHE = "moe:video_group_type_cache#300";
     public static final String BANGUMI_VIDEO_GROUP_CACHE = "moe:bangumi_video_group_cache#300";
@@ -44,10 +46,8 @@ public class RedisConstant {
     public static final String IS_USER_FAVORITE = "moe:plain_user:favorite:is_user_favorite#300";
     public static final int FAVORITES_SIZE = 5000;
     public static final String IS_USER_LIKE = "moe:plain_user:like:is_user_like#300";
-    public static final String VIDEO_GROUP_LIKE_CNT = "moe:video_group_like_cnt:";
     public static final String VIDEO_COMMENT_CNT = "moe:video_comment_cnt#300";
     public static final String VIDEO_DANMAKU_CNT = "moe:video_danmaku_cnt#300";
-    public static final String VIDEO_GROUP_FAVORITE_CNT = "moe:video_group_favorite_cnt:";
     public static final String LIMIT_FEEDBACK_ADD = "moe:limit_feedback_add:";
     public static final int LIMIT_FEEDBACK_ADD_CNT = 10;
     public static final int LIMIT_FEEDBACK_ADD_RESET_TIME = 3; // seconds

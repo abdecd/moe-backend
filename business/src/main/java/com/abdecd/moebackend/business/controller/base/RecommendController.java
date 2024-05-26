@@ -36,7 +36,10 @@ public class RecommendController {
 
     @Operation(summary = "获取相关视频列表")
     @GetMapping("related")
-    public Result<List<VideoGroupWithDataVO>> getRelatedList(@RequestParam Long id, @RequestParam @Min(1) @Max(20) int num) {
+    public Result<List<VideoGroupWithDataVO>> getRelatedList(
+            @RequestParam Long id,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(20) int num
+    ) {
         return Result.success(recommendService.getRelated(id, num));
     }
 }

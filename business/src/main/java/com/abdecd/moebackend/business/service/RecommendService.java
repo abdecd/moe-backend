@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 // todo
 @Service
@@ -26,6 +27,8 @@ public class RecommendService {
     private VideoGroupMapper videoGroupMapper;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private ElasticSearchService elasticSearchService;
 
     public List<VideoGroupWithDataVO> getCarousel() {
         var self = SpringContextUtil.getBean(getClass());
@@ -66,6 +69,7 @@ public class RecommendService {
     public List<VideoGroupWithDataVO> getRecommend(int num) {
         var ids = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
                 .select(VideoGroup::getId)
+                .eq(VideoGroup::getVideoGroupStatus, VideoGroup.Status.ENABLE)
                 .last("order by RAND() limit " + num)
         );
         if (ids.isEmpty()) return new ArrayList<>();
@@ -76,14 +80,12 @@ public class RecommendService {
     }
 
     public List<VideoGroupWithDataVO> getRelated(Long videoGroupId, int num) {
-        var ids = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
-                .select(VideoGroup::getId)
-                .ne(VideoGroup::getId, videoGroupId)
-                .last("order by RAND() limit " + num)
-        );
-        if (ids.isEmpty()) return new ArrayList<>();
-        return new ArrayList<>(ids.stream()
-                .map(id -> videoGroupServiceBase.getVideoGroupWithData(id.getId()))
+        var vg = videoGroupServiceBase.getVideoGroupInfo(videoGroupId);
+        if (vg == null) return new ArrayList<>();
+        var result = elasticSearchService.searchRelated(vg.getTags().replaceAll(";"," "), 1, num);
+        if (result.getTotal() == 0) return new ArrayList<>();
+        return new ArrayList<>(result.getRecords().stream()
+                .filter(r -> !Objects.equals(r.getVideoGroupVO().getId(), videoGroupId))
                 .toList()
         );
     }

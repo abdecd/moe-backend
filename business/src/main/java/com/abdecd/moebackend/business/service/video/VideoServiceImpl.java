@@ -12,6 +12,7 @@ import com.abdecd.moebackend.business.dao.mapper.VideoSrcMapper;
 import com.abdecd.moebackend.business.lib.BiliParser;
 import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
+import com.abdecd.moebackend.business.pojo.dto.video.UpdateManyVideoIndexDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.VideoTransformTask;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
@@ -381,14 +382,24 @@ public class VideoServiceImpl implements VideoService {
         return video.getVideoGroupId();
     }
 
+    @Transactional
     @Override
-    public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
-        return videoMapper.selectByGid(videoGroupId);
+    public void updateManyIndex(List<UpdateManyVideoIndexDTO.UpdateVideoIndexDTO> arr) {
+        for (var dto : arr) {
+            videoMapper.update(new LambdaUpdateWrapper<Video>()
+                    .eq(Video::getId, dto.getVideoId())
+                    .set(Video::getIndex, dto.getIndex())
+            );
+        }
     }
-
 
     public void checkUserHaveTheGroup(Long videoGroupId) {
         var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
         videoGroupService.checkUserHaveTheGroup(videoGroupId);
+    }
+
+    @Override
+    public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
+        return videoMapper.selectByGid(videoGroupId);
     }
 }

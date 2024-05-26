@@ -9,6 +9,7 @@ import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoFullDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.DeleteVideoDTO;
+import com.abdecd.moebackend.business.pojo.dto.video.UpdateManyVideoIndexDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoFullDTO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.service.video.VideoService;
@@ -140,5 +141,13 @@ public class VideoControllerBack {
         var video = videoService.getVideoForce(id);
         if (video == null) throw new BaseException(MessageConstant.VIDEO_NOT_FOUND);
         return CompletableFuture.completedFuture(Result.success(video));
+    }
+
+    @RequirePermission(value = "99", exception = BaseException.class)
+    @Operation(summary = "批量改视频index")
+    @PostMapping("update-many-index")
+    public Result<String> updateManyIndex(@RequestBody @Valid UpdateManyVideoIndexDTO dto) {
+        videoService.updateManyIndex(dto.getArr());
+        return Result.success();
     }
 }

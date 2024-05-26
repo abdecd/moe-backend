@@ -107,6 +107,32 @@ public class VideoServiceImpl implements VideoService {
         return entity.getId();
     }
 
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+            @CacheEvict(cacheNames = RedisConstant.BANGUMI_VIDEO_GROUP_CONTENTS_CACHE, key = "#addVideoDTO.videoGroupId"),
+    })
+    @Transactional
+    @Override
+    public long addVideoWithCoverResolved(AddVideoDTO addVideoDTO, Byte videoStatusWillBe) {
+        checkUserHaveTheGroup(addVideoDTO.getVideoGroupId());
+
+        var originPath = resourceLinkHandler.getRawPathFromTmpVideoLink(addVideoDTO.getLink());
+        if (!originPath.startsWith("tmp/user" + UserContext.getUserId() + "/"))
+            throw new BaseException(MessageConstant.INVALID_FILE_PATH);
+
+        var entity = addVideoDTO.toEntity();
+        videoMapper.insert(entity);
+
+        // 链接处理
+        if (Objects.equals(videoStatusWillBe, Video.Status.ENABLE)) {
+            createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformEnableCb", "videoServiceImpl.videoTransformFailCb");
+        } else if (Objects.equals(videoStatusWillBe, Video.Status.PRELOAD)) {
+            createTransformTask(entity.getVideoGroupId(), entity.getId(), originPath, "videoServiceImpl.videoTransformPreloadCb", "videoServiceImpl.videoTransformFailCb");
+        } else throw new BaseException(MessageConstant.ARG_ERROR);
+
+        return entity.getId();
+    }
+
     /**
      * 创建转码任务，并在超时后删除
      * @param videoId :

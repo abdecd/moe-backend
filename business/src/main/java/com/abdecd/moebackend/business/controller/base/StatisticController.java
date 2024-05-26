@@ -1,5 +1,6 @@
 package com.abdecd.moebackend.business.controller.base;
 
+import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.lib.RateLimiter;
 import com.abdecd.moebackend.business.pojo.dto.statistic.StartVideoPlayDTO;
 import com.abdecd.moebackend.business.pojo.dto.statistic.VideoPlayDTO;
@@ -56,6 +57,7 @@ public class StatisticController {
                 TimeUnit.SECONDS
         )) return Result.error(MessageConstant.RATE_LIMIT);
         var video = videoService.getVideoBase(dto.getVideoId());
+        if (video == null) throw new BaseException(MessageConstant.VIDEO_NOT_EXIST);
         statisticService.cntWatchCnt(video.getVideoGroupId());
         bangumiIndexService.recordHot(video.getVideoGroupId());
         bangumiIndexService.recordWatch(video.getVideoGroupId());

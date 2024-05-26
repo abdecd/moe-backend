@@ -122,6 +122,46 @@ public class ElasticSearchService {
         }
     }
 
+    public PageVO<VideoGroupWithDataVO> searchRelated(String keyword, Integer page, Integer pageSize) {
+        try {
+            var response = esClient.search(s -> s
+                .index(ElasticSearchConstant.INDEX_NAME)
+                .query(q -> q
+                    .functionScore(f -> f
+                        .functions(f1 -> f1.fieldValueFactor(bb -> bb
+                            .field("weight")
+                            .missing(1.)
+                        ))
+                        .query(q1 -> q1.bool(b -> b
+                            .should(b1 -> b1.matchPhrase(b2 -> b2.field("title").query(keyword).slop(10).boost(2F)))
+                            .should(b1 -> b1.matchPhrase(b2 -> b2.field("uploaderName").query(keyword).slop(1)))
+                            .should(b1 -> b1.term(b2 -> b2.field("tags").value(keyword)))
+                            .should(b1 -> b1.match(b2 -> b2.field("tags_text").query(keyword)))
+                            .should(b1 -> b1.term(b2 -> b2.field("year").value(keyword).boost(10F)))))
+                    )
+                )
+                .fields(f -> f.field("id"))
+                .minScore(0.0001)
+                .from(Math.max(0, (page - 1) * pageSize))
+                .size(pageSize),
+                SearchVideoGroupEntity.class
+            );
+            if (response.hits().total() == null || response.hits().total().value() == 0)
+                return new PageVO<>(0, new ArrayList<>());
+            List<SearchVideoGroupEntity> list = response.hits().hits().stream().map(Hit::source).toList();
+            var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
+            return new PageVO<>(
+                    Math.toIntExact(response.hits().total().value()),
+                    list.stream().parallel()
+                            .map(item -> videoGroupService.getVideoGroupWithData(item.getId())).toList()
+            );
+        } catch (ElasticsearchException e) {
+            throw new RuntimeException(e.response().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @SneakyThrows
     public List<String> getSearchSuggestions(String keyword, Integer num) {
         var response = esClient.search(s -> s

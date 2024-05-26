@@ -76,11 +76,21 @@ public class UserServiceImpl implements UserService {
         return userBaseService.generateUserToken(user);
     }
 
+    @Override
+    public String refreshUserToken() {
+        return userBaseService.refreshUserToken();
+    }
+
     @Transactional
     @Override
     public User signup(SignUpDTO signUpDTO) {
         // 验证邮箱
         commonService.verifyEmail(signUpDTO.getEmail(), signUpDTO.getVerifyCode());
+        // 检验重复
+        if (userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, EncryptStrHandler.encrypt(signUpDTO.getEmail()))
+                .or().eq(User::getNickname, signUpDTO.getNickname())
+        ) != null) throw new BaseException(MessageConstant.USER_DULPLICATE);
         // 注册
         var user = userBaseService.signup(signUpDTO.getPassword(), "1", BaseException.class);
         if (user == null) throw new BaseException(MessageConstant.SIGNUP_FAILED);
@@ -103,19 +113,16 @@ public class UserServiceImpl implements UserService {
         commonService.verifyEmail(resetPwdDTO.getEmail(), resetPwdDTO.getVerifyCode());
         // 重置密码
         var user = userMapper.selectOne(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, resetPwdDTO.getEmail())
+                .eq(User::getEmail, EncryptStrHandler.encrypt(resetPwdDTO.getEmail()))
         );
+        if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
         userBaseService.forgetPassword(user.getId(), resetPwdDTO.getNewPassword(), BaseException.class);
-    }
-
-    @Override
-    public String refreshUserToken() {
-        return userBaseService.refreshUserToken();
     }
 
     @Override
     public void deleteAccount(Long userId, String verifyCode) {
         var user = userMapper.selectById(userId);
+        if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
         if (Objects.equals(user.getStatus(), User.Status.LOCKED))
             throw new BaseException(MessageConstant.ACCOUNT_LOCKED);
         // 验证邮箱
@@ -127,9 +134,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeEmail(Long userId, ChangeEmailDTO changeEmailDTO) {
         var user = userMapper.selectById(userId);
-        if (user == null) return;
+        if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
         // 验证邮箱
         commonService.verifyEmail(changeEmailDTO.getNewEmail(), changeEmailDTO.getVerifyCode());
+        // 检验重复
+        if (userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, EncryptStrHandler.encrypt(changeEmailDTO.getNewEmail()))
+        ) != null) throw new BaseException(MessageConstant.USER_DULPLICATE);
         userMapper.updateById(user.setEmail(changeEmailDTO.getNewEmail()));
     }
 }

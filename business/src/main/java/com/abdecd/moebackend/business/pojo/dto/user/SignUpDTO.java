@@ -4,6 +4,7 @@ import com.abdecd.moebackend.common.constant.DTOConstant;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -11,6 +12,7 @@ import org.hibernate.validator.constraints.Length;
 public class SignUpDTO {
     @NotBlank
     @Length(min = DTOConstant.PERSON_NAME_LENGTH_MIN, max = DTOConstant.PERSON_NAME_LENGTH_MAX)
+    @Pattern(regexp = DTOConstant.PERSON_NAME_REGEX)
     private String nickname;
 
     @NotBlank

@@ -23,4 +23,8 @@ public class AllProperties {
      * jwt 加密密钥 详见 common/util/JwtUtils
      */
     private String jwtHashKey;
+    /*
+      黑名单键名 详见 common/constant/Constant
+     */
+//    String LOGIN_TOKEN_BLACKLIST;
 }

@@ -47,7 +47,7 @@ public class User {
         return new User()
                 .setId(userId)
                 .setStatus(Status.DELETED)
-                .setNickname("账号已删除-" + UUID.randomUUID())
+                .setNickname("账号已删除")
                 .setEmail(UUID.randomUUID() + "");
     }
 }

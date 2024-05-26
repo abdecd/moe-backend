@@ -4,6 +4,7 @@ import com.abdecd.moebackend.business.dao.entity.Danmaku;
 import com.abdecd.moebackend.business.dao.mapper.DanmakuMapper;
 import com.abdecd.moebackend.business.lib.CacheByFrequency;
 import com.abdecd.moebackend.business.lib.CacheByFrequencyFactory;
+import com.abdecd.moebackend.business.lib.RedisHelper;
 import com.abdecd.moebackend.business.pojo.dto.danmaku.AddDanmakuDTO;
 import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;
 import com.abdecd.moebackend.common.constant.RedisConstant;
@@ -12,16 +13,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class DanmakuServiceImpl implements DanmakuService {
     @Autowired
     private DanmakuMapper danmakuMapper;
+    @Autowired
+    private RedisTemplate<String, LocalDateTime> redisTemplate;
+    @Autowired
+    private RedisHelper redisHelper;
     private CacheByFrequency<List<DanmakuVO>> danmakuCache;
     @Autowired
     public void setDanmakuCache(CacheByFrequencyFactory cacheByFrequencyFactory) {
@@ -30,9 +37,10 @@ public class DanmakuServiceImpl implements DanmakuService {
 
     @Override
     public Long addDanmaku(AddDanmakuDTO addDanmakuDTO) {
-        // todo 检验弹幕池插入权限
         var entity = addDanmakuDTO.toEntity(UserContext.getUserId());
         danmakuMapper.insert(entity);
+        danmakuCache.deleteMany(entity.getVideoId() + ":*");
+        updateDanmakuTimestamp(entity.getVideoId());
         return entity.getId();
     }
 
@@ -65,6 +73,8 @@ public class DanmakuServiceImpl implements DanmakuService {
         ) {
             danmakuMapper.deleteById(id);
         }
+        danmakuCache.deleteMany(danmaku.getVideoId() + ":*");
+        updateDanmakuTimestamp(danmaku.getVideoId());
     }
 
     @Cacheable(value = RedisConstant.VIDEO_DANMAKU_CNT, key = "#videoId")
@@ -73,5 +83,23 @@ public class DanmakuServiceImpl implements DanmakuService {
         return danmakuMapper.selectCount(new LambdaQueryWrapper<Danmaku>()
                 .eq(Danmaku::getVideoId, videoId)
         );
+    }
+
+    @Override
+    public LocalDateTime getDanmakuTimestamp(Long videoId, Integer segmentIndex) {
+        if (getDanmaku(videoId, segmentIndex).isEmpty()) return LocalDateTime.now();
+        var key = RedisConstant.TIMESTAMP_DANMAKU + videoId + ":" + segmentIndex;
+        redisTemplate.opsForValue().setIfAbsent(key, LocalDateTime.now());
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    @Override
+    public void updateDanmakuTimestamp(Long videoId) {
+        var keys = redisHelper.scan(RedisConstant.TIMESTAMP_DANMAKU + videoId + ":*");
+        if (keys.isEmpty()) return;
+        var newTime = LocalDateTime.now();
+        var map = new HashMap<String, LocalDateTime>();
+        for (var key : keys) map.put(key, newTime);
+        redisTemplate.opsForValue().multiSet(map);
     }
 }

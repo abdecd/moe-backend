@@ -117,7 +117,7 @@ public class CommentServiceImpl implements CommentService {
         userCommentMapper.insert(userComment);
         // 更新评论时间戳
         redisTemplate.opsForValue().set(
-                RedisConstant.VIDEO_COMMENT_TIMESTAMP + userComment.getVideoId(),
+                RedisConstant.TIMESTAMP_VIDEO_COMMENT + userComment.getVideoId(),
                 userComment.getTimestamp(),
                 10,
                 TimeUnit.DAYS
@@ -137,7 +137,7 @@ public class CommentServiceImpl implements CommentService {
         if (effectedRows != 0) {
             // 更新评论时间戳
             redisTemplate.opsForValue().set(
-                    RedisConstant.VIDEO_COMMENT_TIMESTAMP + getSthIdByCommentId(id),
+                    RedisConstant.TIMESTAMP_VIDEO_COMMENT + getSthIdByCommentId(id),
                     LocalDateTime.now(),
                     10,
                     TimeUnit.DAYS
@@ -156,7 +156,7 @@ public class CommentServiceImpl implements CommentService {
         if (effectedRows != 0) {
             // 更新评论时间戳
             redisTemplate.opsForValue().set(
-                    RedisConstant.VIDEO_COMMENT_TIMESTAMP + getSthIdByCommentId(id),
+                    RedisConstant.TIMESTAMP_VIDEO_COMMENT + getSthIdByCommentId(id),
                     LocalDateTime.now(),
                     10,
                     TimeUnit.DAYS

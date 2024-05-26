@@ -21,7 +21,7 @@ public class RedisConstant {
     public static final String VIDEO_VO = "moe:video_vo#300";
     public static final String VIDEO_COMMENT = "moe:video_comment#300";
     public static final int VIDEO_COMMENT_CACHE_SIZE = 300;
-    public static final String VIDEO_COMMENT_TIMESTAMP = "moe:timestamp:video_comment:";
+    public static final String TIMESTAMP_VIDEO_COMMENT = "moe:timestamp:video_comment:";
     public static final String DANMAKU = "moe:danmaku";
     public static final String PLAIN_USER_DETAIL = "moe:plain_user:detail#300";
     public static final String PLAIN_USER_HISTORY = "moe:plain_user:history:";
@@ -59,4 +59,5 @@ public class RedisConstant {
     public static final String BILI_PARSER_BV = "moe:bili_parser:bv#820";
     public static final String STATISTIC_VIDEO_PLAY_START_LOCK = "moe:statistic:video_play_start_statistic_lock:";
     public static final int STATISTIC_VIDEO_PLAY_START_RESET_TIME = 1;
+    public static final String TIMESTAMP_DANMAKU = "moe:timestamp:danmaku:";
 }

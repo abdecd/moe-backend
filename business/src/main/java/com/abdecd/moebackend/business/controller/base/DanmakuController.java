@@ -1,11 +1,14 @@
 package com.abdecd.moebackend.business.controller.base;
 
+import com.abdecd.moebackend.business.common.util.HttpCacheUtils;
 import com.abdecd.moebackend.business.pojo.dto.danmaku.AddDanmakuDTO;
 import com.abdecd.moebackend.business.pojo.vo.danmaku.DanmakuVO;
 import com.abdecd.moebackend.business.service.danmaku.DanmakuService;
 import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +27,11 @@ public class DanmakuController {
     @GetMapping("")
     public Result<List<DanmakuVO>> getDanmaku(
             @RequestParam Long videoId,
-            @RequestParam(defaultValue = "1") Integer segmentIndex
+            @RequestParam(defaultValue = "1") Integer segmentIndex,
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
+        if (HttpCacheUtils.tryUseCache(request, response, danmakuService.getDanmakuTimestamp(videoId, segmentIndex))) return null;
         return Result.success(danmakuService.getDanmaku(videoId, segmentIndex));
     }
 

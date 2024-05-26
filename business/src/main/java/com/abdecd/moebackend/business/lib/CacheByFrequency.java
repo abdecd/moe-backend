@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -38,6 +39,20 @@ public class CacheByFrequency<T> {
         this.rootKey = rootKey;
         this.maxCount = maxCount;
         this.ttlSeconds = frequencyTtlSeconds;
+    }
+
+    protected List<String> scan(String pattern) {
+        var keys = new ArrayList<String>();
+        ScanOptions options = ScanOptions.scanOptions()
+                .match(pattern)
+                .count(10)
+                .build();
+        try (var iter = stringRedisTemplate.scan(options)) {
+            while (iter.hasNext()) {
+                keys.add(iter.next());
+            }
+        }
+        return keys;
     }
 
     public void recordFrequency(String key) {
@@ -111,6 +126,17 @@ public class CacheByFrequency<T> {
         }
     }
 
+    public void deleteMany(String pattern) {
+        RLock lock = redissonClient.getLock(rootKey + ":lock");
+        lock.lock();
+        try {
+            var keys = scan(rootKey + ":value:" + pattern);
+            redisTemplate.delete(keys);
+        } finally {
+            lock.unlock();
+        }
+    }
+
     /**
      * 清理缓存 随机清掉一个
      * @param valueKeyToZSetKeyFunc key的判断函数，用于判断是否可缓
@@ -120,16 +146,7 @@ public class CacheByFrequency<T> {
         var set = stringRedisTemplate.opsForZSet().reverseRange(rootKey + ":zSet", 0, maxCount);
         if (set == null) return;
 
-        var fullKeys = new ArrayList<String>(maxCount);
-        ScanOptions options = ScanOptions.scanOptions()
-                .match(rootKey + ":value:*")
-                .count(10)
-                .build();
-        try (var iter = redisTemplate.scan(options)) {
-            while (iter.hasNext()) {
-                fullKeys.add(iter.next());
-            }
-        }
+        var fullKeys = scan(rootKey + ":value:*");
         if (fullKeys.isEmpty()) return;
 
         var needDeleted = new ArrayList<String>();

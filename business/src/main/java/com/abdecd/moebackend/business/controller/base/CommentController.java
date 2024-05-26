@@ -44,7 +44,7 @@ public class CommentController {
         if (HttpCacheUtils.tryUseCache(
                 request,
                 response,
-                redisTemplate.opsForValue().get(RedisConstant.VIDEO_COMMENT_TIMESTAMP + videoId)
+                redisTemplate.opsForValue().get(RedisConstant.TIMESTAMP_VIDEO_COMMENT + videoId)
         )) return null;
         return Result.success(commentService.getComment(videoId, page, pageSize));
     }

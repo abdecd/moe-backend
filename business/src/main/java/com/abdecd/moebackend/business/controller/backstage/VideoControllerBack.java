@@ -46,7 +46,15 @@ public class VideoControllerBack {
     @Operation(summary = "添加视频")
     @PostMapping("add")
     public Result<Long> add(@RequestBody @Valid AddVideoFullDTO addVideoDTO){
-        Long id = videoService.addVideo(addVideoDTO, addVideoDTO.getVideoStatusWillBe());
+        long id;
+        if (addVideoDTO.getCover() == null) {
+            var vg = videoGroupServiceBase.getVideoGroupInfoForce(addVideoDTO.getVideoGroupId());
+            if (vg == null) throw new BaseException(MessageConstant.INVALID_VIDEO_GROUP);
+            addVideoDTO.setCover(vg.getCover());
+            id = videoService.addVideoWithCoverResolved(addVideoDTO, addVideoDTO.getVideoStatusWillBe());
+        } else {
+            id = videoService.addVideo(addVideoDTO, addVideoDTO.getVideoStatusWillBe());
+        }
         if (Objects.equals(videoGroupServiceBase.getVideoGroupType(addVideoDTO.getVideoGroupId()), VideoGroup.Type.ANIME_VIDEO_GROUP)) {
             if (addVideoDTO.getVideoStatusWillBe().equals(Video.Status.ENABLE)) {
                 bangumiVideoGroupMapper.update(new LambdaUpdateWrapper<BangumiVideoGroup>()

@@ -39,7 +39,7 @@ public class StatisticService {
 
     public void cntWatchCnt(Long videoGroupId) {
         stringRedisTemplate.opsForValue().increment(
-                RedisConstant.STATISTIC_WATCH_CNT + videoGroupId
+                RedisConstant.VIDEO_GROUP_WATCH_CNT + videoGroupId
         );
     }
 
@@ -47,7 +47,7 @@ public class StatisticService {
         var favoriteService = SpringContextUtil.getBean(FavoriteService.class);
         // 获取播放量
         String watchCntStr = stringRedisTemplate.opsForValue().get(
-                RedisConstant.STATISTIC_WATCH_CNT + videoGroupId
+                RedisConstant.VIDEO_GROUP_WATCH_CNT + videoGroupId
         );
         Long watchCnt = watchCntStr == null ? 0L : Long.parseLong(watchCntStr);
 //        Long watchCnt = (long) (Math.random()*1000000);

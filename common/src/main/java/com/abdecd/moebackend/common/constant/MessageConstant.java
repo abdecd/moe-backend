@@ -31,4 +31,6 @@ public class MessageConstant {
     public static final String CAROUSEL_EXIST_LIMIT = "存在重复项";
     public static final String VIDEO_NOT_FOUND = "视频不存在";
     public static final String ARG_ERROR = "参数错误";
+    public static final String USER_NOT_EXIST = "用户不存在";
+    public static final String USER_DULPLICATE = "邮箱或昵称重复";
 }

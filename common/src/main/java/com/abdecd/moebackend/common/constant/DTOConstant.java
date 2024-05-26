@@ -9,5 +9,6 @@ public class DTOConstant {
     public static final int FEEDBACK_LENGTH_MAX = 10000;
     public static final int CAPTCHA_LENGTH = 4;
     public static final int EMAIL_VERIFY_CODE_LENGTH = 6;
-    public static final String TAGS_REGEXP = "^[A-Za-z0-9\\u4e00-\\u9fa5]+(?:;[A-Za-z0-9\\u4e00-\\u9fa5]+)*$";
+    public static final String TAGS_REGEXP = "^[^;]+(?:;[^;]+)*$";
+    public static final String PERSON_NAME_REGEX = "^[^@ ]+$";
 }

@@ -64,6 +64,10 @@ public class PlainUserService {
             }
         }
         if (updatePlainUserDTO.getNickname() != null) {
+            // 昵称重复
+            if (userMapper.selectOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getNickname, updatePlainUserDTO.getNickname())
+            ) != null) throw new BaseException(MessageConstant.USER_DULPLICATE);
             userMapper.update(new LambdaUpdateWrapper<User>()
                     .eq(User::getId, UserContext.getUserId())
                     .set(User::getNickname, updatePlainUserDTO.getNickname())

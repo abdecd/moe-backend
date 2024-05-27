@@ -1,10 +1,11 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
 import com.abdecd.moebackend.business.common.exception.BaseException;
-import com.abdecd.moebackend.business.dao.entity.Video;
+import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
+import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.pojo.dto.backstage.videogroup.VideoGroupStatusDTO;
 import com.abdecd.moebackend.business.pojo.vo.backstage.commonVideoGroup.VideoGroupListVO;
-import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
+import com.abdecd.moebackend.business.pojo.vo.video.VideoForceWithWillUpdateTimeVO;
 import com.abdecd.moebackend.business.service.backstage.VideoGroupService;
 import com.abdecd.moebackend.business.service.video.VideoService;
 import com.abdecd.moebackend.common.result.Result;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -28,6 +30,11 @@ public class VideoGroupController {
 
     @Resource
     private VideoService videoService;
+    @Autowired
+    private VideoMapper videoMapper;
+
+    @Autowired
+    private BangumiTimeTableMapper bangumiTimeTableMapper;
 
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "视频组类型获取", description = "data字段返回视频组类型")
@@ -48,15 +55,9 @@ public class VideoGroupController {
     @RequirePermission(value = "99", exception = BaseException.class)
     @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoForceVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
-        ArrayList<VideoForceVO> videoCompleteVOArrayList = new ArrayList<>();
-        ArrayList<Video> videoList = videoService.getVideoListByGid(videoGroupId);
+    public Result<ArrayList<VideoForceWithWillUpdateTimeVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
+        ArrayList<VideoForceWithWillUpdateTimeVO> videoCompleteVOArrayList = videoMapper.getAllVideo(videoGroupId);
 
-        for (Video video : videoList) {
-            VideoForceVO videoVO = videoService.getVideoForce(video.getId());
-
-            videoCompleteVOArrayList.add(videoVO);
-        }
         return Result.success(videoCompleteVOArrayList);
     }
 

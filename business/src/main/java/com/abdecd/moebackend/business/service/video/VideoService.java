@@ -19,6 +19,7 @@ public interface VideoService {
     VideoVO getVideo(Long videoId);
     VideoForceVO getVideoForce(Long videoId);
     VideoVO getVideoBase(Long videoId);
+    void setVideoSrcTo(VideoVO vo);
     void videoStatusUpdate(Long videoId, Byte videoStatus);
 
     ArrayList<Video> getVideoListByGid(Long videoGroupId);

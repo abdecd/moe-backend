@@ -362,7 +362,7 @@ public class VideoServiceImpl implements VideoService {
         return vo;
     }
 
-    protected void setVideoSrcTo(VideoVO vo) {
+    public void setVideoSrcTo(VideoVO vo) {
         if (Objects.equals(vo.getStatus(), Video.Status.TRANSFORMING)) {
             vo.setSrc(new ArrayList<>(List.of(new VideoSrcVO("1080p", moeProperties.getDefaultVideoPath()))));
         } else {

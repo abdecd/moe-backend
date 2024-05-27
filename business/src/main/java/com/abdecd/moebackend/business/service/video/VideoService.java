@@ -1,13 +1,11 @@
 package com.abdecd.moebackend.business.service.video;
 
-import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateManyVideoIndexDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateVideoDTO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoForceVO;
 import com.abdecd.moebackend.business.pojo.vo.video.VideoVO;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface VideoService {
@@ -21,8 +19,6 @@ public interface VideoService {
     VideoVO getVideoBase(Long videoId);
     void setVideoSrcTo(VideoVO vo);
     void videoStatusUpdate(Long videoId, Byte videoStatus);
-
-    ArrayList<Video> getVideoListByGid(Long videoGroupId);
 
     void updateManyIndex(List<UpdateManyVideoIndexDTO.UpdateVideoIndexDTO> arr);
 }

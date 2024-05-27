@@ -433,9 +433,4 @@ public class VideoServiceImpl implements VideoService {
         var videoGroupService = SpringContextUtil.getBean(VideoGroupServiceBase.class);
         videoGroupService.checkUserHaveTheGroup(videoGroupId);
     }
-
-    @Override
-    public ArrayList<Video> getVideoListByGid(Long videoGroupId) {
-        return videoMapper.selectByGid(videoGroupId);
-    }
 }

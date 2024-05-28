@@ -191,6 +191,7 @@ public class BangumiIndexService {
         var self = SpringContextUtil.getBean(getClass());
         return self.listBangumiCache(type)
                 .stream().map(videoGroupId -> videoGroupServiceBase.getVideoGroupWithData(videoGroupId))
+                .filter(Objects::nonNull)
                 .toList();
     }
 

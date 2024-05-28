@@ -5,8 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Configuration
 @EnableAsync
@@ -22,7 +21,6 @@ public class AsyncConfig implements AsyncConfigurer {
 
     @Bean
     public Executor slowExecutor() {
-//        return new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
-        return Executors.newVirtualThreadPerTaskExecutor();
+        return new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10000));
     }
 }

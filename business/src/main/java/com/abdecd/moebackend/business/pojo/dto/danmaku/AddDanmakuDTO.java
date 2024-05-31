@@ -39,9 +39,9 @@ public class AddDanmakuDTO {
         var crc32result = Long.toHexString(crc32.getValue());
 
         danmaku.setUserId(userId)
-                .setAuthor(crc32result)
+            .setAuthor(crc32result)
             .setTime(new Date().getTime())
-                .setText(SensitiveUtils.sensitiveFilter(text));
+            .setText(SensitiveUtils.sensitiveFilter(text));
 
         return danmaku;
     }

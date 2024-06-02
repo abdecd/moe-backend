@@ -1,7 +1,7 @@
 package com.abdecd.moebackend.business.pojo.dto.plainuser;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -11,6 +11,6 @@ public class UpdateUserPermissionDTO {
     @NotNull
     private Long id;
 
-    @NotBlank
+    @Pattern(regexp = "^\\d+(,\\d+)*$")
     private String permission;
 }

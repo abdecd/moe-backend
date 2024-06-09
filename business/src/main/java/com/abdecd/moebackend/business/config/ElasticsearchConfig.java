@@ -7,12 +7,14 @@ import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@ConditionalOnProperty(prefix = "spring.data.elasticsearch", name = "url")
 @Configuration
-public class ElasticSearchConfig {
-    @Value("${spring.data.elasticsearch.url}")
+public class ElasticsearchConfig {
+    @Value("${spring.data.elasticsearch.url:http://localhost:9200}")
     private String serverUrl;
 
     @Bean

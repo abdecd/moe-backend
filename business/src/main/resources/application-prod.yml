@@ -29,11 +29,9 @@ spring:
           starttls:
             enable: true
 
-
-
 logging:
   file:
-    name: ENC(6sF4mZHxUwDlVjRNuxa5iA6zEd2V/WhS)
+    name: /log/spring.log
   level:
     root: info
 

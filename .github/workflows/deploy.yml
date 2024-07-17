@@ -40,5 +40,11 @@ jobs:
           cd ~/moe-backend
           docker rm -f moe-backend | true
           docker load < moe-backend.tar
-          docker run --name moe-backend -p 8080:8080 --restart unless-stopped -v /home/${{ secrets.USER_NAME }}/moe-backend/config:/config -d moe-backend
+          docker run \
+            --name moe-backend \
+            -p 8080:8080 \
+            --restart unless-stopped \
+            -v /home/${{ secrets.USER_NAME }}/moe-backend/config:/config \
+            -v /home/${{ secrets.USER_NAME }}/moe-backend/log:/log \
+            -d moe-backend
         '

@@ -33,7 +33,7 @@ spring:
 
 logging:
   file:
-    name: ENC(H8dDDKWN6I6sOYalGG1lkPurC1r7hSccU7gq21ezgDELoyPQohLMmQ==)
+    name: ENC(6sF4mZHxUwDlVjRNuxa5iA6zEd2V/WhS)
   level:
     root: info
 

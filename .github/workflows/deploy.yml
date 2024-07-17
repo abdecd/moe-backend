@@ -31,7 +31,7 @@ jobs:
     - name: Make Docker Image
       run: |
         docker build -t moe-backend:latest ./business
-        docker save moe-backend > moe-backend.tar
+        docker save moe-backend:latest > moe-backend.tar
 
     - name: Copy to Server and Run
       run: |

@@ -15,4 +15,4 @@ jobs:
       - name: Setup SSH Keys
         run: |
           echo "this is an error"
-          exit 1
+          exit 1 

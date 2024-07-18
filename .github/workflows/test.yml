@@ -1,0 +1,17 @@
+name: Test before Merge
+on:
+  pull_request:
+    branches:
+      - try-test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Keys
+        run: |
+          echo "hello"

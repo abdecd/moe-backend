@@ -3,9 +3,11 @@ on:
   pull_request:
     branches:
       - try-test
+    paths:
+      - 'business/**' # 替换 'your-folder/' 为你要监控的文件夹路径
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
     steps:
 

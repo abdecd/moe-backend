@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup SSH Keys
+      - name: Throw Error
         run: |
           echo "this is an error"
           exit 1

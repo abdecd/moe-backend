@@ -21,6 +21,7 @@ public class Notice {
         crc32.update(title.getBytes());
         crc32.update(content.getBytes());
         crc32.update(date.getBytes());
+        crc32.update(((int) (Math.random() * 100000) + "").getBytes());
         this.hash = String.format("%08X", crc32.getValue());
         return this;
     }

@@ -16,6 +16,7 @@ import java.util.List;
 
 @Service
 public class NoticeService {
+    final int MAX_NOTICE_CNT = 20;
     private RedisTemplate<String, List<Notice>> redisTemplate;
 
     @Autowired
@@ -30,6 +31,7 @@ public class NoticeService {
     public void addNotice(int index, Notice notice) {
         var list = redisTemplate.opsForValue().get(RedisConstant.ANNOUNCEMENT);
         if (list == null) list = new ArrayList<>();
+        if (list.size() >= MAX_NOTICE_CNT) throw new BaseException(MessageConstant.MAX_SIZE);
         try {
             list.add(index, notice);
         } catch (IndexOutOfBoundsException e) {
@@ -44,6 +46,7 @@ public class NoticeService {
             list = new ArrayList<>();
             list.add(notice);
         } else {
+            if (list.size() >= MAX_NOTICE_CNT) throw new BaseException(MessageConstant.MAX_SIZE);
             list.addFirst(notice);
         }
         redisTemplate.opsForValue().set(RedisConstant.ANNOUNCEMENT, new ArrayList<>(list));

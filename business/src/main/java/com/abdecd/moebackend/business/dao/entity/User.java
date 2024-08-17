@@ -34,20 +34,20 @@ public class User {
 
     public static User ofEmpty() {
         return new User()
-                .setId(null)
-                .setPassword("")
-                .setPermission("")
-                .setStatus(Status.NORMAL)
-                .setNickname("")
-                .setEmail("")
-                .setCreateTime(LocalDateTime.now());
+            .setId(null)
+            .setPassword("")
+            .setPermission("")
+            .setStatus(Status.NORMAL)
+            .setNickname("")
+            .setEmail("")
+            .setCreateTime(LocalDateTime.now());
     }
 
     public static User toBeDeleted(Long userId) {
         return new User()
-                .setId(userId)
-                .setStatus(Status.DELETED)
-                .setNickname("账号已删除")
-                .setEmail(UUID.randomUUID() + "");
+            .setId(userId)
+            .setStatus(Status.DELETED)
+            .setNickname("账号已删除")
+            .setEmail(UUID.randomUUID() + "");
     }
 }

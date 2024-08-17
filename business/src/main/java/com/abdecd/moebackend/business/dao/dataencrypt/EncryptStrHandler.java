@@ -17,6 +17,7 @@ import java.sql.SQLException;
 @SuppressWarnings("all")
 public class EncryptStrHandler extends BaseTypeHandler<String> {
     private static String KEY;
+
     static {
         // 记得提前引用，不然static块不会触发
         // 读取 KEY
@@ -24,11 +25,12 @@ public class EncryptStrHandler extends BaseTypeHandler<String> {
             while (SpringContextUtil.getApplicationContext() == null) {
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
             KEY = SpringContextUtil
-                    .getApplicationContext()
-                    .getEnvironment()
+                .getApplicationContext()
+                .getEnvironment()
                 .getProperty("moe.encrypt-str-aes-key");
             if (KEY == null || KEY.isEmpty())
                 throw new RuntimeException("moe.encrypt-str-aes-key is empty");

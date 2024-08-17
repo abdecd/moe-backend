@@ -25,6 +25,7 @@ token-login:
     - /doc.html/**
     - /swagger-ui.html/**
     - /v3/api-docs/**
+    - /webjars/**
     - /user/login
     - /user/login-by-email
     - /user/signup

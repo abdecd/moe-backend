@@ -31,6 +31,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Object handler) throws Exception {
         if (inTest()) return true;
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) return true;
         var canPass = false;
         PathPatternParser pathPatternParser = new PathPatternParser();
         for (String pattern : tokenLoginProp.getExcludePatterns()) {

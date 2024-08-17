@@ -81,6 +81,20 @@ public class PlainUserService {
         clearVideoGroupCache(UserContext.getUserId());
     }
 
+    @CacheEvict(value = RedisConstant.PLAIN_USER_DETAIL, key = "#root.target.getCurrUserId()")
+    @Transactional
+    public void deleteCurrPlainUserDetail() {
+        var user = User.toBeDeleted(UserContext.getUserId());
+        plainUserDetailMapper.updateById(new PlainUserDetail()
+            .setUserId(UserContext.getUserId())
+            .setNickname(user.getNickname())
+            .setAvatar("")
+            .setSignature("")
+        );
+        // 清理缓存
+        clearVideoGroupCache(UserContext.getUserId());
+    }
+
     private void clearVideoGroupCache(Long userId) {
         var list = videoGroupMapper.selectList(new LambdaQueryWrapper<VideoGroup>()
                 .eq(VideoGroup::getUserId, userId)

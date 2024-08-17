@@ -27,9 +27,9 @@ public class PlainUserController {
     @Operation(summary = "获取用户信息")
     @GetMapping("")
     public Result<PlainUserDetail> getUserInfo(
-            Long uid,
-            HttpServletRequest request,
-            HttpServletResponse response
+        Long uid,
+        HttpServletRequest request,
+        HttpServletResponse response
     ) {
         if (uid == null) uid = UserContext.getUserId();
         var vo = plainUserService.getPlainUserDetail(uid);

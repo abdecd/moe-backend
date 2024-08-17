@@ -8,6 +8,7 @@ import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
 import com.abdecd.moebackend.business.dao.service.UserService;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
 import com.abdecd.moebackend.business.service.common.CommonService;
+import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
 import com.abdecd.moebackend.business.tokenLogin.service.TokenLoginService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -29,6 +30,8 @@ public class LoginService {
     CommonService commonService;
     @Autowired
     PlainUserDetailMapper plainUserDetailMapper;
+    @Autowired
+    PlainUserService plainUserService;
 
     public User login(LoginDTO loginDTO) {
         String username = loginDTO.getUsername();
@@ -129,21 +132,6 @@ public class LoginService {
         }
     }
 
-    public void deleteAccount(Long userId, String verifyCode) {
-        var user = userService.getById(userId);
-        if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
-        if (Objects.equals(user.getStatus(), User.Status.LOCKED))
-            throw new BaseException(MessageConstant.ACCOUNT_LOCKED);
-        // 验证邮箱
-        commonService.verifyEmail(user.getEmail(), verifyCode);
-        // 删除账号
-        userService.updateById(User.toBeDeleted(user.getId()));
-        // 删除缓存
-        userService.getUserCache().delete(user.getId() + "");
-        userService.getUserEmailKeyCache().delete(user.getEmail());
-        tokenLoginService.forceLogout(user.getId());
-    }
-
     public void changeEmail(Long userId, ChangeEmailDTO changeEmailDTO) {
         var user = userService.getById(userId);
         if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
@@ -156,5 +144,21 @@ public class LoginService {
         // 删除缓存
         userService.getUserCache().delete(user.getId() + "");
         userService.getUserEmailKeyCache().delete(oldEmail);
+    }
+
+    public void deleteAccount(Long userId, String verifyCode) {
+        var user = userService.getById(userId);
+        if (user == null) throw new BaseException(MessageConstant.USER_NOT_EXIST);
+        if (Objects.equals(user.getStatus(), User.Status.LOCKED))
+            throw new BaseException(MessageConstant.ACCOUNT_LOCKED);
+        // 验证邮箱
+        commonService.verifyEmail(user.getEmail(), verifyCode);
+        // 删除账号
+        userService.updateById(User.toBeDeleted(user.getId()));
+        plainUserService.deleteCurrPlainUserDetail();
+        // 删除缓存
+        userService.getUserCache().delete(user.getId() + "");
+        userService.getUserEmailKeyCache().delete(user.getEmail());
+        tokenLoginService.forceLogout(user.getId());
     }
 }

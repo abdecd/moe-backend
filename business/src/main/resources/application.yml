@@ -20,7 +20,6 @@ moe:
 
 token-login:
   jwt-ttl-seconds: 2592000 # 30天
-  jwt-refresh-ttl-seconds: 259200 # 3天
   exclude-patterns:
     - /error
     - /doc.html/**

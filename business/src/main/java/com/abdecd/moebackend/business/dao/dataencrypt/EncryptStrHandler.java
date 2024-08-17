@@ -29,9 +29,9 @@ public class EncryptStrHandler extends BaseTypeHandler<String> {
             KEY = SpringContextUtil
                     .getApplicationContext()
                     .getEnvironment()
-                .getProperty("auth.encrypt-str-aes-key");
+                .getProperty("moe.encrypt-str-aes-key");
             if (KEY == null || KEY.isEmpty())
-                throw new RuntimeException("auth.encrypt-str-aes-key is empty");
+                throw new RuntimeException("moe.encrypt-str-aes-key is empty");
         });
     }
 

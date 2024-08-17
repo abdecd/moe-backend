@@ -21,7 +21,6 @@
     <modules>
         <module>business</module>
         <module>common</module>
-        <module>token-login</module>
     </modules>
 
 

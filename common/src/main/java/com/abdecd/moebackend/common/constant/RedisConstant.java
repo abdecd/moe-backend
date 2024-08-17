@@ -66,4 +66,7 @@ public class RedisConstant {
     public static final int LIMIT_DANMAKU_USER_MODIFY_RESET_TIME = 5; // seconds
     public static final String LIMIT_TRANSFORM_VIDEO = "moe:limit:transform_video";
     public static final String ANNOUNCEMENT = "moe:announcement";
+    public static final String LIMIT_LOGIN = "moe:limit:login_cnt:";
+    public static final String USER = "moe:user";
+    public static final String USER_EMAIL_KEY = "moe:user:email_key";
 }

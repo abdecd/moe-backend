@@ -14,9 +14,12 @@ public class JwtUtils {
     public static String encodeJWT(String userId, String permission, int ttlSeconds) {
         var expiredDate = Calendar.getInstance();
         expiredDate.add(Calendar.SECOND, ttlSeconds);
+        Map<String, Object> map = Map.of(
+            TokenLoginConstant.K_USER_ID, userId,
+            TokenLoginConstant.K_PERMISSION, permission
+        );
         return JWT.create()
-            .withClaim(TokenLoginConstant.K_USER_ID, userId)
-            .withClaim(TokenLoginConstant.K_PERMISSION, permission)
+            .withClaim("claims", map)
             .withExpiresAt(expiredDate.getTime())
             .sign(HMAC256);
     }
@@ -27,9 +30,10 @@ public class JwtUtils {
                 .require(HMAC256)
                 .build()
                 .verify(token);
+            var map = verifiedToken.getClaim("claims").asMap();
             return Map.of(
-                TokenLoginConstant.K_USER_ID, verifiedToken.getClaim(TokenLoginConstant.K_USER_ID).asString(),
-                TokenLoginConstant.K_PERMISSION, verifiedToken.getClaim(TokenLoginConstant.K_PERMISSION).asString(),
+                TokenLoginConstant.K_USER_ID, map.get(TokenLoginConstant.K_USER_ID).toString(),
+                TokenLoginConstant.K_PERMISSION, map.get(TokenLoginConstant.K_PERMISSION).toString(),
                 TokenLoginConstant.K_EXPIRE, verifiedToken.getExpiresAt().getTime() + ""
             );
         } catch (Exception e) {

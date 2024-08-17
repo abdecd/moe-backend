@@ -6,8 +6,8 @@ import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.User;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.PlainUserDetailMapper;
-import com.abdecd.moebackend.business.dao.mapper.UserMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
+import com.abdecd.moebackend.business.dao.service.UserService;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.UpdatePlainUserDTO;
 import com.abdecd.moebackend.business.service.fileservice.FileService;
 import com.abdecd.moebackend.business.tokenLogin.common.UserContext;
@@ -30,7 +30,7 @@ public class PlainUserService {
     @Autowired
     private PlainUserDetailMapper plainUserDetailMapper;
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
     @Autowired
     private FileService fileService;
     @Autowired
@@ -65,13 +65,14 @@ public class PlainUserService {
         }
         if (updatePlainUserDTO.getNickname() != null) {
             // 昵称重复
-            if (userMapper.selectOne(new LambdaQueryWrapper<User>()
+            if (userService.exists(new LambdaQueryWrapper<User>()
                     .eq(User::getNickname, updatePlainUserDTO.getNickname())
-            ) != null) throw new BaseException(MessageConstant.USER_DULPLICATE);
-            userMapper.update(new LambdaUpdateWrapper<User>()
+            )) throw new BaseException(MessageConstant.USER_DULPLICATE);
+            userService.update(new LambdaUpdateWrapper<User>()
                     .eq(User::getId, UserContext.getUserId())
                     .set(User::getNickname, updatePlainUserDTO.getNickname())
             );
+            userService.getUserCache().delete(UserContext.getUserId() + "");
         }
         var entity = updatePlainUserDTO.toEntity(UserContext.getUserId());
         if (newFileUrl != null) entity.setAvatar(newFileUrl);

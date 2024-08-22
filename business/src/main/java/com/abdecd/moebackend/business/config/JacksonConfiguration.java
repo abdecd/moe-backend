@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -39,7 +38,7 @@ public class JacksonConfiguration {
         return new LocalDateTimeDeserializer() {
             @Override
             public LocalDateTime deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-                return LocalDateTime.ofInstant(new Date(Long.parseLong(parser.getText())).toInstant(), ZoneId.systemDefault());
+                return LocalDateTime.ofInstant(new Date(Long.parseLong(parser.getText())).toInstant(), ZoneOffset.UTC);
             }
         };
     }

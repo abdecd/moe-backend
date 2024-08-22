@@ -155,8 +155,11 @@ public class VideoServiceImpl implements VideoService {
 
     /**
      * 创建转码任务，并在超时后删除
+     * @param videoGroupId :
      * @param videoId :
      * @param originPath 如 tmp/1/video.mp4
+     * @param cbStr 例如 videoServiceImpl.videoTransformEnableCb
+     * @param failCbStr 例如 videoServiceImpl.videoTransformFailCb
      */
     public void createTransformTask(Long videoGroupId, Long videoId, String originPath, String cbStr, String failCbStr) {
         if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(RedisConstant.LIMIT_TRANSFORM_VIDEO)))
@@ -246,7 +249,7 @@ public class VideoServiceImpl implements VideoService {
             .setId(videoId)
             .setStatus(videoStatus)
         );
-        // 如果视频组显示正在转码(转码没设缓存)，那放出来
+        // 如果videoStatus转为enable且视频组显示正在转码(转码没设缓存)，那放出来
         if (Objects.equals(videoStatus, Video.Status.ENABLE)) {
             var videoGroup = videoGroupMapper.selectById(getVideoGroupIdFromVideoId(videoId));
             if (videoGroup == null) return;

@@ -20,7 +20,7 @@ spring:
     default-encoding: UTF-8
     username: ENC(x+FaKyFtCGt7k3PuR0i0i9Lq1UqlihDd)
     password: ENC(ugnqUExRKf0Iwfdd2YtAZKYTV+tbc3duPxltRtKyZk4=)
-    test-connection: true
+    test-connection: false
     properties:
       mail:
         smtp:

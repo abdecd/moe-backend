@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.tokenLogin.common.util;
 
-import ch.qos.logback.core.encoder.ByteArrayUtil;
+import com.password4j.Password;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -13,7 +13,7 @@ import java.security.*;
 import java.security.spec.MGF1ParameterSpec;
 import java.util.Base64;
 
-public class PwdUtils {
+public class PwdUtil {
     private static final KeyPair keyPair = generateKeyPair();
     public static final PublicKey publicKey = keyPair.getPublic();
     private static final PrivateKey privateKey = keyPair.getPrivate();
@@ -35,6 +35,9 @@ public class PwdUtils {
 
     /**
      * 获取前端传过来的解密后的密码
+     * @param encryptedPwd :
+     * @return :
+     * @throws RuntimeException :
      */
     public static String decryptPwd(String encryptedPwd) throws RuntimeException {
         Cipher cipher;
@@ -50,31 +53,27 @@ public class PwdUtils {
         }
     }
 
-    private static final String SALT = "eFdsPt7aatdfjiowef4-qoXiCmenw28d3c9d3sjiox*j4n/3mewq;jiowreiSFLddLDCjxjSixuqxs.Vldpw[dxmsfd";
-
-    private static String getSaltedPwd(String username, String pwd) {
-        var saltIndex1 = 10 + Math.abs((username.hashCode() + 113) % 37);
-        var saltIndex2 = SALT.length() - Math.abs((pwd.hashCode() + 113) % 37);
-        String salt;
-        if (saltIndex2 - saltIndex1 > 43) {
-            salt = SALT.substring(saltIndex1, saltIndex2);
-        } else {
-            salt = SALT.substring(saltIndex2) + SALT.substring(0, saltIndex1);
-        }
-        if (saltIndex2 > 72) salt = salt.toUpperCase();
-        return pwd.substring(0, pwd.length() - 2) + salt + pwd.substring(pwd.length() - 2);
+    /**
+     * 密码 hash
+     * @param pwd 密码
+     * @return hash
+     */
+    public static String encodePwd(String pwd) {
+        return Password.hash(pwd).withBcrypt().getResult();
     }
 
-    public static String encodePwd(String username, String pwd) throws RuntimeException {
-        MessageDigest sha256;
+    /**
+     * 校验密码
+     * @param pwd :
+     * @param hashPwd :
+     * @return :
+     */
+    public static boolean verifyPwd(String pwd, String hashPwd) {
         try {
-            sha256 = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("unknown error");
+            return Password.check(pwd, hashPwd).withBcrypt();
+        } catch (Exception e) {
+            return false;
         }
-        var saltedPwd = getSaltedPwd(username, pwd);
-        var hash = sha256.digest(saltedPwd.getBytes(StandardCharsets.UTF_8));
-        return ByteArrayUtil.toHexString(hash);
     }
 }
 

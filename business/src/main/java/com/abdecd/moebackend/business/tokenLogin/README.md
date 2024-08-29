@@ -1,9 +1,22 @@
+## TokenLogin v0.2.0
+
+### 使用
+
+常用内容均在TokenLoginService中  
+密码校验相关在PwdUtil中
+
 ### 依赖
 
 ```xml
+
+<dependencies>
 <dependency>
     <groupId>com.auth0</groupId>
     <artifactId>java-jwt</artifactId>
+</dependency>
+    <dependency>
+        <groupId>com.password4j</groupId>
+        <artifactId>password4j</artifactId>
 </dependency>
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -13,6 +26,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-redis</artifactId>
 </dependency>
+</dependencies>
 ```
 
 ### 配置
@@ -22,12 +36,7 @@ common/TokenLoginProp
 ```java
 private Integer jwtTtlSeconds;
 /**
- 不拦截的请求，如可以这样配置：
- - /error
- - /doc.html/**
- - /swagger-ui.html/**
- - /v3/api-docs/**
- - /webjars/**
+ 不拦截的请求
  */
 private String[] excludePatterns = new String[0];
 /**
@@ -35,9 +44,7 @@ private String[] excludePatterns = new String[0];
  */
 private Boolean test = false;
 ```
-
 例子
-
 ```yml
 token-login:
   jwtTtlSeconds: 86400
@@ -52,7 +59,6 @@ token-login:
 ```
 
 ### 常量
-
 common/TokenLoginConstant
 
 ```java

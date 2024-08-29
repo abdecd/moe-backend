@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 
-public class JwtUtils {
+public class JwtUtil {
     private static final Algorithm HMAC256 = Algorithm.HMAC256(UUID.randomUUID() + "");
 
     public static String encodeJWT(String userId, String permission, int ttlSeconds) {

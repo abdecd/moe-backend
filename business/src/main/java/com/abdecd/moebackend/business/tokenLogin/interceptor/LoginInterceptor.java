@@ -3,7 +3,7 @@ package com.abdecd.moebackend.business.tokenLogin.interceptor;
 import com.abdecd.moebackend.business.tokenLogin.common.TokenLoginConstant;
 import com.abdecd.moebackend.business.tokenLogin.common.TokenLoginProp;
 import com.abdecd.moebackend.business.tokenLogin.common.UserContext;
-import com.abdecd.moebackend.business.tokenLogin.common.util.JwtUtils;
+import com.abdecd.moebackend.business.tokenLogin.common.util.JwtUtil;
 import com.abdecd.moebackend.business.tokenLogin.service.LoginBlackListService;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
@@ -48,7 +48,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             else return true;
         }
         // 校验令牌
-        Map<String, String> claims = JwtUtils.decodeJWT(token);
+        Map<String, String> claims = JwtUtil.decodeJWT(token);
         if (claims == null) {
             if (!canPass) return ret401(response);
             else return true;

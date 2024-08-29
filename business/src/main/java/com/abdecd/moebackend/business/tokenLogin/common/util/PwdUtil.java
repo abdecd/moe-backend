@@ -18,7 +18,7 @@ public class PwdUtil {
     private static final KeyPair keyPair = generateKeyPair();
     public static final PublicKey publicKey = keyPair.getPublic();
     private static final PrivateKey privateKey = keyPair.getPrivate();
-    private static final BcryptFunction hashFunction = BcryptFunction.getInstance(Bcrypt.B, 10);
+    private static final BcryptFunction hashFunction = BcryptFunction.getInstance(Bcrypt.B, 12);
 
     private static KeyPair generateKeyPair() {
         // 获取指定算法的密钥对生成器
@@ -72,7 +72,7 @@ public class PwdUtil {
      */
     public static boolean verifyPwd(String pwd, String hashPwd) {
         try {
-            return hashFunction.check(pwd, hashPwd);
+            return BcryptFunction.getInstanceFromHash(hashPwd).check(pwd, hashPwd);
         } catch (Exception e) {
             return false;
         }

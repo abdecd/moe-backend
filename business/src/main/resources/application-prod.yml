@@ -35,10 +35,8 @@ logging:
   level:
     root: info
 
-token-login:
-  encrypt-str-aes-key: ENC(6uMGkAIYVocx/NCTAlKJ25TsxGdXugmbg9MWgPqBvQg=)
-
 moe:
+  encrypt-str-aes-key: ENC(6uMGkAIYVocx/NCTAlKJ25TsxGdXugmbg9MWgPqBvQg=)
   video-base-path: ENC(tGyV+wYsVc1B7e8Iy4OqcBe9E+Wqm+6zwD1L0PXuQWlLKWyImhoOxQ==)
   default-video-path: ENC(f9g8e2M5m07Nw/bcVO5YuBkaBt3haw81OVsdTjnLWlCDfH9XyYV6csGHzacgj7JXnUI5hkeJy0g=)
   bili-session: ENC(JvJpbzOd6/YEtkT2+N8wRCMYmmcJtZMK7/A7IbXw78LTlP6usoSSvukRLt+2AZBlZ1PJi+ZWq6uZssSPMvO15c4w0RnDVBb0+CvTm9aLxxfJxlsGMJZQQavojrDAw26xYRTerbNLsjSo8zt4e0YzuertXqWqvqibu20YlXAv+GJM0oUajvF+/ohMr2SnwW4Wj8KOLCMRWo5BO2PqaiqAD0tm5R2HOx6Im4vvSvh2sSmF9hqNPjp2w6jD+f2l9ihR1KRp/AC7qm4dRY7egzpgExaVZ5p519T0kAHHvsobCq4uCShLjtjshw==)

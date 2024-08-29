@@ -20,7 +20,7 @@ spring:
     default-encoding: UTF-8
     username: ENC(x+FaKyFtCGt7k3PuR0i0i9Lq1UqlihDd)
     password: ENC(ugnqUExRKf0Iwfdd2YtAZKYTV+tbc3duPxltRtKyZk4=)
-    test-connection: true
+    test-connection: false
     properties:
       mail:
         smtp:
@@ -29,11 +29,10 @@ spring:
             enable: true
 
 token-login:
-  encrypt-str-aes-key: ENC(LYp5jN4519SP0GpXhTwRtCiO2pjnBDRSSKFdyYUOVzY=)
-  jwt-hash-key: ENC(D8BSdc5MMoiyXifO1fF7hJPHS0TElEAXjkkMQp9f0es=)
   test: true
 
 moe:
+  encrypt-str-aes-key: ENC(LYp5jN4519SP0GpXhTwRtCiO2pjnBDRSSKFdyYUOVzY=)
   local-file-service:
     file-base-path: ENC(ZEPPBMCGObS2E5djMyyBsGuCFxHTVlifF75TI79gdTc0lD+oQwtY/BdpbJ1tiLmKeU66Dser/HQ=)
     url-prefix: ENC(l6KCmbNbHiPFCj92Ff9k8Sc6ZoxjNrTx)

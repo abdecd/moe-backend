@@ -1,6 +1,7 @@
 package com.abdecd.moebackend.business.tokenLogin.common.util;
 
-import com.password4j.Password;
+import com.password4j.BcryptFunction;
+import com.password4j.types.Bcrypt;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -17,6 +18,7 @@ public class PwdUtil {
     private static final KeyPair keyPair = generateKeyPair();
     public static final PublicKey publicKey = keyPair.getPublic();
     private static final PrivateKey privateKey = keyPair.getPrivate();
+    private static final BcryptFunction hashFunction = BcryptFunction.getInstance(Bcrypt.B, 10);
 
     private static KeyPair generateKeyPair() {
         // 获取指定算法的密钥对生成器
@@ -59,7 +61,7 @@ public class PwdUtil {
      * @return hash
      */
     public static String encodePwd(String pwd) {
-        return Password.hash(pwd).withBcrypt().getResult();
+        return hashFunction.hash(pwd).getResult();
     }
 
     /**
@@ -70,7 +72,7 @@ public class PwdUtil {
      */
     public static boolean verifyPwd(String pwd, String hashPwd) {
         try {
-            return Password.check(pwd, hashPwd).withBcrypt();
+            return hashFunction.check(pwd, hashPwd);
         } catch (Exception e) {
             return false;
         }

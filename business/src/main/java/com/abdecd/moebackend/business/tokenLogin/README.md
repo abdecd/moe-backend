@@ -8,7 +8,6 @@
 ### 依赖
 
 ```xml
-
 <dependencies>
 <dependency>
     <groupId>com.auth0</groupId>

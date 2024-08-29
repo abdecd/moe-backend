@@ -13,9 +13,9 @@
     <groupId>com.auth0</groupId>
     <artifactId>java-jwt</artifactId>
 </dependency>
-    <dependency>
-        <groupId>com.password4j</groupId>
-        <artifactId>password4j</artifactId>
+<dependency>
+    <groupId>com.password4j</groupId>
+    <artifactId>password4j</artifactId>
 </dependency>
 <dependency>
     <groupId>org.springframework.boot</groupId>

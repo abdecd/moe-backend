@@ -18,7 +18,7 @@ public class PwdUtil {
     private static final KeyPair keyPair = generateKeyPair();
     public static final PublicKey publicKey = keyPair.getPublic();
     private static final PrivateKey privateKey = keyPair.getPrivate();
-    private static final BcryptFunction hashFunction = BcryptFunction.getInstance(Bcrypt.B, 12);
+    private static final BcryptFunction hashFunction = BcryptFunction.getInstance(Bcrypt.B, 11);
 
     private static KeyPair generateKeyPair() {
         // 获取指定算法的密钥对生成器

@@ -1,4 +1,4 @@
-## TokenLogin v0.2.0
+## TokenLogin v0.2.1
 
 ### 使用
 
@@ -33,9 +33,21 @@
 common/TokenLoginProp
 
 ```java
-private Integer jwtTtlSeconds;
 /**
- 不拦截的请求
+ * jwt过期时间 默认30天
+ */
+private Integer jwtTtlSeconds = 2592000;
+/**
+ * jwt密钥 默认随机生成
+ */
+private String jwtSecretKey;
+/**
+ 不拦截的请求，如可以这样配置：
+ - /error
+ - /doc.html/**
+ - /swagger-ui.html/**
+ - /v3/api-docs/**
+ - /webjars/**
  */
 private String[] excludePatterns = new String[0];
 /**

@@ -44,6 +44,7 @@ public class BiliParser {
             if (resp.body() != null) {
                 var json = objectMapper.readTree(resp.body().string());
                 var url = json.get("data")
+                    .get("data")
                     .get("durl")
                     .get(0)
                     .get("url");

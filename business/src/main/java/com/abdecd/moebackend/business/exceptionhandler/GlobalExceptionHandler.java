@@ -48,13 +48,13 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler
     public Result<String> exceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.error("异常信息：{}", ex.toString());
+        log.warn("异常信息：{}", ex.toString());
 //        return Result.error("参数类型错误: " + ex.getMessage());
         return Result.error("参数类型错误");
     }
     @ExceptionHandler
     public Result<String> exceptionHandler(MissingServletRequestParameterException ex) {
-        log.error("异常信息：{}", ex.toString());
+        log.warn("异常信息：{}", ex.toString());
 //        return Result.error("参数缺失: " + ex.getMessage());
         return Result.error("参数缺失");
     }

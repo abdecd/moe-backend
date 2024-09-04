@@ -1,11 +1,11 @@
 package com.abdecd.moebackend.business.service.videogroup;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupAddDTO;
 import com.abdecd.moebackend.business.pojo.dto.videogroup.PlainVideoGroupUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.UploaderVO;

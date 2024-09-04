@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.notice.NoticeDTO;
 import com.abdecd.moebackend.business.pojo.dto.notice.NoticeUpdateDTO;
 import com.abdecd.moebackend.business.pojo.vo.notice.Notice;

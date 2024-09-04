@@ -1,6 +1,5 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.dao.entity.BangumiTimeTable;
 import com.abdecd.moebackend.business.dao.entity.BangumiVideoGroup;
 import com.abdecd.moebackend.business.dao.entity.Video;
@@ -8,6 +7,7 @@ import com.abdecd.moebackend.business.dao.entity.VideoGroup;
 import com.abdecd.moebackend.business.dao.mapper.BangumiTimeTableMapper;
 import com.abdecd.moebackend.business.dao.mapper.BangumiVideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.video.AddVideoFullDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.DeleteVideoDTO;
 import com.abdecd.moebackend.business.pojo.dto.video.UpdateManyVideoIndexDTO;

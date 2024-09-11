@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(BaseException ex) {
-        log.error("异常信息：{}", ex.getMessage());
+        log.warn("异常信息：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
 
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(MultipartException ex) {
-        log.error("异常信息：{}", ex.toString());
+        log.warn("异常信息：{}", ex.toString());
         return Result.error(MessageConstant.MULTIPART_EXCEPTION);
     }
 
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result<String> exceptionHandler(DataIntegrityViolationException ex) {
-        log.error("异常信息：{}", ex.toString());
+        log.warn("异常信息：{}", ex.toString());
         return Result.error(MessageConstant.DB_ERROR);
     }
 

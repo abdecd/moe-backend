@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(BaseException ex) {
-        log.warn("异常信息：{}", ex.getMessage());
+        log.info("异常信息：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
 
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(HandlerMethodValidationException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.info("参数校验失败：{}", ex.toString());
         return Result.error("参数校验失败: " + ex.getAllErrors().getFirst().getDefaultMessage());
     }
     /**
@@ -43,18 +43,18 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(MethodArgumentNotValidException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.info("参数校验失败：{}", ex.toString());
         return Result.error("参数校验失败: " + ex.getAllErrors().getFirst().getDefaultMessage());
     }
     @ExceptionHandler
     public Result<String> exceptionHandler(MethodArgumentTypeMismatchException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.info("参数类型错误：{}", ex.toString());
 //        return Result.error("参数类型错误: " + ex.getMessage());
         return Result.error("参数类型错误");
     }
     @ExceptionHandler
     public Result<String> exceptionHandler(MissingServletRequestParameterException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.info("参数缺失：{}", ex.toString());
 //        return Result.error("参数缺失: " + ex.getMessage());
         return Result.error("参数缺失");
     }
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> exceptionHandler(MultipartException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.info("表单异常：{}", ex.toString());
         return Result.error(MessageConstant.MULTIPART_EXCEPTION);
     }
 
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<String> sqlExceptionHandler(SQLIntegrityConstraintViolationException ex) {
         var msg = ex.getMessage();
-        log.error("异常信息：{}", msg);
+        log.warn("数据库重复键：{}", msg);
         var code = msg.split(" ")[5];
         if (msg.contains("Duplicate entry"))
             return Result.error("重复的值：" + code.substring(code.lastIndexOf('.') + 1, code.length() - 1));
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result<String> exceptionHandler(DataIntegrityViolationException ex) {
-        log.warn("异常信息：{}", ex.toString());
+        log.warn("数据库操作异常：{}", ex.toString());
         return Result.error(MessageConstant.DB_ERROR);
     }
 
@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler
     public Result<String> nullPointerExceptionHandler(NullPointerException ex) {
-        log.error("异常信息：{}", ex.toString());
+        log.error("空指针异常：{}", ex.toString());
         return Result.error(500, "信息不全");
     }
 }

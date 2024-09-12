@@ -420,11 +420,13 @@ public class VideoServiceImpl implements VideoService {
                         String url = "";
                         try {
                             url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), vo.getIndex() + "");
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.warn("parseBV failed: " + e.getMessage());
                         }
                         try {
                             if (url.isEmpty()) url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), "1");
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.warn("parseBV failed: " + e.getMessage());
                         }
                         return url;
                     }, Executors.newVirtualThreadPerTaskExecutor()));

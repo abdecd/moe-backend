@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -40,7 +41,7 @@ public class BiliParser {
             )
             .build()
         ).execute()) {
-            if (resp.code() != 200) throw new IOException();
+            if (resp.code() != 200) throw new IOException(resp.code() + " " + Objects.requireNonNull(resp.body()).string());
             if (resp.body() != null) {
                 var json = objectMapper.readTree(resp.body().string());
                 var url = json.get("data")

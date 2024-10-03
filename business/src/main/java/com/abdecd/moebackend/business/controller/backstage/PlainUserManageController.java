@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.BanUserDTO;
 import com.abdecd.moebackend.business.pojo.dto.plainuser.UpdateUserPermissionDTO;
 import com.abdecd.moebackend.business.pojo.vo.plainuser.AllVO;

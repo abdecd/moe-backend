@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.comment.DeleteCommentDTO;
 import com.abdecd.moebackend.business.pojo.vo.comment.UserCommentVO;
 import com.abdecd.moebackend.business.service.comment.CommentService;

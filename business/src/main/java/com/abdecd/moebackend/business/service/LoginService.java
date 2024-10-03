@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.service;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.dao.dataencrypt.EncryptStrHandler;
 import com.abdecd.moebackend.business.dao.entity.PlainUserDetail;
 import com.abdecd.moebackend.business.dao.entity.User;
@@ -9,6 +9,7 @@ import com.abdecd.moebackend.business.dao.service.UserService;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
 import com.abdecd.moebackend.business.service.common.CommonService;
 import com.abdecd.moebackend.business.service.plainuser.PlainUserService;
+import com.abdecd.moebackend.business.tokenLogin.common.util.PwdUtil;
 import com.abdecd.moebackend.business.tokenLogin.service.TokenLoginService;
 import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -56,13 +57,13 @@ public class LoginService {
             //账号被锁定
             throw new BaseException(MessageConstant.ACCOUNT_LOCKED);
         }
-        String hashPwd;
+        String rawPwd;
         try {
-            hashPwd = tokenLoginService.convertPwd(password, user.getId().toString());
+            rawPwd = tokenLoginService.convertPwd(password);
         } catch (Exception e) {
             throw new BaseException(e.getMessage());
         }
-        if (!hashPwd.equals(user.getPassword())) {
+        if (!PwdUtil.verifyPwd(rawPwd, user.getPassword())) {
             //密码错误
             throw new BaseException(MessageConstant.LOGIN_PASSWORD_ERROR);
         }
@@ -92,25 +93,24 @@ public class LoginService {
             .or().eq(User::getNickname, signUpDTO.getNickname())
         )) throw new BaseException(MessageConstant.USER_DULPLICATE);
         // 注册
-        var user = User.ofEmpty()
-            .setPermission("1")
-            .setNickname(signUpDTO.getNickname())
-            .setEmail(signUpDTO.getEmail());
-        userService.save(user);
         try {
-            userService.updateById(user
-                .setPassword(tokenLoginService.convertPwd(signUpDTO.getPassword(), user.getId().toString()))
+            var user = User.ofEmpty()
+                .setPermission("1")
+                .setPassword(PwdUtil.encodePwd(tokenLoginService.convertPwd(signUpDTO.getPassword())))
+                .setNickname(signUpDTO.getNickname())
+                .setEmail(signUpDTO.getEmail());
+            userService.save(user);
+
+            plainUserDetailMapper.insert(new PlainUserDetail()
+                .setUserId(user.getId())
+                .setNickname(signUpDTO.getNickname())
+                .setAvatar("")
+                .setSignature("")
             );
+            return user;
         } catch (Exception e) {
             throw new BaseException(e.getMessage());
         }
-        plainUserDetailMapper.insert(new PlainUserDetail()
-            .setUserId(user.getId())
-            .setNickname(signUpDTO.getNickname())
-            .setAvatar("")
-            .setSignature("")
-        );
-        return user;
     }
 
     public void forgetPassword(ResetPwdDTO resetPwdDTO) {
@@ -122,7 +122,7 @@ public class LoginService {
         try {
             userService.updateById(new User()
                 .setId(user.getId())
-                .setPassword(tokenLoginService.convertPwd(resetPwdDTO.getNewPassword(), user.getId().toString()))
+                .setPassword(PwdUtil.encodePwd(tokenLoginService.convertPwd(resetPwdDTO.getNewPassword())))
             );
             // 删除缓存
             userService.getUserCache().delete(user.getId() + "");

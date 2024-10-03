@@ -1,6 +1,6 @@
 package com.abdecd.moebackend.business.controller.base;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.lib.RateLimiter;
 import com.abdecd.moebackend.business.pojo.dto.user.*;
 import com.abdecd.moebackend.business.service.LoginService;

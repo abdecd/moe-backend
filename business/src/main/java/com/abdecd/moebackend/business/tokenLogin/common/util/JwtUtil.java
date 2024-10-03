@@ -1,15 +1,24 @@
 package com.abdecd.moebackend.business.tokenLogin.common.util;
 
 import com.abdecd.moebackend.business.tokenLogin.common.TokenLoginConstant;
+import com.abdecd.moebackend.business.tokenLogin.common.TokenLoginProp;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 
-public class JwtUtils {
-    private static final Algorithm HMAC256 = Algorithm.HMAC256(UUID.randomUUID() + "");
+@Component
+public class JwtUtil {
+    private static Algorithm HMAC256 = Algorithm.HMAC256(UUID.randomUUID() + "");
+    @Autowired
+    public void setHMAC256(TokenLoginProp prop) {
+        if (prop.getJwtSecretKey() != null)
+            HMAC256 = Algorithm.HMAC256(prop.getJwtSecretKey());
+    }
 
     public static String encodeJWT(String userId, String permission, int ttlSeconds) {
         var expiredDate = Calendar.getInstance();

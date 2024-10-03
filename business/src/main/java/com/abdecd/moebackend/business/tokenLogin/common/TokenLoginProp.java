@@ -8,7 +8,14 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "token-login")
 @Data
 public class TokenLoginProp {
-    private Integer jwtTtlSeconds;
+    /**
+     * jwt过期时间 默认30天
+     */
+    private Integer jwtTtlSeconds = 2592000;
+    /**
+     * jwt密钥 默认随机生成
+     */
+    private String jwtSecretKey;
     /**
      不拦截的请求，如可以这样配置：
      - /error

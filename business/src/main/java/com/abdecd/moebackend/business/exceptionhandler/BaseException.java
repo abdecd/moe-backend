@@ -1,4 +1,4 @@
-package com.abdecd.moebackend.business.common.exception;
+package com.abdecd.moebackend.business.exceptionhandler;
 
 public class BaseException extends RuntimeException {
     public BaseException(String msg) {

@@ -1,7 +1,7 @@
 package com.abdecd.moebackend.business.controller.backstage;
 
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.pojo.dto.backstage.report.ReportDTO;
 import com.abdecd.moebackend.business.pojo.dto.report.DeleteReportDTO;
 import com.abdecd.moebackend.business.pojo.vo.report.ReportCommentTotalVO;

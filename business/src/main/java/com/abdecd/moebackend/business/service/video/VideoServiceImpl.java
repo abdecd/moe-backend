@@ -1,6 +1,5 @@
 package com.abdecd.moebackend.business.service.video;
 
-import com.abdecd.moebackend.business.common.exception.BaseException;
 import com.abdecd.moebackend.business.common.property.MoeProperties;
 import com.abdecd.moebackend.business.common.util.SpringContextUtil;
 import com.abdecd.moebackend.business.dao.entity.Danmaku;
@@ -11,6 +10,7 @@ import com.abdecd.moebackend.business.dao.mapper.DanmakuMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoGroupMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoMapper;
 import com.abdecd.moebackend.business.dao.mapper.VideoSrcMapper;
+import com.abdecd.moebackend.business.exceptionhandler.BaseException;
 import com.abdecd.moebackend.business.lib.BiliParser;
 import com.abdecd.moebackend.business.lib.ResourceLinkHandler;
 import com.abdecd.moebackend.business.lib.event.VideoAddEvent;
@@ -420,11 +420,13 @@ public class VideoServiceImpl implements VideoService {
                         String url = "";
                         try {
                             url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), vo.getIndex() + "");
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.warn("parseBV failed: " + e.getMessage());
                         }
                         try {
                             if (url.isEmpty()) url = biliParser.parseBV(srcObj.getSrc(), srcObj.getSrcName(), "1");
-                        } catch (Exception ignored) {
+                        } catch (Exception e) {
+                            log.warn("parseBV failed: " + e.getMessage());
                         }
                         return url;
                     }, Executors.newVirtualThreadPerTaskExecutor()));

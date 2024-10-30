@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@ConditionalOnProperty(prefix = "spring.data.elasticsearch", name = "url")
+@ConditionalOnProperty(prefix = "spring.data.elasticsearch", name = "enable", havingValue = "true")
 @Service
 public class ElasticsearchService implements SearchService {
     @Autowired

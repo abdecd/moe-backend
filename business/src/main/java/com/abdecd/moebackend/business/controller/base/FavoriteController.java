@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +41,7 @@ public class FavoriteController {
     @Operation(summary = "分类获取用户收藏列表")
     @GetMapping("")
     public Result<PageVO<FavoriteVO>> getFavorites(
-            @RequestParam @Min(0) @Max(1) Byte type,
+            @NotNull @Min(0) @Max(1) Byte type,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") @Max(200) Integer pageSize
     ) {
@@ -54,7 +55,7 @@ public class FavoriteController {
 
     @Operation(summary = "获取用户是否收藏特定视频组")
     @GetMapping("contains")
-    public Result<Boolean> getExists(@RequestParam Long videoGroupId) {
+    public Result<Boolean> getExists(@NotNull Long videoGroupId) {
         return Result.success(favoriteService.isUserFavorite(UserContext.getUserId(), videoGroupId));
     }
 

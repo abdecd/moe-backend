@@ -10,6 +10,7 @@ import com.abdecd.moebackend.common.result.Result;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +27,10 @@ public class FeedbackControllerBack {
     @Operation(summary = "查看反馈")
     @GetMapping
     public Result<Object> getFeedbacks(
-            @RequestParam int page,
-            @RequestParam int pageSize,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String content) {
+            @NotNull Integer page,
+            @NotNull Integer pageSize,
+            String email,
+            String content) {
 
         Page<FeedbackVO> feedbackPage = feedbackService.getFeedbacks(page, pageSize, email, content);
         return Result.success(Map.of(

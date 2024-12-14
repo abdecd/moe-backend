@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -92,7 +93,7 @@ public class BangumiVideoGroupController {
 
     @Operation(summary = "番剧视频组获取", description = "data字段返回番剧视频组信息")
     @GetMapping("")
-    public Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@Valid @RequestParam("id") Long id) {
+    public Result<BangumiVideoGroupVO> getBangumiVideoGroupInfo(@NotNull Long id) {
         BangumiVideoGroupVO bangumiVideoGroupVO = new BangumiVideoGroupVO();
         bangumiVideoGroupVO.setId(String.valueOf(id));
 
@@ -117,7 +118,7 @@ public class BangumiVideoGroupController {
 
     @Operation(summary = "番剧视频组目录获取", description = "data字段返回番剧视频组目录")
     @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@Valid @RequestParam("id") Long id) {
+    public Result<ArrayList<VideoVo>> getBangumiVideoGroupContent(@NotNull Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }
@@ -125,11 +126,11 @@ public class BangumiVideoGroupController {
     @Operation(summary = "获取所有符合条件的番剧视频组", description = "data字段返回番剧视频组信息")
     @GetMapping("/all")
     public Result<PageVO<com.abdecd.moebackend.business.pojo.vo.backstage.videoGroup.BangumiVideoGroupVO>> getAllBangumiVideoGroup(
-            @RequestParam(name="page", defaultValue = "1", required = false) @Valid Integer pageIndex,
-            @Valid @RequestParam(defaultValue = "10", required = false) Integer pageSize,
-            @Valid @RequestParam(required = false) String id,
-            @Valid @RequestParam(required = false) String title,
-            @Valid @RequestParam(required = false) Byte status) {
+            @RequestParam(name="page", defaultValue = "1") @Valid Integer pageIndex,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            String id,
+            String title,
+            Byte status) {
 
         var list = bangumiVideoGroupService.getBangumiVideoGroupList((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = bangumiVideoGroupService.getBangumiVideoGroupListCount(id, title, status);

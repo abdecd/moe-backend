@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,13 +51,13 @@ public class PlainUserHistoryController {
 
     @Operation(summary = "获取用户视频组上次看到哪集")
     @GetMapping("video-group")
-    public Result<HistoryVO> getHistory(@RequestParam long videoGroupId) {
+    public Result<HistoryVO> getHistory(@NotNull long videoGroupId) {
         return Result.success(plainUserHistoryService.getLatestHistory(videoGroupId));
     }
 
     @Operation(summary = "获取用户视频上次看到哪里")
     @GetMapping("video-last-watch-time")
-    public Result<Long> addHistory(@RequestParam Long videoId) {
+    public Result<Long> addHistory(@NotNull Long videoId) {
         return Result.success(lastWatchTimeStatistic.get(videoId));
     }
 }

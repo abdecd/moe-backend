@@ -29,9 +29,9 @@ public class PlainUserManageController {
     @Operation(summary = "列出所有用户")
     @GetMapping("/list")
     public Result<Object> listUsers(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer status,
+            Long id,
+            String name,
+            Integer status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") @Max(200) int pageSize) {
 

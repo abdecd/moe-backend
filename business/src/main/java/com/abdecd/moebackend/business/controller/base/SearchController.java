@@ -27,10 +27,10 @@ public class SearchController {
     @Operation(summary = "搜索")
     @GetMapping("")
     public Result<PageVO<VideoGroupWithDataVO>> search(
-            @RequestParam @NotBlank String q,
-            @RequestParam(required = false) Byte type,
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize
+            @NotBlank String q,
+            Byte type,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer pageSize
     ) {
         return Result.success(searchService.search(q, type, page, pageSize));
     }
@@ -38,8 +38,8 @@ public class SearchController {
     @Operation(summary = "获得搜索建议")
     @GetMapping("suggestion")
     public Result<List<String>> getSuggestion(
-            @RequestParam @NotBlank String q,
-            @RequestParam(required = false, defaultValue = "10") @Min(1) @Max(15) Integer num
+            @NotBlank String q,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(15) Integer num
     ) {
         return Result.success(searchService.getSearchSuggestions(q, num));
     }

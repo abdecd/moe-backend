@@ -11,11 +11,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -32,20 +32,20 @@ public class BangumiVideoGroupControllerBase {
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
-    public Result<BangumiVideoGroupVO> getVideoGroup(@RequestParam Long id) {
+    public Result<BangumiVideoGroupVO> getVideoGroup(@NotNull Long id) {
         return Result.success(bangumiVideoGroupServiceBase.getVideoGroupInfo(id));
     }
 
     @Operation(summary = "获取视频组目录")
     @GetMapping("contents")
-    public Result<List<ContentsItemVO>> getContents(@RequestParam Long id) {
+    public Result<List<ContentsItemVO>> getContents(@NotNull Long id) {
         return Result.success(bangumiVideoGroupServiceBase.getContents(id));
     }
 
     @Operation(summary = "获取新番时间表")
     @GetMapping("time-schedule")
     public Result<List<BangumiVideoGroupTimeScheduleVO>> getTimeSchedule(
-            @RequestParam @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date,
+            @NotNull @DateTimeFormat(pattern = "yyyyMMdd") LocalDate date,
             HttpServletRequest request,
             HttpServletResponse response
     ) {

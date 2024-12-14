@@ -4,14 +4,13 @@ import com.abdecd.moebackend.common.constant.MessageConstant;
 import com.abdecd.moebackend.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.regex.Pattern;
 
@@ -20,12 +19,11 @@ import java.util.regex.Pattern;
 public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<String> exceptionHandler(Exception ex) {
+        if (ex instanceof ErrorResponse e) {
+            return Result.error(e.getStatusCode().value(), e.getBody().getTitle());
+        }
         log.error("全局异常捕获：{}", ex.toString());
         return Result.error(500, MessageConstant.UNKNOWN_ERROR);
-    }
-    @ExceptionHandler
-    public ResponseEntity<String> exceptionHandler(NoResourceFoundException ignoredEx) {
-        return new ResponseEntity<>("404 not found", null, 404);
     }
     @ExceptionHandler
     public Result<String> exceptionHandler(BaseException ex) {
@@ -57,11 +55,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result<String> exceptionHandler(DataIntegrityViolationException ex) {
         var msg = ex.getMessage();
-        log.warn("违反数据库约束：{}", msg);
+        log.info("违反数据库约束：{}", msg);
         var matcher1 = dulplicatePattern.matcher(msg);
         if (matcher1.find()) return Result.error("重复的值：'" + matcher1.group(1)+"'");
         var matcher2 = fkPattern.matcher(msg);
         if (matcher2.find()) return Result.error("字段 '" + matcher2.group(2)+"' 对应的内容不存在");
-        else return Result.error(MessageConstant.DB_ERROR);
+        return Result.error(MessageConstant.DB_ERROR);
     }
 }

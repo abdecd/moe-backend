@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,21 +33,21 @@ public class VideoGroupController {
 
     @Operation(summary = "视频组类型获取", description = "data字段返回视频组类型")
     @GetMapping("/type")
-    public Result<Integer> getVideoGroupType(@Valid @RequestParam("videoGroupId") String videoGroupId) {
+    public Result<Integer> getVideoGroupType(@NotNull String videoGroupId) {
         Integer videoGroupType = Integer.valueOf(videoGroupService.getTypeByVideoId(Long.valueOf(videoGroupId)));
         return Result.success(videoGroupType);
     }
 
     @Operation(summary = "视频组列表获取", description = "data字段返回视频组列表")
     @GetMapping("/list")
-    public Result<VideoGroupListVO> getVideoGroupList(@Valid @RequestParam("page") Integer page, @Valid @RequestParam("pageSize") Integer pageSize) {
+    public Result<VideoGroupListVO> getVideoGroupList(@NotNull Integer page, @NotNull Integer pageSize) {
         VideoGroupListVO videoGroupListVO = videoGroupService.getVideoGroupList(page, pageSize);
         return Result.success(videoGroupListVO);
     }
 
     @Operation(summary = "视频组对应视频获取", description = "data字段返回视频组对应视频")
     @GetMapping("/list-all-video")
-    public Result<ArrayList<VideoForceWithWillUpdateTimeVO>> getAllVideo(@Valid @RequestParam("videoGroupId") Long videoGroupId) {
+    public Result<ArrayList<VideoForceWithWillUpdateTimeVO>> getAllVideo(@NotNull Long videoGroupId) {
         ArrayList<VideoForceWithWillUpdateTimeVO> videoCompleteVOArrayList = videoMapper.getAllVideo(videoGroupId);
 
         return Result.success(videoCompleteVOArrayList);

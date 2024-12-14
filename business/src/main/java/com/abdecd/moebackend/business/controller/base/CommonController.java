@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +93,7 @@ public class CommonController {
     @Async
     @Operation(summary = "图片上传")
     @PostMapping("/upload-image")
-    public CompletableFuture<Result<String>> uploadImg(@RequestParam MultipartFile file) {
+    public CompletableFuture<Result<String>> uploadImg(@NotNull MultipartFile file) {
         try {
             if (file.isEmpty()) return CompletableFuture.completedFuture(Result.error(MessageConstant.IMG_FILE_EMPTY));
             if (!ImageChecker.isImage(file)) throw new BaseException(MessageConstant.IMG_FILE_TYPE_ERROR);
@@ -152,7 +153,7 @@ public class CommonController {
     @Async
     @Operation(summary = "获取 ali 直传所需信息")
     @GetMapping("get-ali-upload-sts")
-    public CompletableFuture<Result<AliStsVO>> getAliUploadSts(@RequestParam @Pattern(regexp = "^[^\"]+$") String hash) {
+    public CompletableFuture<Result<AliStsVO>> getAliUploadSts(@NotNull @Pattern(regexp = "^[^\"]+$") String hash) {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(RedisConstant.LIMIT_TRANSFORM_VIDEO)))
             throw new BaseException(MessageConstant.LIMIT_TRANSFORM_VIDEO);
         if (!StringUtils.hasText(hash)) throw new BaseException(MessageConstant.ARG_ERROR);

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class VideoGroupControllerBase {
 
     @Operation(summary = "获取视频组类型")
     @GetMapping("type")
-    public Result<Byte> getVideoGroupType(@RequestParam Long id) {
+    public Result<Byte> getVideoGroupType(@NotNull Long id) {
         return Result.success(videoGroupServiceBase.getVideoGroupType(id));
     }
 
@@ -40,7 +41,7 @@ public class VideoGroupControllerBase {
     @Operation(summary = "获取视频组大接口")
     @GetMapping("")
     public CompletableFuture<Result<VideoGroupBigVO>> getVideoGroup(
-            @RequestParam Long id,
+            @NotNull Long id,
             HttpServletRequest request,
             HttpServletResponse response
     ) {

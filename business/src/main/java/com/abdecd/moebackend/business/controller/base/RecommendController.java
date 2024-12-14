@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,14 +50,14 @@ public class RecommendController {
 
     @Operation(summary = "获取推荐列表")
     @GetMapping("recommend")
-    public Result<List<VideoGroupWithDataVO>> getRecommendList(@RequestParam @Min(1) @Max(20) int num) {
+    public Result<List<VideoGroupWithDataVO>> getRecommendList(@NotNull @Min(1) @Max(20) int num) {
         return Result.success(recommendService.getRecommend(num));
     }
 
     @Operation(summary = "获取相关视频列表")
     @GetMapping("related")
     public DeferredResult<Result<List<VideoGroupWithDataVO>>> getRelatedList(
-            @RequestParam Long id,
+            @NotNull Long id,
             @RequestParam(defaultValue = "10") @Min(1) @Max(20) int num
     ) {
         var df = new DeferredResult<Result<List<VideoGroupWithDataVO>>>(300L);

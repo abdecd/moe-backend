@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
@@ -87,7 +88,7 @@ public class PlainVideoGroupController {
 
     @Operation(summary = "普通视频组获取", description = "data字段返回普通视频组信息")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(@Valid @RequestParam("id") Long id) {
+    public Result<VideoGroupVO> getVideoGroup(@NotNull Long id) {
         VideoGroupVO videoGroupVO = videoGroupService.getById(id);
 
         StatisticDataVO statisticDataVO = statisticService.getFullStatisticData(id);
@@ -104,7 +105,7 @@ public class PlainVideoGroupController {
 
     @Operation(summary = "普通视频组目录获取", description = "data字段返回普通视频组目录")
     @GetMapping("/contents")
-    public Result<ArrayList<VideoVo>> getVideoGroupContent(@Valid @RequestParam("id") Long id) {
+    public Result<ArrayList<VideoVo>> getVideoGroupContent(@NotNull Long id) {
         ArrayList<VideoVo> videoVoList = videoGroupService.getContentById(id);
         return Result.success(videoVoList);
     }
@@ -112,7 +113,7 @@ public class PlainVideoGroupController {
 
     @Operation(summary = "获取所有符合条件的普通视频组", description = "data字段返回普通视频组信息")
     @GetMapping("/all")
-    public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(@RequestParam(name = "page", defaultValue = "1", required = false) @Valid Integer pageIndex, @RequestParam(defaultValue = "10", required = false) @Valid Integer pageSize, @RequestParam(required = false) @Valid String id, @RequestParam(required = false) @Valid String title, @RequestParam(required = false) @Valid Byte status) {
+    public Result<PageVO<PlainVideoGroupVO>> getAllVideoGroup(@RequestParam(name = "page", defaultValue = "1") @Valid Integer pageIndex, @RequestParam(defaultValue = "10", required = false) @Valid Integer pageSize, @RequestParam(required = false) @Valid String id, @RequestParam(required = false) @Valid String title, @RequestParam(required = false) @Valid Byte status) {
 
         var videoGroupVOList = plainVideoGroupService.getAllVideoGroup((pageIndex - 1) * pageSize, pageSize, id, title, status);
         var total = plainVideoGroupService.countPlainVideoGroup(id, title, status);

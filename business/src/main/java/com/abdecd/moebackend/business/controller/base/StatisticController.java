@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +67,7 @@ public class StatisticController {
 
     @Operation(summary = "获取视频观看量等统计数据")
     @GetMapping("video-group-data")
-    public Result<StatisticDataVO> getVideoGroupData(@RequestParam Long id) {
+    public Result<StatisticDataVO> getVideoGroupData(@NotNull Long id) {
         return Result.success(statisticService.getFullStatisticData(id));
     }
 }

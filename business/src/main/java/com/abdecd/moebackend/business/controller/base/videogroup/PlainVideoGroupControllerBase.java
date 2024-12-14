@@ -18,6 +18,7 @@ import com.abdecd.moebackend.common.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,13 +42,13 @@ public class PlainVideoGroupControllerBase {
 
     @Operation(summary = "获取视频组信息")
     @GetMapping("")
-    public Result<VideoGroupVO> getVideoGroup(@RequestParam Long id) {
+    public Result<VideoGroupVO> getVideoGroup(@NotNull Long id) {
         return Result.success(plainVideoGroupServiceBase.getVideoGroupInfo(id));
     }
 
     @Operation(summary = "获取视频组目录")
     @GetMapping("contents")
-    public Result<List<ContentsItemVO>> getContents(@RequestParam Long id) {
+    public Result<List<ContentsItemVO>> getContents(@NotNull Long id) {
         return Result.success(plainVideoGroupServiceBase.getContents(id));
     }
 
@@ -72,7 +73,7 @@ public class PlainVideoGroupControllerBase {
 
     @Operation(summary = "查看普通视频组处理状态")
     @GetMapping("check-pending")
-    public Result<Boolean> checkAddVideoGroupPending(@RequestParam Long id) {
+    public Result<Boolean> checkAddVideoGroupPending(@NotNull Long id) {
         return Result.success(plainVideoGroupServiceBase.checkAddVideoGroupPending(id));
     }
 

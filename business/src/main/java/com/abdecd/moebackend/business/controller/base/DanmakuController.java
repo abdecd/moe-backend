@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +35,7 @@ public class DanmakuController {
     @Operation(summary = "获取弹幕")
     @GetMapping("")
     public Result<List<DanmakuVO>> getDanmaku(
-            @RequestParam Long videoId,
+            @NotNull Long videoId,
             @RequestParam(defaultValue = "1") Integer segmentIndex,
             HttpServletRequest request,
             HttpServletResponse response

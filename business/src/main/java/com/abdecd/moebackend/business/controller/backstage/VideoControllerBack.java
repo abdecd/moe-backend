@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
@@ -103,7 +104,7 @@ public class VideoControllerBack {
     @Async
     @Operation(summary = "获取视频")
     @GetMapping("")
-    public CompletableFuture<Result<VideoForceWithWillUpdateTimeVO>> getVideo(@RequestParam Long id) {
+    public CompletableFuture<Result<VideoForceWithWillUpdateTimeVO>> getVideo(@NotNull Long id) {
         var video = videoMapper.getBigVideo(id);
         if (video == null) throw new BaseException(MessageConstant.VIDEO_NOT_FOUND);
         return CompletableFuture.completedFuture(Result.success(video));

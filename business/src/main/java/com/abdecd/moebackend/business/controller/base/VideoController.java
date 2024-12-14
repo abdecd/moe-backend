@@ -13,11 +13,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.*;
@@ -40,7 +40,7 @@ public class VideoController {
 
     @Operation(summary = "添加或修改的视频是否正在处理")
     @GetMapping("check-video-pending")
-    public Result<Boolean> checkAddVideoPending(@RequestParam Long videoId) {
+    public Result<Boolean> checkAddVideoPending(@NotNull Long videoId) {
         return Result.success(videoService.checkVideoPending(videoId));
     }
 
@@ -62,7 +62,7 @@ public class VideoController {
     @Operation(summary = "获取视频")
     @GetMapping("")
     public CompletableFuture<Result<VideoVO>> getVideo(
-            @RequestParam Long id,
+            @NotNull Long id,
             HttpServletRequest request,
             HttpServletResponse response
     ) {

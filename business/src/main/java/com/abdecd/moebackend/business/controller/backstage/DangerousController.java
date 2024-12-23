@@ -5,6 +5,7 @@ import com.abdecd.moebackend.business.dao.entity.Danmaku;
 import com.abdecd.moebackend.business.dao.entity.Video;
 import com.abdecd.moebackend.business.dao.entity.VideoSrc;
 import com.abdecd.moebackend.business.exceptionhandler.BaseException;
+import com.abdecd.moebackend.business.lib.event.VideoAddEvent;
 import com.abdecd.moebackend.business.service.search.SearchService;
 import com.abdecd.moebackend.business.service.videogroup.VideoGroupServiceBase;
 import com.abdecd.moebackend.business.tokenLogin.aspect.RequirePermission;
@@ -13,6 +14,7 @@ import com.baomidou.mybatisplus.extension.toolkit.Db;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +33,15 @@ public class DangerousController {
     private SearchService searchService;
     @Autowired
     private VideoGroupServiceBase videoGroupServiceBase;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Operation(summary = "添加视频")
     @PostMapping("video/add")
-    public Result<List<Long>> addVideo(@RequestBody List<Video> video) {
-        Db.saveBatch(video);
-        return Result.success(video.stream().map(Video::getId).toList());
+    public Result<List<Long>> addVideo(@RequestBody List<Video> videos) {
+        Db.saveBatch(videos);
+        videos.forEach(entity -> applicationContext.publishEvent(new VideoAddEvent(this, entity)));
+        return Result.success(videos.stream().map(Video::getId).toList());
     }
 
     @Operation(summary = "删除视频")

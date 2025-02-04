@@ -56,7 +56,7 @@ public class CommonController {
     private RateLimiter rateLimiter;
     @Autowired
     private MoeProperties moeProperties;
-    @Autowired
+    @Autowired(required = false)
     private AliStsManager aliStsManager;
 
     @Async

@@ -43,10 +43,12 @@ jobs:
           ${{ env.PROJ_NAME }}.amd64.tar
           ${{ env.PROJ_NAME }}.arm64.tar
 
-#       docker run \
-#         --name moe-backend \
-#         -p 8002:8080 \
-#         --restart unless-stopped \
-#         -v /home/dd/moe-backend/config:/app/config \
-#         -v /home/dd/moe-backend/log:/app/log \
-#         -d moe-backend
+# docker load -i /home/username/moe-backend/moe-backend.arm64.tar
+# docker run \
+#   --name moe-backend \
+#   -p 8002:8080 \
+#   --restart unless-stopped \
+#   -v /home/username/moe-backend/config:/app/config \
+#   -v /home/username/moe-backend/log:/app/log \
+#   -v /home/username/moe-backend/local-file-service:/app/local-file-service \
+#   -d moe-backend

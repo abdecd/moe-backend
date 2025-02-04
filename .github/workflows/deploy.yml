@@ -1,51 +1,51 @@
-name: Deploy to Server
-on:
-  push:
-    branches:
-      - main
+# name: Deploy to Server
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
     
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+#     - name: Checkout Repository
+#       uses: actions/checkout@v4
 
-    - name: Setup Java JDK
-      uses: actions/setup-java@v4
-      with:
-        java-version: 21
-        distribution: 'temurin'
+#     - name: Setup Java JDK
+#       uses: actions/setup-java@v4
+#       with:
+#         java-version: 21
+#         distribution: 'temurin'
 
-    - name: Build with Maven
-      run: mvn clean package -Pprod -DskipTests=true
+#     - name: Build with Maven
+#       run: mvn clean package -Pprod -DskipTests=true
 
-    - name: Make Docker Image
-      run: |
-        docker build -t moe-backend:latest ./business
-        docker save moe-backend:latest > moe-backend.tar
+#     - name: Make Docker Image
+#       run: |
+#         docker build -t moe-backend:latest ./business
+#         docker save moe-backend:latest > moe-backend.tar
 
-    - name: Setup SSH Keys
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+#     - name: Setup SSH Keys
+#       run: |
+#         mkdir -p ~/.ssh
+#         echo "${{ secrets.PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#         chmod 600 ~/.ssh/id_rsa
+#         ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-    - name: Copy to Server and Run
-      run: |
-        scp moe-backend.tar ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }}:~/moe-backend
-        ssh ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }} '
-          cd ~/moe-backend
-          docker rm -f moe-backend | true
-          docker image rm -f moe-backend:latest | true
-          docker load < moe-backend.tar
-          docker run \
-            --name moe-backend \
-            -p 8080:8080 \
-            --restart unless-stopped \
-            -v /home/${{ secrets.USER_NAME }}/moe-backend/config:/config \
-            -v /home/${{ secrets.USER_NAME }}/moe-backend/log:/log \
-            -d moe-backend
-        '
+#     - name: Copy to Server and Run
+#       run: |
+#         scp moe-backend.tar ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }}:~/moe-backend
+#         ssh ${{ secrets.USER_NAME }}@${{ secrets.SERVER_IP }} '
+#           cd ~/moe-backend
+#           docker rm -f moe-backend | true
+#           docker image rm -f moe-backend:latest | true
+#           docker load < moe-backend.tar
+#           docker run \
+#             --name moe-backend \
+#             -p 8080:8080 \
+#             --restart unless-stopped \
+#             -v /home/${{ secrets.USER_NAME }}/moe-backend/config:/config \
+#             -v /home/${{ secrets.USER_NAME }}/moe-backend/log:/log \
+#             -d moe-backend
+#         '

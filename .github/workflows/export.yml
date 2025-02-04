@@ -1,0 +1,52 @@
+name: Export Docker Image
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJ_NAME: "moe-backend"
+      INTERNAL_PORT: "8080"
+      OUT_PORT: "8002"
+
+    steps:
+    
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup Java JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: 21
+        distribution: 'temurin'
+
+    - name: Build with Maven
+      run: mvn clean package -Pprod -DskipTests=true
+
+    - name: Make Docker Image
+      run: |
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        docker buildx build --platform linux/amd64 -t ${{ env.PROJ_NAME }}:latest -f Dockerfile .
+        docker save ${{ env.PROJ_NAME }}:latest > ${{ env.PROJ_NAME }}.amd64.tar
+        docker buildx build --platform linux/arm64 -t ${{ env.PROJ_NAME }}:latest -f Dockerfile .
+        docker save ${{ env.PROJ_NAME }}:latest > ${{ env.PROJ_NAME }}.arm64.tar
+
+    - name: Upload Docker Image
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-image
+        path: |
+          ${{ env.PROJ_NAME }}.amd64.tar
+          ${{ env.PROJ_NAME }}.arm64.tar
+
+#       docker run \
+#         --name moe-backend \
+#         -p 8002:8080 \
+#         --restart unless-stopped \
+#         -v /home/dd/moe-backend/config:/app/config \
+#         -v /home/dd/moe-backend/log:/app/log \
+#         -d moe-backend
